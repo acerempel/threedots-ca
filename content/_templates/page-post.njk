@@ -1,0 +1,18 @@
+---
+tags: [post]
+layout: base
+---
+    <article class="full" id="post">
+      <header>
+        <div class="date block light oblique colour-lighter fs-1-1 lh-1-1">
+        <time datetime="{{ page.date | iso_date }}">{{ page.date | nice_date }}</time>
+                {%- if date_revised %}
+                <small>– Revised {% date date_revised %}</small>
+                {%- endif %}
+        </div>
+        {% if title %}<h1 class="title bold mb-1-2 fs-3-2 lh-3-2">{{ title }}</h1>{% endif %}
+      </header>
+      {{ content | safe }}
+
+{% include "footnotes.njk" %}
+    </article>

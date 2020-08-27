@@ -1,0 +1,18 @@
+            {%- set post_class = "summary" if post.data.synopsis else "preview" -%}
+            <article class="post mb-9-8 fs-1-1 {{ post_class }}">
+              {% if post.data.title -%}
+              <h3 class="semibold fs-9-8 lh-6-5">{% link post %}</h3>
+              {%- else %}
+              <div class="date block light oblique fs-7-8 lh-1-1">{% date post.date %}</div>
+              {%- endif %}
+              {%- if post.data.synopsis %}
+              <p class="synopsis fs-7-8 lh-1-1">({{ post.data.synopsis | safe }})</p>
+              {%- elseif post | has_excerpt %}
+              {{ post | excerpt | safe }}
+              <p class="medium oblique link-plain">
+                <a href="{{ post.url }}">Continue reading …</a>
+              </p>
+              {%- else %}
+              {{ post.templateContent | safe }}
+              {%- endif %}
+            </article>

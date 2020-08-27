@@ -1,0 +1,18 @@
+
+{% if footnotes %}
+<section>
+<div class="footnotes">
+  <noscript><div class="footnote-separator"></div></noscript>
+  <ol>
+    {%- for fn in footnotes %}
+    <li class="footnote" id="fn{{ loop.index }}">
+      <p>
+        {{ fn | safe }}
+        <a href="#fnref{{ loop.index }}" title="Jump back" aria-label="Return to main text">↩︎</a>
+      </p>
+    </li>
+    {%- endfor %}
+  </ol>
+</div>
+</section>
+{% endif %}
