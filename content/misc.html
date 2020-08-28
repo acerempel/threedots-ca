@@ -1,0 +1,15 @@
+---
+layout: article
+title: Miscellaneous lists
+tags: [nav]
+link_text: Miscellany
+weight: 12
+---
+
+          <ul>
+            {% for misc_page in collections.misc_list -%}
+            <li>
+              {% include "misc_page_link.njk" %}
+            </li>
+            {%- endfor %}
+          </ul>

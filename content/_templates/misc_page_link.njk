@@ -1,0 +1,4 @@
+{% link misc_page %} {{ misc_page.data.link_comment | safe if misc_page.data.link_comment else "" }}
+{%- if misc_page.data.date_revised %}
+<small class="date">— Updated {% date misc_page.data.date_revised %}</small>
+{%- endif %}

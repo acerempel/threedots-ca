@@ -6,17 +6,16 @@ weight: 8
 ---
       {% set postsByYear = collections.post | reverse | groupByYear %}
       <section>
-        <header class="mb-3-2">
-          <h1 class="mb-1-2 fs-2-1 bold">Blog</h1>
+        <header>
+          <h1>Blog</h1>
           <nav
-            aria-label="Jump to posts from a specific year"
-            style="--link-hover-text-decoration-thickness: 0.14em; --link-text-decoration-line: underline; --link-colour: var(--text-colour-highlight);">
-            {% for year, posts in postsByYear %}<a  href="#y{{ year }}">{{ year }}</a>{% if loop.last %}{% else %} • {% endif %}{% endfor %}
+            aria-label="Jump to posts from a specific year" >
+            {% for year, posts in postsByYear %}<a  href="#y{{ year }}">{{ year }}</a>{% if loop.last %}{% else %} • {% endif %}{% endfor %}
           </nav>
         </header>
         {% for year, posts in postsByYear %}
-        <section id="y{{ year }}">
-          <h2 class="mb-1-2 fs-5-4 mt-3-2 bold">{{ year }}</h2>
+        <section id="y{{ year }}" class="border-top">
+          <h2>{{ year }}</h2>
           {% for post in posts %}
           {% include "post-summary.njk" %}
           {% endfor %}

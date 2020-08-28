@@ -7,22 +7,13 @@ module.exports = function({title, description, collections, content, url}) {
     let ab = b.data.weight;
     return aw <= ab ? -1 : 1;
   };
-  let nav_pages = collections.nav.slice().reverse().sort(compare_weights);
-  let build_nav_link = (nav_page) => {
-    return `<p class="fs-1-1 lh-3-4 mt-1-3">${this.link(nav_page)}</p>`
+  let nav_pages = collections.nav.slice().reverse().sort(compare_weights).map(page => this.link(page));
+  let footer_nav_pages = collections.footer_nav.slice().reverse().sort(compare_weights);
+  let build_footer_nav_link = (nav_page) => {
+    return `<p>${this.link(nav_page)}</p>`
   };
-  let nav_list = nav_pages.map(build_nav_link).join("\n");
-
-  let google_analytics = `
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-172347531-1"></script>
-    <script>
-      window.dataLayer = window.dataLayer || [];
-      function gtag(){dataLayer.push(arguments);}
-      gtag('js', new Date());
-
-      gtag('config', 'UA-172347531-1');
-    </script>`;
+  let nav_list = nav_pages.join(" • ");
+  let footer_nav_list = footer_nav_pages.map(build_footer_nav_link).join("\n");
 
   return `<!DOCTYPE html>
 <html lang="en">
@@ -38,12 +29,12 @@ module.exports = function({title, description, collections, content, url}) {
     <link rel="stylesheet" href="/styles/littlefoot.css">
     <link href="/styles/styles.css" rel="stylesheet">
     <script defer src="/bundle.js"></script>
-    <link rel="me" href="https://x0r.be/@alan">
   </head>
   <body class="colour-scheme-auto">
     <div class="container">
-      <header>
-        <a class="semibold heading-like" href="/">three dots …</a>
+      <header class="top-header">
+        <a class="bold" href="/">three dots …</a>
+        <nav>${nav_list}</nav>
       </header>
       <main class="mt-2-3 mb-1-1">
         ${content}
@@ -51,7 +42,7 @@ module.exports = function({title, description, collections, content, url}) {
       <footer class="mb-1-1 pt-1-1 border-top">
         <section class="mb-3-4 mr-1-1">
           <nav aria-label="Site navigation" class="link-plain">
-          ${nav_list}
+          ${footer_nav_list}
           </nav>
         </section>
         <section>
@@ -62,10 +53,6 @@ module.exports = function({title, description, collections, content, url}) {
               <option value="light">Light</option>
               <option value="dark">Dark</option>
             </select>
-          </p>
-          <p>
-            <label for="font-size">Font size:</label>
-            <input type="range" tabindex=0 id="font-size" min="0.8" max="1.6" step="0.1" value="1.0">
           </p>
         </section>
       </footer>

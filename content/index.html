@@ -8,46 +8,30 @@ weight = 0
 ---
         <section>
         <article>
-          <h1 class="mb-1-2 fs-4-3">Hello!</h2>
+          <h1>Hello!</h2>
           {% for intro in collections.intro %}{{ intro.templateContent | safe }}{% endfor %}
           <p>Currently this website consists of my <a href="/#blog"><b>blog</b></a>, which I update according as I
           have spare time and whim, some <a href="/#miscellaneous"><b>miscellaneous lists</b></a>, and a list of
           <a href="/#websites"><b>other blogs I like</b></a>. There is also
           a page with a little more <a href="/introduction" title="About this website … | three dots"><b>about</b></a> this website and me.
-          <p><small class="oblique colour-lighter lh-1-1 fs-7-8">Last updated on <time datetime="2020-08-18">Tuesday, August 18th, 2020</time></small>
+          <p><small class="date">Last updated on <time datetime="2020-08-18">Tuesday, August 18th, 2020</time></small>
         </article>
         </section>
-        <section id="blog" class="mt-1-1 pt-3-4 border-top">
-          <h2 class="mb-3-4 fs-4-3">Recent posts</h2>
+        <section id="blog" class="border-top">
+          <h1>Recent posts</h1>
           {% for post in collections.post | reverse | batch(3) | first %}
           {% include "post-summary.njk" %}
           {% endfor %}
-          <p class="medium"><a href="/posts" title="Blog | three dots …">See all posts …</a></p>
+          <p class="see-all"><a href="/posts">See all posts …</a></p>
         </section>
-        <section id="miscellaneous" class="mt-1-1 pt-3-4 border-top" >
-          <h1 class="mb-1-2 fs-4-3">Miscellaneous lists</h2>
+        <section id="miscellaneous" class="border-top" >
+          <h1>Miscellaneous lists</h1>
           <ul>
-            {% for misc_page in collections.misc_list -%}
+            {% for misc_page in collections.misc_list | batch(3) | first -%}
             <li>
-              {% link misc_page %} {{ misc_page.data.link_comment | safe if misc_page.data.link_comment else "" }}
-              {%- if misc_page.data.date_revised %}
-              <small class="oblique colour-lighter">— Updated {% date misc_page.data.date_revised %}</small>
-              {%- endif %}
+              {% include "misc_page_link.njk" %}
             </li>
             {%- endfor %}
           </ul>
-        </section>
-        <section id="websites" class="mt-1-1 pt-3-4 border-top">
-          <h1 class="mb-1-2 fs-4-3">Blogs I frequent</h1>
-          <ul>
-            <li class="mt-1-4"><b>Jocelyn Veevers</b> writes eloquently at <a href="https://jocelynveevers.wordpress.com" title="Jocelyn Veevers – Reading, sewing, pondering">
-              jocelynveevers.wordpress.com</a> about the diverse array of books she reads each month. An outstanding source for recommendations and reviews
-              concerning intriguing books that you're (or at least I’m) not likely to have heard of.
-            <li class="mt-1-4">About once every two months, I spend a day reading a couple years’ worth of posts on <a href="https://humantransit.org"
-              title="Human Transit – The professional blog of public transit consultant Jarrett Walker.">Human Transit</a>, the blog of <b>Jarrett Walker</b>, a
-              public transit consultant from Portland, Oregon. I always come away in an electric daze of contemplation.
-            <li class="mt-1-4">The blog of the late <b>Ursula K. Le Guin</b> is <a href="https://www.ursulakleguin.com/blog-archive"
-              title="Ursula K. Le Guin: A Blog">completely wonderful</a>. Much delightful, expressive, and perspicacious writing on such topics as her cat
-              (Pard), language, books, the internet, politics, general silliness …
-          </ul>
+          <p class="see-all"><a href="/misc">See more … </a></p>
         </section>

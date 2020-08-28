@@ -7,13 +7,14 @@ tags = ["nav"]
 weight = 16
 ---
 
-<h2 class="semibold fs-5-4 mt-3-4 mb-1-2">About me</h2>
+<h2>About me</h2>
 
-I am a student at the [University of King's College][UKC]—hopefully
-graduating soonish, but we'll see. (I've been saying that for a while
-now.) I enjoy dabbling in programming, mostly in [Haskell][].
-Outside of this website, I can be found on [Instagram][]
-and [Subreply][].
+Good evening! I am Alan. I am a student at the [University of King's College][UKC];
+I drink a lot of tea. Those are pretty much the only two facts
+about me that have remained true over the past seven years.
+
+<b>Where else on the internet can you find me?</b> On [Instagram][];
+other places too; I am pretty searchable. I also have an additional blog, which is secret.
 
 [UKC]: https://ukings.ca "University of King's College | Halifax, Nova Scotia"
 [Instagram]: https://instagram.com/alan_rempel_mdash/
@@ -21,19 +22,27 @@ and [Subreply][].
 [Haskell]: https://haskell.org "The Haskell programming language"
 [Subreply]: https://subreply.com/threedots
 
-<b>Why “three dots”?</b> Because three dots is the visual form of the ellipsis (‘…’), and
+<h2>About this website</h2>
+
+<b>Why is it called “three dots”?</b> Because three dots is the visual form of the ellipsis (‘…’), and
 I am an elliptical man.
 
-<h2 class="semibold fs-5-4 mt-3-4 mb-1-2">About this website</h2>
+<b>Why have a website? Why write a blog?</b> I don't know. I like having
+my own corner of the internet where I can experiment with prose and
+fiddle with stylesheets. Some people are good at making their bedrooms
+or living rooms into nice spaces that bring them comfort, look lovely, display things they value, and tell visitors something
+about themselves. I'm not so good at that in real life, but my website is the fruit of my hope to create
+something analogous for myself on the internet. If
+only I could actually bring my guests some sparkling water!
 
-I post new content highly irregularly.
+I post new content <em>highly</em> irregularly.
 Blog posts are dated by when I <em>originally</em> composed
 their content. This date may be months or years earlier than
-when the post appears here—I often post backdated items that
-I had written as a note to myself much earlier.
+when the post appears here; I often post backdated items that
+I had written down somewhere else much earlier.
 
 On the technical side, the website consists of statically generated
-HTML (and some CSS, written by hand with the assistance of Sass), hosted
+HTML (and some handwritten CSS), hosted
 with GitHub Pages. The HTML is generated with
 [Eleventy](https://eleventy.dev).
 
