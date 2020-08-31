@@ -42,7 +42,7 @@ when the post appears here; I often post backdated items that
 I had written down somewhere else much earlier.
 
 On the technical side, the website consists of statically generated
-HTML (and some handwritten CSS), hosted
+<abbr title="HyperText Markup Language">HTML</abbr> (and some handwritten CSS), hosted
 with GitHub Pages. The HTML is generated with
 [Eleventy](https://eleventy.dev).
 

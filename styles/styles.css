@@ -247,6 +247,13 @@ li {
   margin-top: calc(var(--base-line-height)*0.25);
 }
 
+abbr[title] {
+  text-decoration-line: underline;
+  text-decoration-style: dashed;
+  text-decoration-thickness: 0.05em;
+  text-underline-offset: 0.2em;
+}
+
 main section {
   margin-top: var(--base-line-height);
 }
