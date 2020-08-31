@@ -36,17 +36,17 @@ module.exports = function({title, description, collections, content, url}) {
         <a class="bold" href="/">three dots …</a>
         <nav>${nav_list}</nav>
       </header>
-      <main class="mt-2-3 mb-1-1">
+      <main>
         ${content}
       </main>
-      <footer class="mb-1-1 pt-1-1 border-top">
-        <section class="mb-3-4 mr-1-1">
+      <footer class="border-top">
+        <section>
           <nav aria-label="Site navigation" class="link-plain">
           ${footer_nav_list}
           </nav>
         </section>
         <section>
-          <p class="fs-1-1 lh-3-4 mt-1-3">
+          <p>
             <label for="colour-scheme">Colour scheme:</label>
             <select required id="colour-scheme">
               <option value="auto" selected>System setting</option>
