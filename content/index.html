@@ -27,7 +27,7 @@ weight = 0
         <section id="miscellaneous" class="border-top" >
           <h1><a href="/misc">Miscellaneous lists</a></h1>
           <ul>
-            {% for misc_page in collections.misc_list | batch(3) | first -%}
+            {% for misc_page in collections.lists | batch(3) | first -%}
             <li>
               {% include "misc_page_link.njk" %}
             </li>

@@ -9,7 +9,7 @@ module.exports = function(config) {
 
   config.addPlugin(RssPlugin);
 
-  config.addLayoutAlias('base', 'base.11ty.js');
+  config.addLayoutAlias('base', 'base.njk');
   config.addLayoutAlias('article', 'page-basic.njk');
   config.addLayoutAlias('post', 'page-post.njk');
 
@@ -42,6 +42,20 @@ module.exports = function(config) {
     let typeAttr = page.data.type ? ` type="${page.data.type}"` : "";
     let linkContent = page.data.link_text || page.data.title;
     return `<a href="${page.url}"${titleAttr}${typeAttr}>${linkContent}</a>`;
+  });
+
+  let compare_weights = function(a, b) {
+    let aw = a.data.weight;
+    let ab = b.data.weight;
+    return aw <= ab ? -1 : 1;
+  };
+
+  config.addCollection("top_nav", function(coll) {
+    return coll.getFilteredByTag("nav").reverse().sort(compare_weights);
+  });
+
+  config.addCollection("lists", function(coll) {
+    return coll.getFilteredByTag("misc_list").sort((a, b) => a.data.date_revised >= b.data.date_revised ? -1 : 1);
   });
 
   const excerptMarker = "<!-- FOLD -->";
