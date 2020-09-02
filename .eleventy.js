@@ -58,6 +58,10 @@ module.exports = function(config) {
     return coll.getFilteredByTag("misc_list").sort((a, b) => a.data.date_revised >= b.data.date_revised ? -1 : 1);
   });
 
+  config.addCollection("post", function(coll) {
+    return coll.getFilteredByTag("is_post").filter(a => a.data.hidden !== false).reverse();
+  });
+
   const excerptMarker = "<!-- FOLD -->";
   config.addNunjucksFilter("has_excerpt", function(page) {
     return page.templateContent.includes(excerptMarker);

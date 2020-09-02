@@ -19,7 +19,7 @@ weight = 0
         </section>
         <section id="blog" class="border-top">
           <h1><a href="/posts">Blog</a></h1>
-          {% for post in collections.post | reverse | batch(3) | first %}
+          {% for post in collections.post | batch(3) | first %}
           {% include "post-summary.njk" %}
           {% endfor %}
           <p class="see-all"><a href="/posts">See all posts …</a></p>

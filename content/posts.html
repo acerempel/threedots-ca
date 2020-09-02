@@ -4,7 +4,7 @@ tags: [nav]
 title: "Blog"
 weight: 8
 ---
-      {% set postsByYear = collections.post | reverse | groupByYear %}
+      {% set postsByYear = collections.post | groupByYear %}
       <section>
         <header>
           <h1>Blog</h1>
