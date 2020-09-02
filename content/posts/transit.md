@@ -2,6 +2,10 @@
 date: 2020-08-28
 layout: post
 title: On transit
+description: >
+  I used to think that I generally enjoyed riding transit. I have
+  realized, though, that although I sometimes enjoy riding it, transit's
+  importance for me is primarily about getting me where I want to go.
 footnotes:
   - In transit?
   - I would happily explain why exactly this is, but I want to wrap up

@@ -21,7 +21,7 @@ dark outside (although already a little lighter than at 5:30
 am, when I had my vigil slot) – we each had a beeswax taper.
 I was holding my taper and leaflet in the same hand, in
 order to keep my other hand in my pocket for warmth,
-alternating hands every few minutes.
+switching hands every few minutes.
 
 While we were singing the Nicene Creed, my friend Sophia,
 who was standing beside me, pointed out to me that my
@@ -30,6 +30,6 @@ but to no avail – the fire just got bigger. As it was
 becoming apparent that my hand would soon get burned if I
 did not relinquish the paper, someone – it may have been
 Alison, who was standing on my other side – suggested,
-either by word or by gesture, I forget, that I drop it on
+either by word or by gesture, I forget which, that I drop it on
 the ground and stomp the fire out. I did so, and the fire
 was rapidly extinguished.

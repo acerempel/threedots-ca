@@ -1,6 +1,9 @@
 ---
 date: 2018-03-17
 layout: post
+description: >
+  A little dance party with my flatmates reminds me of
+  something I wrote a year ago.
 ---
 
 This morn­ing, ﬂat­mates and I had a brief dance party in the
