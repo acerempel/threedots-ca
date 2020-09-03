@@ -59,7 +59,7 @@ module.exports = function(config) {
   });
 
   config.addCollection("post", function(coll) {
-    return coll.getFilteredByTag("is_post").filter(a => a.data.hidden !== false).reverse();
+    return coll.getFilteredByTag("is_post").filter(a => a.data.hidden !== true).reverse();
   });
 
   const excerptMarker = "<!-- FOLD -->";
