@@ -12,6 +12,11 @@
   --text-colour-lighter: #555555;
   --background-colour-normal: #f8f8f8;
   --background-colour-lighter: #e8e8e8;
+  --light-text-normal: #222222;
+  --light-text-highlight: #783f75;
+  --light-text-lighter: #555555;
+  --light-background-normal: #f8f8f8;
+  --light-background-lighter: #e8e8e8;
 }
 
 @media (prefers-color-scheme: light) {
