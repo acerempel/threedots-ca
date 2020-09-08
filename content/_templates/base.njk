@@ -7,7 +7,7 @@
     <meta name="google-site-verification" content="DhZUgJjUNSRFdHhycAzNuCiTKprn-1Csb49PU1lsABo" >
     <meta name="color-scheme" content="light dark">
     <meta name="author" content="Alan Rempel">
-    <link rel="canonical" href="http://threedots.ca{{ page.url }}">
+    <link rel="canonical" href="http://threedots.ca{{ canonical or page.url }}">
     <title>{% if title %}{{ title }} … {% endif %}‹three dots›</title>
     {% if description %}<meta name="description" content="{{ description }}">{% endif %}
     <link rel="alternate" type="application/atom+xml" href="/posts/feed.xml">
