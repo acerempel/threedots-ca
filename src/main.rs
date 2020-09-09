@@ -32,17 +32,28 @@ fn is_file(entry: &DirEntry) -> bool {
 use std::path::{Path, PathBuf};
 use std::ffi::OsStr;
 
-///! Turn *.html into */index.html, likewise with *.md.
-fn get_output_path(input_path: &Path) -> Option<PathBuf> {
-    let mut result = PathBuf::from("_site");
-    result.push(input_path);
-    let input_ext = input_path.extension();
-    if input_ext == Some(OsStr::new("md")) || input_ext == Some(OsStr::new("html")) {
-        result.pop();
-        result.push(input_path.file_stem()?);
-        result.push("index.html");
-    };
-    Some(result)
+struct Pimisi {
+    // TODO: these should be `String`s -- it implements AsRef<Path> and suchlike
+    input_dir: PathBuf,
+    output_dir: PathBuf,
+    template_dir: PathBuf
+}
+
+impl Pimisi {
+
+    ///! Turn *.html into */index.html, likewise with *.md.
+    fn get_output_path(&self, input_path: &Path) -> Option<PathBuf> {
+        let mut result = self.output_dir.clone();
+        result.push(input_path.strip_prefix(&self.input_dir).expect("Terrible error!"));
+        let input_ext = input_path.extension();
+        if input_ext == Some(OsStr::new("md")) || input_ext == Some(OsStr::new("html")) {
+            result.pop();
+            result.push(input_path.file_stem()?);
+            result.push("index.html");
+        };
+        Some(result)
+    }
+
 }
 
 use std::fs;
@@ -64,13 +75,17 @@ fn convert_markdown(input_path: &Path, output_path: &Path) -> Result<(), io::Err
 }
 
 fn main() {
-    for entry in WalkDir::new("content")
+    let pimisi = Pimisi { output_dir: PathBuf::from("_site")
+                        , input_dir: PathBuf::from("content")
+                        , template_dir: PathBuf::from("templates") };
+
+    for entry in WalkDir::new(&pimisi.input_dir)
                      .into_iter()
                      .filter_entry(|e| !is_hidden(e))
                      .filter_map(|e| e.ok())
                      .filter(|e| is_file(e))
     {
-        let output_path = get_output_path(entry.path()).expect("Invalid file name");
+        let output_path = pimisi.get_output_path(entry.path()).expect("Invalid file name");
         if entry.path().extension() == Some(OsStr::new("md")) {
             match convert_markdown(entry.path(), &output_path) {
                 Ok(()) => { println!("{}: converted to {}", entry.path().display(), output_path.display()) },
