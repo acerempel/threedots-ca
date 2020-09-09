@@ -34,16 +34,16 @@ use std::ffi::OsStr;
 
 struct Pimisi {
     // TODO: these should be `String`s -- it implements AsRef<Path> and suchlike
-    input_dir: PathBuf,
-    output_dir: PathBuf,
-    template_dir: PathBuf
+    input_dir: String,
+    output_dir: String,
+    template_dir: String
 }
 
 impl Pimisi {
 
     ///! Turn *.html into */index.html, likewise with *.md.
     fn get_output_path(&self, input_path: &Path) -> Option<PathBuf> {
-        let mut result = self.output_dir.clone();
+        let mut result = PathBuf::from(self.output_dir.clone());
         result.push(input_path.strip_prefix(&self.input_dir).expect("Terrible error!"));
         let input_ext = input_path.extension();
         if input_ext == Some(OsStr::new("md")) || input_ext == Some(OsStr::new("html")) {
@@ -75,9 +75,9 @@ fn convert_markdown(input_path: &Path, output_path: &Path) -> Result<(), io::Err
 }
 
 fn main() {
-    let pimisi = Pimisi { output_dir: PathBuf::from("_site")
-                        , input_dir: PathBuf::from("content")
-                        , template_dir: PathBuf::from("templates") };
+    let pimisi = Pimisi { output_dir: String::from("_site")
+                        , input_dir: String::from("content")
+                        , template_dir: String::from("templates") };
 
     for entry in WalkDir::new(&pimisi.input_dir)
                      .into_iter()
