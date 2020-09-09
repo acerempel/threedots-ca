@@ -42,7 +42,7 @@ struct Pimisi {
 impl Pimisi {
 
     ///! Turn *.html into */index.html, likewise with *.md.
-    fn get_output_path(&self, input_path: &Path) -> Option<PathBuf> {
+    fn output_path(&self, input_path: &Path) -> Option<PathBuf> {
         let mut result = PathBuf::from(self.output_dir.clone());
         result.push(input_path.strip_prefix(&self.input_dir).expect("Terrible error!"));
         let input_ext = input_path.extension();
@@ -67,7 +67,7 @@ fn convert_markdown(input_path: &Path, output_path: &Path) -> Result<(), io::Err
     html::push_html(&mut output_buf, parser);
 
     // The path may, in principle, have no parent; this is impossible here because we prepend the
-    // output directory in `get_output_path`.
+    // output directory in `output_path`.
     for parent in output_path.parent().iter() { fs::DirBuilder::new().recursive(true).create(parent)?; };
 
     fs::write(output_path, output_buf)?;
@@ -85,7 +85,7 @@ fn main() {
                      .filter_map(|e| e.ok())
                      .filter(|e| is_file(e))
     {
-        let output_path = pimisi.get_output_path(entry.path()).expect("Invalid file name");
+        let output_path = pimisi.output_path(entry.path()).expect("Invalid file name");
         if entry.path().extension() == Some(OsStr::new("md")) {
             match convert_markdown(entry.path(), &output_path) {
                 Ok(()) => { println!("{}: converted to {}", entry.path().display(), output_path.display()) },
