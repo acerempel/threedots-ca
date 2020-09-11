@@ -56,22 +56,35 @@ impl Pimisi {
 
 }
 
+struct ParsedPage {
+    data: (),
+    content: String,
+    input_path: PathBuf,
+    output_path: PathBuf
+}
+
 use std::fs;
 use std::io;
 use pulldown_cmark::{Parser, html};
 
-fn convert_markdown(input_path: &Path, output_path: &Path) -> Result<(), io::Error>{
+fn read_page(input_path: &Path, output_path: &Path) -> io::Result<ParsedPage> {
     let input = fs::read_to_string(input_path)?;
+
+}
+
+fn render_markdown(page: ParsedPage) -> io::Result<RenderedPage> {
     let parser = Parser::new(&input);
     let mut output_buf = String::new(); // I guess we should maybe give a capacity hint
     html::push_html(&mut output_buf, parser);
 
+    Ok(())
+}
+
+fn write_page(page: RenderedPage) -> io::Result<()> {
     // The path may, in principle, have no parent; this is impossible here because we prepend the
     // output directory in `output_path`.
     for parent in output_path.parent().iter() { fs::DirBuilder::new().recursive(true).create(parent)?; };
-
     fs::write(output_path, output_buf)?;
-    Ok(())
 }
 
 fn main() {
@@ -87,8 +100,11 @@ fn main() {
     {
         let output_path = pimisi.output_path(entry.path()).expect("Invalid file name");
         if entry.path().extension() == Some(OsStr::new("md")) {
-            match convert_markdown(entry.path(), &output_path) {
-                Ok(()) => { println!("{}: converted to {}", entry.path().display(), output_path.display()) },
+            let page = parse_markdown(entry.path(), &output_path);
+            {
+                Ok(()) => {
+                    println!("{}: converted to {}", entry.path().display(), output_path.display());
+                },
                 Err(err) => { println!("{}: error occured converting to {}, namely {}",
                                        entry.path().display(),
                                        output_path.display(),
