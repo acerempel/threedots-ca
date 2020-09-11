@@ -3,19 +3,6 @@ extern crate lazy_static;
 
 use tera::Tera;
 
-lazy_static! {
-    static ref TEMPLATES: Tera = {
-        let tera = match Tera::new("templates/**/*.njk") {
-            Ok(t) => t,
-            Err(e) => {
-                println!("Parsing error(s): {}", e);
-                ::std::process::exit(1);
-            }
-        };
-        tera
-    };
-}
-
 use walkdir::{DirEntry, WalkDir};
 
 fn is_hidden(entry: &DirEntry) -> bool {
@@ -31,9 +18,9 @@ fn is_file(entry: &DirEntry) -> bool {
 
 use std::path::{Path, PathBuf};
 use std::ffi::OsStr;
+use anyhow::Result;
 
 struct Pimisi {
-    // TODO: these should be `String`s -- it implements AsRef<Path> and suchlike
     input_dir: String,
     output_dir: String,
     template_dir: String
@@ -41,43 +28,92 @@ struct Pimisi {
 
 impl Pimisi {
 
-    ///! Turn *.html into */index.html, likewise with *.md.
-    fn output_path(&self, input_path: &Path) -> Option<PathBuf> {
+    /// Turn *.html into */index.html, likewise with *.md.
+    fn output_path(&self, input_path: &Path) -> Result<PathBuf> {
         let mut result = PathBuf::from(self.output_dir.clone());
-        result.push(input_path.strip_prefix(&self.input_dir).expect("Terrible error!"));
+        result.push(input_path.strip_prefix(&self.input_dir).expect("Terrible error!")); // better error message please
         let input_ext = input_path.extension();
         if input_ext == Some(OsStr::new("md")) || input_ext == Some(OsStr::new("html")) {
             result.pop();
-            result.push(input_path.file_stem()?);
+            let input_stem = input_path.file_stem()
+                .map(|s| Ok(s))
+                .unwrap_or_else(|| Err(WeirdInputPath(input_path.to_path_buf())))?;
+            result.push(input_stem);
             result.push("index.html");
         };
-        Some(result)
+        Ok(result)
     }
 
 }
 
-struct ParsedPage {
-    data: (),
+use std::error::Error;
+use std::fmt;
+
+#[derive(Debug)]
+struct WeirdInputPath(PathBuf);
+
+impl fmt::Display for WeirdInputPath {
+    fn fmt(&self, fmt: &mut std::fmt::Formatter<'_>) -> std::result::Result<(), fmt::Error> {
+        write!(fmt, "A weird input path: {:?}", self.0)?; Ok(())
+    }
+}
+
+impl Error for WeirdInputPath {}
+
+use std::collections::HashMap;
+use serde::Deserialize;
+use serde_yaml::Value;
+
+type Metadata = HashMap<String, Value>;
+
+#[derive(Deserialize)]
+struct File {
+    metadata: Metadata,
     content: String,
-    input_path: PathBuf,
-    output_path: PathBuf
+    path: PathBuf,
 }
 
 use std::fs;
 use std::io;
 use pulldown_cmark::{Parser, html};
 
-fn read_page(input_path: &Path, output_path: &Path) -> io::Result<ParsedPage> {
-    let input = fs::read_to_string(input_path)?;
-
+fn read_file(input_path: &Path, output_path: &Path) -> Result<File> {
+    let entire_content = fs::read_to_string(input_path)?;
+    let path = input_path.to_path_buf();
+    if let Some(front_plus_content) = entire_content.strip_prefix("---") {
+        let parts = front_plus_content.splitn(2, "---");
+        let metadata = serde_yaml::from_str(parts.next().unwrap())?;
+        let content = parts.next().unwrap_or("").to_string();
+        Ok(File { metadata, content, path })
+    } else {
+        let metadata = HashMap::new();
+        let content = entire_content;
+        Ok(File { metadata, content, path })
+    }
 }
 
-fn render_markdown(page: ParsedPage) -> io::Result<RenderedPage> {
-    let parser = Parser::new(&input);
+struct Template {
+    name: String,
+    content: String,
+}
+
+struct Html(String);
+
+struct Page {
+    metadata: Metadata,
+    input_path: PathBuf,
+    output_path: PathBuf,
+    content: Html,
+}
+
+fn render_markdown(input: File) -> Result<Page> {
+    let parser = Parser::new(&input.content);
     let mut output_buf = String::new(); // I guess we should maybe give a capacity hint
     html::push_html(&mut output_buf, parser);
-
-    Ok(())
+    Ok(Page {
+        metadata: input.metadata, content: Html(output_buf),
+        input_path: input.path, output_path: 
+    })
 }
 
 fn write_page(page: RenderedPage) -> io::Result<()> {
