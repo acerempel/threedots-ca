@@ -67,10 +67,11 @@ impl Pimisi {
                         .expect("No file stem!") // Not possible, since we filter out directories when walking.
                         .to_str().map(|s| Ok(s))
                         .unwrap_or_else(|| Err(anyhow!("Filename not unicode: {:?}", input_path)))?;
-            match opt_name.strip_suffix(&self.template_suffix) {
-                Some(name) => FileKind::Template { name: name.to_owned() },
-                None => FileKind::Content(ContentKind::Html)
-            }},
+                match opt_name.strip_suffix(&self.template_suffix) {
+                    Some(name) => FileKind::Template { name: name.to_owned() },
+                    None => FileKind::Content(ContentKind::Html)
+                }
+            },
             _ => FileKind::Asset,
         };
         Ok(kind)
