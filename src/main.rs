@@ -142,7 +142,7 @@ use pulldown_cmark::{Parser, html};
 
 /// Read a file, separate from the content and parse a YAML metadata
 /// block if there is one, and return both metadata and content.
-fn read_file(input_path: &Path) -> Result<LoadedFile> {
+fn read_file_with_front_matter(input_path: &Path) -> Result<(Metadata, String)> {
     let entire_content = fs::read_to_string(input_path)?;
     if let Some(front_plus_content) = entire_content.strip_prefix("---") {
         // We have a YAML metadata block. Split the block from the
@@ -154,21 +154,20 @@ fn read_file(input_path: &Path) -> Result<LoadedFile> {
         // parse, but no closing "---", then that's fine, we just say
         // that the content is the empty string.
         let content = parts.next().unwrap_or("").to_string();
-        Ok(LoadedFile { metadata, content })
+        Ok((metadata, content))
     } else {
         // No YAML at the top. That's fine. No default metadata.
         let metadata = HashMap::new();
         let content = entire_content;
-        Ok(LoadedFile { metadata, content })
+        Ok((metadata, content))
     }
 }
 
 struct Html(String);
 
-struct Page {
+struct Content {
     metadata: Metadata,
     input_path: PathBuf,
-    output_path: PathBuf,
     content: Html,
 }
 
@@ -191,38 +190,43 @@ fn write_page(output_path: &Path, content: Html) -> Result<()> {
     Ok(())
 }
 
+use handlebars::Handlebars;
+
 fn main() -> Result<()> {
     let pimisi = Pimisi { output_dir: String::from("_site")
                         , input_dir: String::from("content")
                         , template_suffix: String::from(".tpl") };
 
     let mut pages = Vec::with_capacity(8);
-    let mut templates = HashMap::new();
+    let mut templates = Handlebars::new();
+    templates.set_strict_mode(true);
     for entry in WalkDir::new(&pimisi.input_dir) .into_iter()
                 .filter_entry(|e| !is_hidden(e)) // Filter out hidden files (.\*)
                 .filter_map(|e| e.ok()) // Ignore any errors produced by walkdir
                 .filter(|e| is_file(e)) // Skip directories and whatever else is not a file (symbolic links too I guess)
     {
         let file_kind = pimisi.discern_file_kind(entry.path())?;
+
+        // I would prefer eventually to not bail on the first
+        // error, but print the errors with a count and process all the
+        // files we can, also counting them.
         match file_kind {
             FileKind::Asset => {
                 let output_path = pimisi.asset_output_path(entry.path())?;
                 fs::copy(entry.path(), output_path)?; ()
             },
             FileKind::Template { name } => {
-                let loaded_file = read_file(entry.path())?;
-                templates.insert(name, loaded_file);
+                templates.register_template_file(&name, entry.path())?;
             },
             FileKind::Content(content_kind) => {
-                let loaded_file = read_file(entry.path())?;
+                let (metadata, content) = read_file_with_front_matter(entry.path())?;
                 let hypertext = match content_kind {
-                    ContentKind::Html => Html(loaded_file.content),
-                    ContentKind::Markdown => render_markdown(loaded_file.content),
+                    ContentKind::Html => Html(content),
+                    ContentKind::Markdown => render_markdown(content),
                 };
-                let output_path = pimisi.content_output_path(entry.path(), content_kind)?;
-                let page = Page {
-                    content: hypertext, input_path: entry.path().to_owned(),
-                    output_path, metadata: loaded_file.metadata };
+                // let output_path = pimisi.content_output_path(entry.path(), content_kind)?;
+                let input_path = entry.path().strip_prefix(&pimisi.input_dir)?.to_owned();
+                let page = Content { content: hypertext, input_path, metadata };
                 pages.push(page);
             }
         }
