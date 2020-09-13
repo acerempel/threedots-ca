@@ -71,12 +71,7 @@ impl Pimisi {
 
     /// Look at a file path and figure out, based on the file
     /// extension(s) or lack thereof, how we should treat it.
-    fn discern_file_kind(&self, input_path_prefixed: &Path) -> Result<FileKind> {
-        // Every function that works with input paths expects them to begin with the input
-        // directory, so may as well check here. Also we need the unprefixed path for the template
-        // name. Note this probably doesn't work if the input dir is "." …
-        let input_path = input_path_prefixed.strip_prefix(&self.input_dir)?;
-
+    fn discern_file_kind(&self, input_path: &Path) -> Result<FileKind> {
         // Easier to work with if we have a string. `Path` has not very
         // many methods defined on it.
         let input_path_str = input_path.to_str()
@@ -200,12 +195,22 @@ fn main() -> Result<()> {
     let mut pages = Vec::with_capacity(8);
     let mut templates = Handlebars::new();
     templates.set_strict_mode(true);
-    for entry in WalkDir::new(&pimisi.input_dir) .into_iter()
+    for entry in WalkDir::new(&pimisi.input_dir).into_iter()
                 .filter_entry(|e| !is_hidden(e)) // Filter out hidden files (.\*)
                 .filter_map(|e| e.ok()) // Ignore any errors produced by walkdir
                 .filter(|e| is_file(e)) // Skip directories and whatever else is not a file (symbolic links too I guess)
     {
-        let file_kind = pimisi.discern_file_kind(entry.path())?;
+        // The real path, for doing IO with.
+        let input_path_real = entry.path();
+        // The path with the input directory stripped, for making
+        // available as a variable in templates, and for computing the
+        // URL and output path with.
+        let input_path_nominal =
+            // I don't think `strip_prefix` is quite this smart.
+            if pimisi.input_dir == "." { input_path_real }
+            else { input_path_real.strip_prefix(&pimisi.input_dir)? };
+
+        let file_kind = pimisi.discern_file_kind(input_path_nominal)?;
 
         // I would prefer eventually to not bail on the first
         // error, but print the errors with a count and process all the
@@ -213,13 +218,13 @@ fn main() -> Result<()> {
         match file_kind {
             FileKind::Asset => {
                 let output_path = pimisi.asset_output_path(entry.path())?;
-                fs::copy(entry.path(), output_path)?; ()
+                fs::copy(input_path_real, output_path)?; ()
             },
             FileKind::Template { name } => {
-                templates.register_template_file(&name, entry.path())?;
+                templates.register_template_file(&name, input_path_nominal)?;
             },
             FileKind::Content(content_kind) => {
-                let (metadata, content) = read_file_with_front_matter(entry.path())?;
+                let (metadata, content) = read_file_with_front_matter(input_path_real)?;
                 let hypertext = match content_kind {
                     ContentKind::Html => Html(content),
                     ContentKind::Markdown => render_markdown(content),
@@ -228,10 +233,10 @@ fn main() -> Result<()> {
                 // Remember to put this somewhere else
                 // let output_path = pimisi.content_output_path(entry.path(), content_kind)?;
 
-                // We had better to this prefix-stripping just in one
-                // place rather than two I think
-                let input_path = entry.path().strip_prefix(&pimisi.input_dir)?.to_owned();
-                let page = Content { content: hypertext, input_path, metadata };
+                let page = Content {
+                    metadata,
+                    content: hypertext,
+                    input_path: input_path_nominal.to_owned() };
                 pages.push(page);
             }
         }
