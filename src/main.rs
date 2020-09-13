@@ -1,8 +1,3 @@
-#[macro_use]
-extern crate lazy_static;
-
-use tera::Tera;
-
 use walkdir::{DirEntry, WalkDir};
 
 fn is_hidden(entry: &DirEntry) -> bool {
@@ -55,25 +50,49 @@ struct Pimisi {
     template_suffix: String,
 }
 
+/// Does it have such an extension? See `strip_extension` for why it is
+/// terrible.
+fn has_extension(path: &str, ext: &str) -> bool {
+    strip_extension(path, ext).is_some()
+}
+
+/// This requires `ext` to have a leading '.'. Also the path separator
+/// is hardcoded as a '/'. Terrible.
+fn strip_extension<'a>(path: &'a str, ext: &str) -> Option<&'a str> {
+    if let Some(stripped) = path.strip_suffix(ext) {
+        // TODO this should be the platform path separator
+        if stripped.ends_with('/') { return None; };
+        if stripped.is_empty() { return None; };
+        return Some(stripped);
+    } else { return None; };
+}
+
 impl Pimisi {
 
     /// Look at a file path and figure out, based on the file
     /// extension(s) or lack thereof, how we should treat it.
-    fn discern_file_kind(&self, input_path: &Path) -> Result<FileKind> {
-        let kind = match input_path.extension().and_then(|e| e.to_str()) {
-            Some("md") => FileKind::Content(ContentKind::Markdown),
-            Some("html") => {
-                let opt_name = input_path.file_stem()
-                        .expect("No file stem!") // Not possible, since we filter out directories when walking.
-                        .to_str().map(|s| Ok(s))
-                        .unwrap_or_else(|| Err(anyhow!("Filename not unicode: {:?}", input_path)))?;
-                match opt_name.strip_suffix(&self.template_suffix) {
-                    Some(name) => FileKind::Template { name: name.to_owned() },
-                    None => FileKind::Content(ContentKind::Html)
-                }
-            },
-            _ => FileKind::Asset,
-        };
+    fn discern_file_kind(&self, input_path_prefixed: &Path) -> Result<FileKind> {
+        // Every function that works with input paths expects them to begin with the input
+        // directory, so may as well check here. Also we need the unprefixed path for the template
+        // name. Note this probably doesn't work if the input dir is "." …
+        let input_path = input_path_prefixed.strip_prefix(&self.input_dir)?;
+
+        // Easier to work with if we have a string. `Path` has not very
+        // many methods defined on it.
+        let input_path_str = input_path.to_str()
+                .map(|s| Ok(s)).unwrap_or_else(|| Err(anyhow!("Filename not unicode: {:?}", input_path)))?;
+
+        // What is the file extension? TODO This should handle XML, and
+        // maybe be extensible … hmmm. I just do not like this bit of
+        // code.
+        let kind =
+            if has_extension(input_path_str, ".md") {
+                FileKind::Content(ContentKind::Markdown)
+            } else if let Some(sans_ext) = strip_extension(input_path_str, &self.template_suffix) {
+                FileKind::Template { name: sans_ext.to_owned() }
+            } else if has_extension(input_path_str, ".html") {
+                FileKind::Content(ContentKind::Html)
+            } else { FileKind::Asset };
         Ok(kind)
     }
 
@@ -178,7 +197,7 @@ fn main() -> Result<()> {
                         , template_suffix: String::from(".tpl") };
 
     let mut pages = Vec::with_capacity(8);
-    let mut templates = Vec::with_capacity(4);
+    let mut templates = HashMap::new();
     for entry in WalkDir::new(&pimisi.input_dir) .into_iter()
                 .filter_entry(|e| !is_hidden(e)) // Filter out hidden files (.\*)
                 .filter_map(|e| e.ok()) // Ignore any errors produced by walkdir
@@ -192,7 +211,7 @@ fn main() -> Result<()> {
             },
             FileKind::Template { name } => {
                 let loaded_file = read_file(entry.path())?;
-                templates.push(loaded_file);
+                templates.insert(name, loaded_file);
             },
             FileKind::Content(content_kind) => {
                 let loaded_file = read_file(entry.path())?;
