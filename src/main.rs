@@ -17,11 +17,13 @@ extern crate anyhow;
 use std::path::{Path, PathBuf};
 use anyhow::Result;
 
-use std::collections::HashMap;
+use std::collections::BTreeMap;
 use serde::Deserialize;
 use serde_yaml::Value;
 
-type Metadata = HashMap<String, Value>;
+/// We use `BTreeMap` because that's what Handlebars uses under the hood
+/// (by way of serde_json).
+type Metadata = BTreeMap<String, Value>;
 
 /// What kind of file? Does it contain content that we must process and
 /// output; is it a template that we must load and let Tera take care of;
@@ -152,7 +154,7 @@ fn read_file_with_front_matter(input_path: &Path) -> Result<(Metadata, String)> 
         Ok((metadata, content))
     } else {
         // No YAML at the top. That's fine. No default metadata.
-        let metadata = HashMap::new();
+        let metadata = Metadata::new();
         let content = entire_content;
         Ok((metadata, content))
     }
@@ -192,7 +194,8 @@ fn main() -> Result<()> {
                         , input_dir: String::from("content")
                         , template_suffix: String::from(".tpl") };
 
-    let mut pages = Vec::with_capacity(8);
+    let mut pages: Vec<Content> = Vec::with_capacity(32);
+    let mut tags: BTreeMap<String, Vec<&Content>> = BTreeMap::new();
     let mut templates = Handlebars::new();
     templates.set_strict_mode(true);
     for entry in WalkDir::new(&pimisi.input_dir).into_iter()
@@ -240,6 +243,21 @@ fn main() -> Result<()> {
                 pages.push(page);
             }
         }
+    };
+
+    for page in pages.iter() {
+        // Each page is tagged with the name of its parent directory.
+        let dir_tag_opt = page.input_path.parent()
+            .and_then(|p| p.file_name())
+            .map(|p| p.to_str());
+        for dir_tag in dir_tag_opt {
+            dir_tag.map(|t| match tags.get_mut(t) {
+                Some(v) => v.push(&page),
+                None => { tags.insert(t.to_owned(), vec![&page]); () },
+            });
+            // TODO real logging
+            if dir_tag.is_none() { println!("Directory not unicode, could not create tag: {:?}", page.input_path) }
+        };
     };
     Ok(())
 }
