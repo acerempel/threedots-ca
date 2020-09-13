@@ -224,7 +224,12 @@ fn main() -> Result<()> {
                     ContentKind::Html => Html(content),
                     ContentKind::Markdown => render_markdown(content),
                 };
+
+                // Remember to put this somewhere else
                 // let output_path = pimisi.content_output_path(entry.path(), content_kind)?;
+
+                // We had better to this prefix-stripping just in one
+                // place rather than two I think
                 let input_path = entry.path().strip_prefix(&pimisi.input_dir)?.to_owned();
                 let page = Content { content: hypertext, input_path, metadata };
                 pages.push(page);
