@@ -41,11 +41,6 @@ enum ContentKind {
     Html,
 }
 
-struct LoadedFile {
-    metadata: Metadata,
-    content: String,
-}
-
 struct Pimisi {
     input_dir: String,
     output_dir: String,
@@ -242,17 +237,14 @@ fn main() -> Result<()> {
 
     for page in pages.iter() {
         // Each page is tagged with the name of its parent directory.
-        let dir_tag_opt = page.input_path.parent()
+        let dir_tag = page.input_path.parent()
             .and_then(|p| p.file_name())
-            .map(|p| p.to_str());
-        for dir_tag in dir_tag_opt {
-            dir_tag.map(|t| match tags.get_mut(t) {
-                Some(v) => v.push(&page),
-                None => { tags.insert(t.to_owned(), vec![&page]); () },
-            });
-            // TODO real logging
-            if dir_tag.is_none() { println!("Directory not unicode, could not create tag: {:?}", page.input_path) }
-        };
+            // TODO Log something upon decoding failure!
+            .and_then(|p| p.to_str());
+        dir_tag.map(|t| match tags.get_mut(t) {
+            Some(v) => v.push(&page),
+            None => { tags.insert(t.to_owned(), vec![&page]); () },
+        });
     };
     Ok(())
 }
