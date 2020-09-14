@@ -187,14 +187,19 @@ fn register_tag_for_page<'a>(tags: &mut BTreeMap<String, Vec<&'a Content>>, page
 use handlebars::Handlebars;
 
 fn main() -> Result<()> {
+    // INITIALIZE GLOBAL STATE AND CONFIGURATION {{{
     let pimisi = Pimisi { output_dir: String::from("_site")
                         , input_dir: String::from("content")
                         , template_suffix: String::from(".tpl") };
 
     let mut pages: Vec<Content> = Vec::with_capacity(32);
     let mut tags: BTreeMap<String, Vec<&Content>> = BTreeMap::new();
+
     let mut templates = Handlebars::new();
     templates.set_strict_mode(true);
+    // }}}
+
+    // WALK THE INPUT DIRECTORY {{{
     for entry in WalkDir::new(&pimisi.input_dir).into_iter()
                 .filter_entry(|e| !is_hidden(e)) // Filter out hidden files (.\*)
                 .filter_map(|e| e.ok()) // Ignore any errors produced by walkdir
@@ -212,6 +217,7 @@ fn main() -> Result<()> {
 
         let file_kind = pimisi.discern_file_kind(input_path_nominal)?;
 
+        /*** INITIAL HANDLING OF INPUT FILES {{{ ***/
         // I would prefer eventually to not bail on the first
         // error, but print the errors with a count and process all the
         // files we can, also counting them.
@@ -239,9 +245,10 @@ fn main() -> Result<()> {
                     input_path: input_path_nominal.to_owned() };
                 pages.push(page);
             }
-        }
-    };
+        } /* }}} */
+    }; // }}}
 
+    // REGISTER THE TAGS {{{
     for page in pages.iter() {
         // Each page is tagged with the name of its parent directory.
         let dir_tag = page.input_path.parent()
@@ -261,6 +268,6 @@ fn main() -> Result<()> {
                 }
             }
         }
-    };
+    }; /* }}} */
     Ok(())
 }
