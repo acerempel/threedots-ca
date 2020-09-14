@@ -93,30 +93,25 @@ impl Pimisi {
         Ok(kind)
     }
 
-    /// Given the input path for a file that we are just copying over to
-    /// the output directory, figure out what path we must copy it to. A
-    /// trivial computation.
-    fn asset_output_path(&self, input_path: &Path) -> Result<PathBuf> {
-        let mut result = PathBuf::from(self.output_dir.clone());
-        result.push(input_path.strip_prefix(&self.input_dir)?);
-        Ok(result)
+    fn prepend_output_dir(&self, path: &Path) -> PathBuf {
+        let output_dir: &Path = self.output_dir.as_ref();
+        output_dir.join(path)
     }
 
-    /// Given the path to an file that has page content, and whether it
-    /// is markdown or HTML, compute the path that we must write its
-    /// corresponding output to. This involves turning \*.html into
-    /// \*/index.html (unless the filename is *already* index.html),
-    /// likewise with \*.md.
+    /// Given the path (without the input directory) to an file that has
+    /// page content, and whether it is markdown or HTML, compute the
+    /// path that we must write its corresponding output to. This
+    /// involves turning \*.html into \*/index.html (unless the filename
+    /// is *already* index.html), likewise with \*.md.
     fn content_output_path(&self, input_path: &Path, input_kind: ContentKind) -> Result<PathBuf> {
-        let mut result = self.asset_output_path(input_path)?;
+        let mut result = self.prepend_output_dir(input_path);
         // Is the closure here a Haskell-ism?
         let mut to_index_html = || -> Result<(),anyhow::Error> {
             result.pop();
             let input_stem = input_path.file_stem()
                 // I think the error case here is impossible, because a
                 // path without a file stem would be one that ends in a
-                // slash (I think?), but we don't get such paths from the directory
-                // walking.
+                // slash (I think?), but we don't get such paths from the directory walking.
                 .map(|s| Ok(s)).unwrap_or_else(|| Err(anyhow!("Weird input path: {:?}", input_path)))?;
             result.push(input_stem); result.push("index.html");
             Ok(())
@@ -220,7 +215,7 @@ fn main() -> Result<()> {
         // files we can, also counting them.
         match file_kind {
             FileKind::Asset => {
-                let output_path = pimisi.asset_output_path(entry.path())?;
+                let output_path = pimisi.prepend_output_dir(input_path_nominal);
                 fs::copy(input_path_real, output_path)?; ()
             },
             FileKind::Template { name } => {
