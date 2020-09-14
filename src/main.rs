@@ -177,6 +177,13 @@ fn write_page(output_path: &Path, content: Html) -> Result<()> {
     Ok(())
 }
 
+fn register_tag_for_page<'a>(tags: &mut BTreeMap<String, Vec<&'a Content>>, page: &'a Content, t: &str) {
+    match tags.get_mut(t) {
+        Some(v) => v.push(page),
+        None => { tags.insert(t.to_owned(), vec![page]); () },
+    };
+}
+
 use handlebars::Handlebars;
 
 fn main() -> Result<()> {
@@ -241,10 +248,16 @@ fn main() -> Result<()> {
             .and_then(|p| p.file_name())
             // TODO Log something upon decoding failure!
             .and_then(|p| p.to_str());
-        dir_tag.map(|t| match tags.get_mut(t) {
-            Some(v) => v.push(&page),
-            None => { tags.insert(t.to_owned(), vec![&page]); () },
-        });
+        dir_tag.map(|t| register_tag_for_page(&mut tags, page, t));
+
+        if let Some(Value::Sequence(meta_tags)) = page.metadata.get("tags") {
+            for tag in meta_tags.iter() {
+                // Log non-string values as errors?
+                if let Value::String(t) = tag {
+                    register_tag_for_page(&mut tags, page, t);
+                }
+            }
+        }
     };
     Ok(())
 }
