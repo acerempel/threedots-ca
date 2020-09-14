@@ -101,39 +101,35 @@ impl Pimisi {
         output_dir.join(path)
     }
 
-    /// Given the path (without the input directory) to an file that has
-    /// page content, and whether it is markdown or HTML, compute the
-    /// path that we must write its corresponding output to. This
-    /// involves turning \*.html into \*/index.html (unless the filename
-    /// is *already* index.html), likewise with \*.md.
-    fn content_output_path(&self, input_path: &Path, input_kind: ContentKind) -> Result<PathBuf> {
-        let mut result = self.prepend_output_dir(input_path);
-        // Is the closure here a Haskell-ism?
-        let mut to_index_html = || -> Result<(),anyhow::Error> {
-            result.pop();
-            let input_stem = input_path.file_stem()
-                // I think the error case here is impossible, because a
-                // path without a file stem would be one that ends in a
-                // slash (I think?), but we don't get such paths from the directory walking.
-                .map(|s| Ok(s)).unwrap_or_else(|| Err(anyhow!("Weird input path: {:?}", input_path)))?;
-            result.push(input_stem); result.push("index.html");
-            Ok(())
-        };
-        match input_kind {
-            ContentKind::Markdown => { to_index_html()?; },
-            ContentKind::Html => {
-                if input_path.file_name() == Some("index.html".as_ref()) {
-                    return Ok(result);
-                } else { to_index_html()?; }
-            },
-        };
-        Ok(result)
-    }
-
 }
 
 use std::fs;
 use pulldown_cmark::{Parser, html};
+
+/// Given the path (without the input directory) to an file that has
+/// page content, and whether it is markdown or HTML, compute the
+/// path that we must write its corresponding output to. This
+/// involves turning \*.html into \*/index.html (unless the filename
+/// is *already* index.html), likewise with \*.md.
+fn content_output_path(input_path: &Path) -> Result<PathBuf> {
+    let mut result = PathBuf::from(input_path);
+    // Is the closure here a Haskell-ism?
+    let mut to_index_html = || -> Result<(),anyhow::Error> {
+        result.pop();
+        let input_stem = input_path.file_stem()
+            // I think the error case here is impossible, because a
+            // path without a file stem would be one that ends in a
+            // slash (I think?), but we don't get such paths from the directory walking.
+            .map(|s| Ok(s)).unwrap_or_else(|| Err(anyhow!("Weird input path: {:?}", input_path)))?;
+        result.push(input_stem); result.push("index.html");
+        Ok(())
+    };
+    // This is a really weirdly written function.
+    if input_path.file_name() == Some("index.html".as_ref()) { return Ok(result); };
+    let ext = input_path.extension();
+    if ext == Some("md".as_ref()) || ext == Some("html".as_ref()) { to_index_html()? }
+    Ok(result)
+}
 
 /// Read a file, separate from the content and parse a YAML metadata
 /// block if there is one, and return both metadata and content.
@@ -159,12 +155,6 @@ fn read_file_with_front_matter(input_path: &Path) -> Result<(Metadata, String)> 
 }
 
 type Html = String;
-
-struct Content {
-    metadata: Metadata,
-    input_path: PathBuf,
-    content: Html,
-}
 
 // Turn some markdown into HTML. This is a trivial wrapper around
 // pulldown-cmark's API.
@@ -192,9 +182,23 @@ fn register_tag_for_page<'a>(tags: &mut BTreeMap<String, Vec<&'a PageForTemplate
     };
 }
 
+fn determine_template_name(templates: &Handlebars, page: &PageForTemplate) -> Option<String> {
+    if let Some(Value::String(name)) = page.data.get("template") { Some(name.clone()) }
+    else if templates.has_template(&page.input_path) { Some(page.input_path.clone()) }
+    else {
+        // This is annoying; I just wanted to use `with_file_name`
+        let dir_template_name = page.input_path
+            .rsplitn(2, '/').nth(0)
+            .map(|n| [n, "/_each"].join(""))
+            .unwrap_or(String::from("_each"));
+        if templates.has_template(&dir_template_name) { Some(dir_template_name) }
+        else { None }
+    }
+}
+
 /// Ready to be passed to Handlebars.
 struct PageForTemplate {
-    input_path: PathBuf,
+    input_path: String,
     data: BTreeMap<String,Value>
 }
 
@@ -243,10 +247,12 @@ fn main() -> Result<()> {
         match file_kind {
             FileKind::Asset => {
                 let output_path = pimisi.prepend_output_dir(input_path_nominal);
+                // TODO this is repeated
+                for parent in output_path.parent().iter() { fs::DirBuilder::new().recursive(true).create(parent)?; };
                 fs::copy(input_path_real, output_path)?; ()
             },
             FileKind::Template { name } => {
-                templates.register_template_file(&name, input_path_nominal)?;
+                templates.register_template_file(&name, input_path_real)?;
             },
             FileKind::Content(content_kind) => {
                 let (mut data, content) = read_file_with_front_matter(input_path_real)?;
@@ -259,7 +265,7 @@ fn main() -> Result<()> {
                 // Remember to put this somewhere else
                 // let output_path = pimisi.content_output_path(entry.path(), content_kind)?;
                 data.insert(String::from("content"), Value::String(hypertext));
-                let input_path = input_path_nominal.to_owned();
+                let input_path = input_path_nominal.to_str().ok_or_else(|| anyhow!("Path not unicode: {:?}", input_path_real))?.to_owned();
 
                 let page = PageForTemplate { data, input_path };
                 pages.push(page);
@@ -270,7 +276,8 @@ fn main() -> Result<()> {
     // REGISTER THE TAGS {{{
     for page in pages.iter() {
         // Each page is tagged with the name of its parent directory.
-        let dir_tag = page.input_path.parent()
+        let page_input_path: &Path = page.input_path.as_ref();
+        let dir_tag = page_input_path.parent()
             .and_then(|p| p.file_name())
             // TODO Log something upon decoding failure!
             .and_then(|p| p.to_str());
@@ -288,5 +295,16 @@ fn main() -> Result<()> {
             }
         }
     }; /* }}} */
+
+    for page in pages.iter() {
+        let template_name = determine_template_name(&templates, page);
+        let output = match template_name {
+            Some(name) => templates.render(&name, &page.data)?,
+            None => String::from("No content!"), // TODO do something better here
+        };
+        let output_path_nominal = content_output_path(page.input_path.as_ref())?;
+        let output_path_real = pimisi.prepend_output_dir(&output_path_nominal);
+        write_page(&output_path_real, output)?;
+    }
     Ok(())
 }
