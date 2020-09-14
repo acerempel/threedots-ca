@@ -253,8 +253,11 @@ fn main() -> Result<()> {
         if let Some(Value::Sequence(meta_tags)) = page.metadata.get("tags") {
             for tag in meta_tags.iter() {
                 // Log non-string values as errors?
-                if let Value::String(t) = tag {
-                    register_tag_for_page(&mut tags, page, t);
+                match tag {
+                    // Don't register with the same tag twice!
+                    Value::String(t) if dir_tag != Some(t) =>
+                        register_tag_for_page(&mut tags, page, t),
+                    _ => ()
                 }
             }
         }
