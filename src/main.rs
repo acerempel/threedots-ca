@@ -41,9 +41,13 @@ enum ContentKind {
     Html,
 }
 
+#[derive(Deserialize)]
 struct Pimisi {
+    #[serde(default = "Pimisi::default_input_dir")]
     input_dir: String,
+    #[serde(default = "Pimisi::default_output_dir")]
     output_dir: String,
+    #[serde(default = "Pimisi::default_template_suffix")]
     template_suffix: String,
 }
 
@@ -65,6 +69,10 @@ fn strip_extension<'a>(path: &'a str, ext: &str) -> Option<&'a str> {
 }
 
 impl Pimisi {
+
+    fn default_output_dir() -> String { String::from("_site") }
+    fn default_input_dir() -> String { String::from("content") }
+    fn default_template_suffix() -> String { String::from(".hbs") }
 
     /// Look at a file path and figure out, based on the file
     /// extension(s) or lack thereof, how we should treat it.
@@ -185,12 +193,17 @@ fn register_tag_for_page<'a>(tags: &mut BTreeMap<String, Vec<&'a Content>>, page
 }
 
 use handlebars::Handlebars;
+use std::fs::File;
 
 fn main() -> Result<()> {
     // INITIALIZE GLOBAL STATE AND CONFIGURATION {{{
-    let pimisi = Pimisi { output_dir: String::from("_site")
-                        , input_dir: String::from("content")
-                        , template_suffix: String::from(".tpl") };
+    let config_file_path = "threedots.yaml";
+    let pimisi: Pimisi = {
+        // TODO what if the file does not exist? In that case defaults
+        // should be used.
+        let config_file = File::open(config_file_path)?;
+        serde_yaml::from_reader(config_file)?
+    };
 
     let mut pages: Vec<Content> = Vec::with_capacity(32);
     let mut tags: BTreeMap<String, Vec<&Content>> = BTreeMap::new();
