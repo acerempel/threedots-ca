@@ -158,7 +158,7 @@ fn read_file_with_front_matter(input_path: &Path) -> Result<(Metadata, String)> 
     }
 }
 
-struct Html(String);
+type Html = String;
 
 struct Content {
     metadata: Metadata,
@@ -172,7 +172,7 @@ fn render_markdown(input: String) -> Html {
     let parser = Parser::new(&input);
     let mut output_buf = String::new(); // I guess we should maybe give a capacity hint
     html::push_html(&mut output_buf, parser);
-    Html(output_buf)
+    output_buf
 }
 
 // Write some HTML to a file, creating the parent directories of the
@@ -181,15 +181,21 @@ fn write_page(output_path: &Path, content: Html) -> Result<()> {
     // The path may, in principle, have no parent; this is impossible here because we prepend the
     // output directory in `output_path`.
     for parent in output_path.parent().iter() { fs::DirBuilder::new().recursive(true).create(parent)?; };
-    fs::write(output_path, content.0)?;
+    fs::write(output_path, content)?;
     Ok(())
 }
 
-fn register_tag_for_page<'a>(tags: &mut BTreeMap<String, Vec<&'a Content>>, page: &'a Content, t: &str) {
+fn register_tag_for_page<'a>(tags: &mut BTreeMap<String, Vec<&'a PageForTemplate>>, page: &'a PageForTemplate, t: &str) {
     match tags.get_mut(t) {
         Some(v) => v.push(page),
         None => { tags.insert(t.to_owned(), vec![page]); () },
     };
+}
+
+/// Ready to be passed to Handlebars.
+struct PageForTemplate {
+    input_path: PathBuf,
+    data: BTreeMap<String,Value>
 }
 
 use handlebars::Handlebars;
@@ -205,8 +211,8 @@ fn main() -> Result<()> {
         serde_yaml::from_reader(config_file)?
     };
 
-    let mut pages: Vec<Content> = Vec::with_capacity(32);
-    let mut tags: BTreeMap<String, Vec<&Content>> = BTreeMap::new();
+    let mut pages: Vec<PageForTemplate> = Vec::with_capacity(32);
+    let mut tags: BTreeMap<String, Vec<&PageForTemplate>> = BTreeMap::new();
 
     let mut templates = Handlebars::new();
     templates.set_strict_mode(true);
@@ -243,19 +249,19 @@ fn main() -> Result<()> {
                 templates.register_template_file(&name, input_path_nominal)?;
             },
             FileKind::Content(content_kind) => {
-                let (metadata, content) = read_file_with_front_matter(input_path_real)?;
+                let (mut data, content) = read_file_with_front_matter(input_path_real)?;
                 let hypertext = match content_kind {
-                    ContentKind::Html => Html(content),
+                    // TODO escaping of e.g. '&' surrounded by whitespace?
+                    ContentKind::Html => content,
                     ContentKind::Markdown => render_markdown(content),
                 };
 
                 // Remember to put this somewhere else
                 // let output_path = pimisi.content_output_path(entry.path(), content_kind)?;
+                data.insert(String::from("content"), Value::String(hypertext));
+                let input_path = input_path_nominal.to_owned();
 
-                let page = Content {
-                    metadata,
-                    content: hypertext,
-                    input_path: input_path_nominal.to_owned() };
+                let page = PageForTemplate { data, input_path };
                 pages.push(page);
             }
         } /* }}} */
@@ -270,7 +276,7 @@ fn main() -> Result<()> {
             .and_then(|p| p.to_str());
         dir_tag.map(|t| register_tag_for_page(&mut tags, page, t));
 
-        if let Some(Value::Sequence(meta_tags)) = page.metadata.get("tags") {
+        if let Some(Value::Sequence(meta_tags)) = page.data.get("tags") {
             for tag in meta_tags.iter() {
                 // Log non-string values as errors?
                 match tag {
