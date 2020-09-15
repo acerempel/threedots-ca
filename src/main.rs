@@ -68,6 +68,16 @@ fn strip_extension<'a>(path: &'a str, ext: &str) -> Option<&'a str> {
     } else { return None; };
 }
 
+struct NominalPath<T: PathOrientation>{ path: String, phantom: PhantomData<T> }
+struct RealPath<T: PathOrientation>{ path: PathBuf, phantom: PhantomData<T> }
+
+trait PathOrientation {}
+
+struct Input;
+struct Output;
+impl PathOrientation for Input {}
+impl PathOrientation for Output {}
+
 impl Pimisi {
 
     fn default_output_dir() -> String { String::from("_site") }
@@ -76,12 +86,8 @@ impl Pimisi {
 
     /// Look at a file path and figure out, based on the file
     /// extension(s) or lack thereof, how we should treat it.
-    fn discern_file_kind(&self, input_path: &Path) -> Result<FileKind> {
-        // Easier to work with if we have a string. `Path` has not very
-        // many methods defined on it.
-        let input_path_str = input_path.to_str()
-                .map(|s| Ok(s)).unwrap_or_else(|| Err(anyhow!("Filename not unicode: {:?}", input_path)))?;
-
+    fn discern_file_kind(&self, input_path: &NominalPath<Input>) -> Result<FileKind> {
+        let input_path_str = &input_path.path;
         // What is the file extension? TODO This should handle XML, and
         // maybe be extensible … hmmm. I just do not like this bit of
         // code.
@@ -96,14 +102,34 @@ impl Pimisi {
         Ok(kind)
     }
 
-    fn prepend_output_dir(&self, path: &Path) -> PathBuf {
-        let output_dir: &Path = self.output_dir.as_ref();
-        output_dir.join(path)
-    }
+}
 
+use std::marker::PhantomData;
+
+fn real_input_path(input_path: &Path) -> RealPath<Input> {
+    RealPath { path: input_path.to_path_buf(), phantom: PhantomData }
+}
+
+fn prepend_output_dir(output_dir: &Path, path: NominalPath<Output>) -> RealPath<Output> {
+    RealPath{ path: output_dir.join(path.path), phantom: path.phantom }
+}
+
+fn strip_input_dir(input_dir: &str, input_path_real: &RealPath<Input>) -> Result<NominalPath<Input>> {
+    // I don't think `strip_prefix` is quite this smart.
+    let stripped =
+        if input_dir == "." { &input_path_real.path }
+        else { input_path_real.path.strip_prefix(input_dir)? };
+    stripped.to_str()
+        .map(|s| Ok(NominalPath { path: s.to_owned(), phantom: PhantomData }))
+        .unwrap_or_else(|| Err(anyhow!("not unicode path! {:?}", stripped)))
 }
 
 use std::fs;
+
+fn create_parent_directories(output: &RealPath<Output>) -> Result<()> {
+    for parent in output.path.parent().iter() { fs::DirBuilder::new().recursive(true).create(parent)?; }; Ok(())
+}
+
 use pulldown_cmark::{Parser, html};
 
 /// Given the path (without the input directory) to an file that has
@@ -111,30 +137,34 @@ use pulldown_cmark::{Parser, html};
 /// path that we must write its corresponding output to. This
 /// involves turning \*.html into \*/index.html (unless the filename
 /// is *already* index.html), likewise with \*.md.
-fn content_output_path(input_path: &Path) -> Result<PathBuf> {
-    let mut result = PathBuf::from(input_path);
-    // Is the closure here a Haskell-ism?
-    let mut to_index_html = || -> Result<(),anyhow::Error> {
-        result.pop();
-        let input_stem = input_path.file_stem()
-            // I think the error case here is impossible, because a
-            // path without a file stem would be one that ends in a
-            // slash (I think?), but we don't get such paths from the directory walking.
-            .map(|s| Ok(s)).unwrap_or_else(|| Err(anyhow!("Weird input path: {:?}", input_path)))?;
-        result.push(input_stem); result.push("index.html");
-        Ok(())
-    };
-    // This is a really weirdly written function.
-    if input_path.file_name() == Some("index.html".as_ref()) { return Ok(result); };
-    let ext = input_path.extension();
-    if ext == Some("md".as_ref()) || ext == Some("html".as_ref()) { to_index_html()? }
-    Ok(result)
+fn content_output_path(input_path_nominal: NominalPath<Input>) -> Result<NominalPath<Output>> {
+    let input_path = input_path_nominal.path;
+    let mut input_path_parts = input_path.rsplitn(2, '/');
+    let input_filename = input_path_parts.next().expect("No filename!!");
+    if input_filename == "index.html"
+        { Ok(NominalPath { path: input_path, phantom: PhantomData }) }
+    else {
+        let input_parent_dir = input_path_parts.next();
+        let mut input_filename_parts = input_filename.rsplitn(2, '.');
+        let input_ext = input_filename_parts.next();
+        let input_stem = input_filename_parts.next();
+        match input_stem {
+            Some(stem) if input_ext == Some("md") || input_ext == Some("html") => {
+                let path = [input_parent_dir.unwrap_or(""), stem, "/index.html"].join("");
+                Ok(NominalPath { path, phantom: PhantomData }) },
+            _ => Ok(NominalPath { path: input_path, phantom: PhantomData }),
+        }
+    }
+}
+
+fn asset_output_path(input_path: NominalPath<Input>) -> NominalPath<Output> {
+    NominalPath { path: input_path.path, phantom: PhantomData }
 }
 
 /// Read a file, separate from the content and parse a YAML metadata
 /// block if there is one, and return both metadata and content.
-fn read_file_with_front_matter(input_path: &Path) -> Result<(Metadata, String)> {
-    let entire_content = fs::read_to_string(input_path)?;
+fn read_file_with_front_matter(input_path: &RealPath<Input>) -> Result<(Metadata, String)> {
+    let entire_content = fs::read_to_string(&input_path.path)?;
     if let Some(front_plus_content) = entire_content.strip_prefix("---") {
         // We have a YAML metadata block. Split the block from the
         // content that follows.
@@ -167,11 +197,11 @@ fn render_markdown(input: String) -> Html {
 
 // Write some HTML to a file, creating the parent directories of the
 // file if they don't already exist.
-fn write_page(output_path: &Path, content: Html) -> Result<()> {
+fn write_page(output_path: RealPath<Output>, content: Html) -> Result<()> {
     // The path may, in principle, have no parent; this is impossible here because we prepend the
     // output directory in `output_path`.
-    for parent in output_path.parent().iter() { fs::DirBuilder::new().recursive(true).create(parent)?; };
-    fs::write(output_path, content)?;
+    for parent in output_path.path.parent().iter() { fs::DirBuilder::new().recursive(true).create(parent)?; };
+    fs::write(output_path.path, content)?;
     Ok(())
 }
 
@@ -184,10 +214,10 @@ fn register_tag_for_page<'a>(tags: &mut BTreeMap<String, Vec<&'a PageForTemplate
 
 fn determine_template_name(templates: &Handlebars, page: &PageForTemplate) -> Option<String> {
     if let Some(Value::String(name)) = page.data.get("template") { Some(name.clone()) }
-    else if templates.has_template(&page.input_path) { Some(page.input_path.clone()) }
+    else if templates.has_template(&page.input_path.path) { Some(page.input_path.path.clone()) }
     else {
         // This is annoying; I just wanted to use `with_file_name`
-        let dir_template_name = page.input_path
+        let dir_template_name = page.input_path.path
             .rsplitn(2, '/').nth(1) // Split on the last path separator, drop the filename
             .map(|n| [n, "/_each"].join(""))
             .unwrap_or(String::from("_each"));
@@ -198,7 +228,7 @@ fn determine_template_name(templates: &Handlebars, page: &PageForTemplate) -> Op
 
 /// Ready to be passed to Handlebars.
 struct PageForTemplate {
-    input_path: String,
+    input_path: NominalPath<Input>,
     data: BTreeMap<String,Value>
 }
 
@@ -229,16 +259,13 @@ fn main() -> Result<()> {
                 .filter(|e| is_file(e)) // Skip directories and whatever else is not a file (symbolic links too I guess)
     {
         // The real path, for doing IO with.
-        let input_path_real = entry.path();
+        let input_path_real = real_input_path(entry.path());
         // The path with the input directory stripped, for making
         // available as a variable in templates, and for computing the
         // URL and output path with.
-        let input_path_nominal =
-            // I don't think `strip_prefix` is quite this smart.
-            if pimisi.input_dir == "." { input_path_real }
-            else { input_path_real.strip_prefix(&pimisi.input_dir)? };
+        let input_path_nominal = strip_input_dir(&pimisi.input_dir, &input_path_real)?;
 
-        let file_kind = pimisi.discern_file_kind(input_path_nominal)?;
+        let file_kind = pimisi.discern_file_kind(&input_path_nominal)?;
 
         /*** INITIAL HANDLING OF INPUT FILES {{{ ***/
         // I would prefer eventually to not bail on the first
@@ -246,28 +273,25 @@ fn main() -> Result<()> {
         // files we can, also counting them.
         match file_kind {
             FileKind::Asset => {
-                let output_path = pimisi.prepend_output_dir(input_path_nominal);
+                let output_path = prepend_output_dir(pimisi.output_dir.as_ref(), asset_output_path(input_path_nominal));
                 // TODO this is repeated
-                for parent in output_path.parent().iter() { fs::DirBuilder::new().recursive(true).create(parent)?; };
-                fs::copy(input_path_real, output_path)?; ()
+                create_parent_directories(&output_path)?;
+                fs::copy(input_path_real.path, output_path.path)?; ()
             },
             FileKind::Template { name } => {
-                templates.register_template_file(&name, input_path_real)?;
+                templates.register_template_file(&name, input_path_real.path)?;
             },
             FileKind::Content(content_kind) => {
-                let (mut data, content) = read_file_with_front_matter(input_path_real)?;
+                let (mut data, content) = read_file_with_front_matter(&input_path_real)?;
                 let hypertext = match content_kind {
                     // TODO escaping of e.g. '&' surrounded by whitespace?
                     ContentKind::Html => content,
                     ContentKind::Markdown => render_markdown(content),
                 };
 
-                // Remember to put this somewhere else
-                // let output_path = pimisi.content_output_path(entry.path(), content_kind)?;
                 data.insert(String::from("content"), Value::String(hypertext));
-                let input_path = input_path_nominal.to_str().ok_or_else(|| anyhow!("Path not unicode: {:?}", input_path_real))?.to_owned();
 
-                let page = PageForTemplate { data, input_path };
+                let page = PageForTemplate { data, input_path: input_path_nominal };
                 pages.push(page);
             }
         } /* }}} */
@@ -276,7 +300,7 @@ fn main() -> Result<()> {
     // REGISTER THE TAGS {{{
     for page in pages.iter() {
         // Each page is tagged with the name of its parent directory.
-        let page_input_path: &Path = page.input_path.as_ref();
+        let page_input_path: &Path = page.input_path.path.as_ref();
         let dir_tag = page_input_path.parent()
             .and_then(|p| p.file_name())
             // TODO Log something upon decoding failure!
@@ -296,15 +320,15 @@ fn main() -> Result<()> {
         }
     }; /* }}} */
 
-    for page in pages.iter() {
-        let template_name = determine_template_name(&templates, page);
+    for page in pages.into_iter() {
+        let template_name = determine_template_name(&templates, &page);
         let output = match template_name {
             Some(name) => templates.render(&name, &page.data)?,
             None => String::from("No content!"), // TODO do something better here
         };
-        let output_path_nominal = content_output_path(page.input_path.as_ref())?;
-        let output_path_real = pimisi.prepend_output_dir(&output_path_nominal);
-        write_page(&output_path_real, output)?;
+        let output_path_nominal = content_output_path(page.input_path)?;
+        let output_path_real = prepend_output_dir(pimisi.output_dir.as_ref(), output_path_nominal);
+        write_page(output_path_real, output)?;
     }
     Ok(())
 }
