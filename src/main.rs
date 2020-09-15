@@ -188,7 +188,7 @@ fn determine_template_name(templates: &Handlebars, page: &PageForTemplate) -> Op
     else {
         // This is annoying; I just wanted to use `with_file_name`
         let dir_template_name = page.input_path
-            .rsplitn(2, '/').nth(0)
+            .rsplitn(2, '/').nth(1) // Split on the last path separator, drop the filename
             .map(|n| [n, "/_each"].join(""))
             .unwrap_or(String::from("_each"));
         if templates.has_template(&dir_template_name) { Some(dir_template_name) }
