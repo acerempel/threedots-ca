@@ -65,7 +65,7 @@ impl Pimisi {
 
     fn default_output_dir() -> String { String::from("_site") }
     fn default_input_dir() -> String { String::from("content") }
-    fn default_template_suffix() -> String { String::from(".hbs") }
+    fn default_template_suffix() -> String { String::from("hbs") }
 
 }
 
@@ -85,7 +85,7 @@ fn discern_file_kind(template_suffix: &str, input_path_nominal: &NominalPath<Inp
         let input_stem = input_filename_parts.next();
         if let Some(stem) = input_stem {
             let input_ext = input_ext_opt.unwrap();
-            let index_html = || NominalPath { path: [input_parent_dir.unwrap_or(""), stem, "index.html"].join("/"), phantom: PhantomData };
+            let index_html = || NominalPath { path: input_parent_dir.map(|dir| [dir, stem, "index.html"].join("/")).unwrap_or_else(|| [stem, "index.html"].join("/")), phantom: PhantomData };
             match input_ext {
                 "md" => Ok( FileKind::Content(ContentKind::Markdown, index_html()) ),
                 "html" => Ok( FileKind::Content(ContentKind::Html, index_html()) ),
@@ -237,14 +237,17 @@ fn main() -> Result<()> {
         // files we can, also counting them.
         match file_kind {
             FileKind::Asset(output_path_nominal) => {
+                println!("{}: copying to {}", input_path_nominal.path, output_path_nominal.path);
                 let output_path = prepend_output_dir(pimisi.output_dir.as_ref(), output_path_nominal);
                 create_parent_directories(&output_path)?;
                 fs::copy(input_path_real.path, output_path.path)?; ()
             },
             FileKind::Template { name } => {
+                println!("{}: registering template as {}", input_path_nominal.path, name);
                 templates.register_template_file(&name, input_path_real.path)?;
             },
             FileKind::Content(content_kind, output_path) => {
+                println!("{}: reading content", input_path_nominal.path);
                 let (mut data, content) = read_file_with_front_matter(&input_path_real)?;
                 let hypertext = match content_kind {
                     // TODO escaping of e.g. '&' surrounded by whitespace?
@@ -286,10 +289,13 @@ fn main() -> Result<()> {
     for page in pages.into_iter() {
         let template_name = determine_template_name(&templates, &page);
         let output = match template_name {
-            Some(name) => templates.render(&name, &page.data)?,
+            Some(name) => {
+                println!("{}: applying template {}", page.input_path.path, name);
+                templates.render(&name, &page.data)? },
             None => String::from("No content!"), // TODO do something better here
         };
         let output_path_nominal = page.output_path;
+        println!("{}: writing to {}", page.input_path.path, output_path_nominal.path);
         let output_path_real = prepend_output_dir(pimisi.output_dir.as_ref(), output_path_nominal);
         write_page(output_path_real, output)?;
     }
