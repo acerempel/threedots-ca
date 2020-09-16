@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="ContentType" content="text/html; charset=utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="google-site-verification" content="DhZUgJjUNSRFdHhycAzNuCiTKprn-1Csb49PU1lsABo" >
+    <meta name="color-scheme" content="light dark">
+    <meta name="author" content="Alan Rempel">
+    <!-- insert canonical link -->
+    <title>{{#if title}}{{ title }} … {{/if}}‹three dots›</title>
+    {{#if description}}<meta name="description" content="{{ description }}">{{/if}}
+    <link rel="alternate" type="application/atom+xml" href="/posts/feed.xml">
+    <link rel="stylesheet" href="/littlefoot.css">
+    <link href="/styles.css" rel="stylesheet">
+    <script defer src="/bundle.js"></script>
+  </head>
+  <body class="colour-scheme-auto">
+    <div class="container">
+      <header class="top-header">
+        <a class="bold" href="/">three dots …</a>
+      </header>
+      <main>
+        {{> main}}
+      </main>
+      <footer class="border-top">
+        
+        <section>
+          <p>
+            <label for="colour-scheme">Colour scheme:</label>
+            <select required id="colour-scheme">
+              <option value="auto" selected>System setting</option>
+              <option value="light">Light</option>
+              <option value="dark">Dark</option>
+            </select>
+          </p>
+        </section>
+      </footer>
+    </div>
+    <script data-goatcounter="https://threedots_ca.goatcounter.com/count" async src="//gc.zgo.at/count.js"></script>
+  </body>
+</html>
