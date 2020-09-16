@@ -29,9 +29,9 @@ type Metadata = BTreeMap<String, Value>;
 /// output; is it a template that we must load and let Tera take care of;
 /// or is it an asset that we just copy over?
 enum FileKind {
-    Content(ContentKind),
+    Content(ContentKind, NominalPath<Output>),
     Template { name: String },
-    Asset,
+    Asset(NominalPath<Output>),
 }
 
 /// Concerning a file that has page content in it, what format that
@@ -51,23 +51,6 @@ struct Pimisi {
     template_suffix: String,
 }
 
-/// Does it have such an extension? See `strip_extension` for why it is
-/// terrible.
-fn has_extension(path: &str, ext: &str) -> bool {
-    strip_extension(path, ext).is_some()
-}
-
-/// This requires `ext` to have a leading '.'. Also the path separator
-/// is hardcoded as a '/'. Terrible.
-fn strip_extension<'a>(path: &'a str, ext: &str) -> Option<&'a str> {
-    if let Some(stripped) = path.strip_suffix(ext) {
-        // TODO this should be the platform path separator
-        if stripped.ends_with('/') { return None; };
-        if stripped.is_empty() { return None; };
-        return Some(stripped);
-    } else { return None; };
-}
-
 struct NominalPath<T: PathOrientation>{ path: String, phantom: PhantomData<T> }
 struct RealPath<T: PathOrientation>{ path: PathBuf, phantom: PhantomData<T> }
 
@@ -84,24 +67,33 @@ impl Pimisi {
     fn default_input_dir() -> String { String::from("content") }
     fn default_template_suffix() -> String { String::from(".hbs") }
 
-    /// Look at a file path and figure out, based on the file
-    /// extension(s) or lack thereof, how we should treat it.
-    fn discern_file_kind(&self, input_path: &NominalPath<Input>) -> Result<FileKind> {
-        let input_path_str = &input_path.path;
-        // What is the file extension? TODO This should handle XML, and
-        // maybe be extensible … hmmm. I just do not like this bit of
-        // code.
-        let kind =
-            if has_extension(input_path_str, ".md") {
-                FileKind::Content(ContentKind::Markdown)
-            } else if let Some(sans_ext) = strip_extension(input_path_str, &self.template_suffix) {
-                FileKind::Template { name: sans_ext.to_owned() }
-            } else if has_extension(input_path_str, ".html") {
-                FileKind::Content(ContentKind::Html)
-            } else { FileKind::Asset };
-        Ok(kind)
-    }
+}
 
+/// Look at a file path and figure out, based on the file
+/// extension(s) or lack thereof, how we should treat it.
+fn discern_file_kind(template_suffix: &str, input_path_nominal: &NominalPath<Input>) -> Result<FileKind> {
+    let input_path = &input_path_nominal.path;
+    let mut input_path_parts = input_path.rsplitn(2, '/');
+    let input_filename = input_path_parts.next().expect("No filename!!");
+    let same_input_path = || NominalPath { path: input_path.clone(), phantom: PhantomData };
+    if input_filename == "index.html"
+        { Ok(FileKind::Content(ContentKind::Html, same_input_path())) }
+    else {
+        let input_parent_dir = input_path_parts.next();
+        let mut input_filename_parts = input_filename.rsplitn(2, '.');
+        let input_ext_opt = input_filename_parts.next();
+        let input_stem = input_filename_parts.next();
+        if let Some(stem) = input_stem {
+            let input_ext = input_ext_opt.unwrap();
+            let index_html = || NominalPath { path: [input_parent_dir.unwrap_or(""), stem, "index.html"].join("/"), phantom: PhantomData };
+            match input_ext {
+                "md" => Ok( FileKind::Content(ContentKind::Markdown, index_html()) ),
+                "html" => Ok( FileKind::Content(ContentKind::Html, index_html()) ),
+                ext if ext == template_suffix => Ok(FileKind::Template { name: input_parent_dir.map(|dir| [dir, stem].join("/")).unwrap_or_else(|| stem.to_owned()) }),
+                _ => Ok( FileKind::Asset(same_input_path()) ),
+            }
+        } else { Ok( FileKind::Asset(same_input_path()) ) }
+    }
 }
 
 use std::marker::PhantomData;
@@ -131,35 +123,6 @@ fn create_parent_directories(output: &RealPath<Output>) -> Result<()> {
 }
 
 use pulldown_cmark::{Parser, html};
-
-/// Given the path (without the input directory) to an file that has
-/// page content, and whether it is markdown or HTML, compute the
-/// path that we must write its corresponding output to. This
-/// involves turning \*.html into \*/index.html (unless the filename
-/// is *already* index.html), likewise with \*.md.
-fn content_output_path(input_path_nominal: NominalPath<Input>) -> Result<NominalPath<Output>> {
-    let input_path = input_path_nominal.path;
-    let mut input_path_parts = input_path.rsplitn(2, '/');
-    let input_filename = input_path_parts.next().expect("No filename!!");
-    if input_filename == "index.html"
-        { Ok(NominalPath { path: input_path, phantom: PhantomData }) }
-    else {
-        let input_parent_dir = input_path_parts.next();
-        let mut input_filename_parts = input_filename.rsplitn(2, '.');
-        let input_ext = input_filename_parts.next();
-        let input_stem = input_filename_parts.next();
-        match input_stem {
-            Some(stem) if input_ext == Some("md") || input_ext == Some("html") => {
-                let path = [input_parent_dir.unwrap_or(""), stem, "/index.html"].join("");
-                Ok(NominalPath { path, phantom: PhantomData }) },
-            _ => Ok(NominalPath { path: input_path, phantom: PhantomData }),
-        }
-    }
-}
-
-fn asset_output_path(input_path: NominalPath<Input>) -> NominalPath<Output> {
-    NominalPath { path: input_path.path, phantom: PhantomData }
-}
 
 /// Read a file, separate from the content and parse a YAML metadata
 /// block if there is one, and return both metadata and content.
@@ -229,6 +192,7 @@ fn determine_template_name(templates: &Handlebars, page: &PageForTemplate) -> Op
 /// Ready to be passed to Handlebars.
 struct PageForTemplate {
     input_path: NominalPath<Input>,
+    output_path: NominalPath<Output>,
     data: BTreeMap<String,Value>
 }
 
@@ -265,23 +229,22 @@ fn main() -> Result<()> {
         // URL and output path with.
         let input_path_nominal = strip_input_dir(&pimisi.input_dir, &input_path_real)?;
 
-        let file_kind = pimisi.discern_file_kind(&input_path_nominal)?;
+        let file_kind = discern_file_kind(&pimisi.template_suffix, &input_path_nominal)?;
 
         /*** INITIAL HANDLING OF INPUT FILES {{{ ***/
         // I would prefer eventually to not bail on the first
         // error, but print the errors with a count and process all the
         // files we can, also counting them.
         match file_kind {
-            FileKind::Asset => {
-                let output_path = prepend_output_dir(pimisi.output_dir.as_ref(), asset_output_path(input_path_nominal));
-                // TODO this is repeated
+            FileKind::Asset(output_path_nominal) => {
+                let output_path = prepend_output_dir(pimisi.output_dir.as_ref(), output_path_nominal);
                 create_parent_directories(&output_path)?;
                 fs::copy(input_path_real.path, output_path.path)?; ()
             },
             FileKind::Template { name } => {
                 templates.register_template_file(&name, input_path_real.path)?;
             },
-            FileKind::Content(content_kind) => {
+            FileKind::Content(content_kind, output_path) => {
                 let (mut data, content) = read_file_with_front_matter(&input_path_real)?;
                 let hypertext = match content_kind {
                     // TODO escaping of e.g. '&' surrounded by whitespace?
@@ -291,7 +254,7 @@ fn main() -> Result<()> {
 
                 data.insert(String::from("content"), Value::String(hypertext));
 
-                let page = PageForTemplate { data, input_path: input_path_nominal };
+                let page = PageForTemplate { data, input_path: input_path_nominal, output_path };
                 pages.push(page);
             }
         } /* }}} */
@@ -326,7 +289,7 @@ fn main() -> Result<()> {
             Some(name) => templates.render(&name, &page.data)?,
             None => String::from("No content!"), // TODO do something better here
         };
-        let output_path_nominal = content_output_path(page.input_path)?;
+        let output_path_nominal = page.output_path;
         let output_path_real = prepend_output_dir(pimisi.output_dir.as_ref(), output_path_nominal);
         write_page(output_path_real, output)?;
     }
