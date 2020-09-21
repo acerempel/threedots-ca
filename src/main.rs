@@ -82,21 +82,33 @@ fn discern_file_kind(template_suffix: &str, input_path_nominal: &NominalPath<Inp
     let input_filename = input_path_parts.next().expect("No filename!!");
     let input_parent_dir = input_path_parts.next();
     let same_input_path = || NominalPath { path: input_path.clone(), phantom: PhantomData };
-    if input_filename == "index.html"
-        { let url = input_parent_dir.map(|dir| format!("/{}/", dir)).unwrap_or_else(|| String::from("/"));
-          Ok(FileKind::Content(ContentKind::Html, same_input_path(), url)) }
-    else {
+    if input_filename == "index.html" {
+        let url = input_parent_dir
+            .map(|dir| format!("/{}/", dir))
+            .unwrap_or_else(|| String::from("/"));
+        Ok(FileKind::Content(ContentKind::Html, same_input_path(), url))
+    } else {
         let mut input_filename_parts = input_filename.rsplitn(2, '.');
         let input_ext_opt = input_filename_parts.next();
         let input_stem = input_filename_parts.next();
         if let Some(stem) = input_stem {
             let input_ext = input_ext_opt.unwrap();
-            let index_html = || NominalPath { path: input_parent_dir.map(|dir| [dir, stem, "index.html"].join("/")).unwrap_or_else(|| [stem, "index.html"].join("/")), phantom: PhantomData };
-            let content_url = || input_parent_dir.map(|dir| format!("/{}/{}/", dir, stem)).unwrap_or_else(|| format!("/{}/", stem));
+            let index_html = || {
+                let path = input_parent_dir
+                    .map(|dir| [dir, stem, "index.html"].join("/"))
+                    .unwrap_or_else(|| [stem, "index.html"].join("/"));
+                NominalPath { path, phantom: PhantomData }
+            };
+            let content_url = || input_parent_dir
+                .map(|dir| format!("/{}/{}/", dir, stem))
+                .unwrap_or_else(|| format!("/{}/", stem));
             match input_ext {
                 "md" => Ok( FileKind::Content(ContentKind::Markdown, index_html(), content_url()) ),
                 "html" => Ok( FileKind::Content(ContentKind::Html, index_html(), content_url()) ),
-                ext if ext == template_suffix => Ok(FileKind::Template { name: input_parent_dir.map(|dir| [dir, stem].join("/")).unwrap_or_else(|| stem.to_owned()) }),
+                ext if ext == template_suffix => {
+                    let name = input_parent_dir.map(|dir| [dir, stem].join("/")).unwrap_or_else(|| stem.to_owned());
+                    Ok(FileKind::Template { name })
+                },
                 _ => Ok( FileKind::Asset(same_input_path()) ),
             }
         } else { Ok( FileKind::Asset(same_input_path()) ) }
@@ -264,7 +276,7 @@ fn main() -> Result<()> {
 
         let file_kind = discern_file_kind(&pimisi.template_suffix, &input_path_nominal)?;
 
-        /*** INITIAL HANDLING OF INPUT FILES {{{ ***/
+        // INITIAL HANDLING OF INPUT FILES {{{
         // I would prefer eventually to not bail on the first
         // error, but print the errors with a count and process all the
         // files we can, also counting them.
@@ -322,6 +334,7 @@ fn main() -> Result<()> {
 
     templates.register_helper("tag", Box::new(tags));
 
+    // APPLY TEMPLATES {{{
     for page in pages.into_iter() {
         let template_name = determine_template_name(&templates, &page);
         let output = match template_name {
@@ -334,6 +347,6 @@ fn main() -> Result<()> {
         println!("{}: writing to {}", page.input_path.path, output_path_nominal.path);
         let output_path_real = prepend_output_dir(pimisi.output_dir.as_ref(), output_path_nominal);
         write_page(output_path_real, output)?;
-    }
+    } // }}}
     Ok(())
 }
