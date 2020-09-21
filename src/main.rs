@@ -14,16 +14,19 @@ fn is_file(entry: &DirEntry) -> bool {
 #[macro_use]
 extern crate anyhow;
 
+#[macro_use]
+extern crate serde_json;
+
 use std::path::{Path, PathBuf};
 use anyhow::Result;
 
 use std::collections::BTreeMap;
 use serde::Deserialize;
-use serde_yaml::Value;
+use serde_json::value::Value;
 
-/// We use `BTreeMap` because that's what Handlebars uses under the hood
+/// We use `Map` because that's what Handlebars uses under the hood
 /// (by way of serde_json).
-type Metadata = BTreeMap<String, Value>;
+type Metadata = serde_json::map::Map<String,Value>;
 
 /// What kind of file? Does it contain content that we must process and
 /// output; is it a template that we must load and let Tera take care of;
@@ -168,14 +171,15 @@ fn write_page(output_path: RealPath<Output>, content: Html) -> Result<()> {
     Ok(())
 }
 
-fn register_tag_for_page<'a>(tags: &mut BTreeMap<String, Vec<&'a PageForTemplate>>, page: &'a PageForTemplate, t: &str) {
-    match tags.get_mut(t) {
-        Some(v) => v.push(page),
-        None => { tags.insert(t.to_owned(), vec![page]); () },
+fn register_tag_for_page<'a>(tags: &mut Tags, page: &'a Page, t: &str) {
+    let val = Value::Object(page.data.clone());
+    match tags.0.get_mut(t) {
+        Some(v) => v.push(val),
+        None => { tags.0.insert(t.to_owned(), vec![val]); () },
     };
 }
 
-fn determine_template_name(templates: &Handlebars, page: &PageForTemplate) -> Option<String> {
+fn determine_template_name(templates: &Handlebars, page: &Page) -> Option<String> {
     if let Some(Value::String(name)) = page.data.get("template") { Some(name.clone()) }
     else if templates.has_template(&page.input_path.path) { Some(page.input_path.path.clone()) }
     else {
@@ -190,14 +194,37 @@ fn determine_template_name(templates: &Handlebars, page: &PageForTemplate) -> Op
 }
 
 /// Ready to be passed to Handlebars.
-struct PageForTemplate {
+struct Page {
     input_path: NominalPath<Input>,
     output_path: NominalPath<Output>,
-    data: BTreeMap<String,Value>
+    data: Metadata
 }
 
-use handlebars::Handlebars;
+use handlebars::{Handlebars, ScopedJson, RenderError};
 use std::fs::File;
+
+struct Tags(BTreeMap<String,Vec<Value>>);
+
+impl Tags {
+    fn new() -> Self {
+        Tags(BTreeMap::new())
+    }
+}
+
+impl handlebars::HelperDef for Tags {
+    fn call_inner<'reg: 'rc, 'rc>(
+        &self,
+        helper: &handlebars::Helper<'reg, 'rc>,
+        _: &'reg Handlebars<'reg>,
+        _: &'rc handlebars::Context,
+        _: &mut handlebars::RenderContext<'reg, 'rc>
+        ) -> Result<Option<ScopedJson<'reg, 'rc>>, RenderError> {
+        let param = helper.param(0)
+            .ok_or_else(|| RenderError::new("no parameter given!"))
+            .and_then(|v| v.value().as_str().ok_or_else(|| RenderError::new("parameter is not a string!")))?;
+        Ok(self.0.get(param).map(|tags| ScopedJson::Derived(Value::Array(tags.clone()))))
+    }
+}
 
 fn main() -> Result<()> {
     // INITIALIZE GLOBAL STATE AND CONFIGURATION {{{
@@ -209,8 +236,8 @@ fn main() -> Result<()> {
         serde_yaml::from_reader(config_file)?
     };
 
-    let mut pages: Vec<PageForTemplate> = Vec::with_capacity(32);
-    let mut tags: BTreeMap<String, Vec<&PageForTemplate>> = BTreeMap::new();
+    let mut pages: Vec<Page> = Vec::with_capacity(32);
+    let mut tags = Tags::new();
 
     let mut templates = Handlebars::new();
     templates.set_strict_mode(true);
@@ -248,16 +275,16 @@ fn main() -> Result<()> {
             },
             FileKind::Content(content_kind, output_path) => {
                 println!("{}: reading content", input_path_nominal.path);
-                let (mut data, content) = read_file_with_front_matter(&input_path_real)?;
-                let hypertext = match content_kind {
+                let (mut data, raw_content) = read_file_with_front_matter(&input_path_real)?;
+                let content = match content_kind {
                     // TODO escaping of e.g. '&' surrounded by whitespace?
-                    ContentKind::Html => content,
-                    ContentKind::Markdown => render_markdown(content),
+                    ContentKind::Html => raw_content,
+                    ContentKind::Markdown => render_markdown(raw_content),
                 };
 
-                data.insert(String::from("content"), Value::String(hypertext));
-
-                let page = PageForTemplate { data, input_path: input_path_nominal, output_path };
+                data.insert(String::from("content"), Value::String(content));
+                data.insert(String::from("path"), json!({"input": input_path_nominal.path, "output": output_path.path}));
+                let page = Page { data, input_path: input_path_nominal, output_path };
                 pages.push(page);
             }
         } /* }}} */
@@ -273,7 +300,7 @@ fn main() -> Result<()> {
             .and_then(|p| p.to_str());
         dir_tag.map(|t| register_tag_for_page(&mut tags, page, t));
 
-        if let Some(Value::Sequence(meta_tags)) = page.data.get("tags") {
+        if let Some(Value::Array(meta_tags)) = page.data.get("tags") {
             for tag in meta_tags.iter() {
                 // Log non-string values as errors?
                 match tag {
@@ -285,6 +312,8 @@ fn main() -> Result<()> {
             }
         }
     }; /* }}} */
+
+    templates.register_helper("tag", Box::new(tags));
 
     for page in pages.into_iter() {
         let template_name = determine_template_name(&templates, &page);
