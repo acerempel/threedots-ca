@@ -19,6 +19,9 @@
     <div class="container">
       <header class="top-header">
         <a class="bold" href="/">three dots …</a>
+        <nav>{{#each (tag "top_nav") as |nav_page|}}
+          {{> link nav_page}}{{#if (not @last)}} • {{/if}}
+        {{/each}}</nav>
       </header>
       <main>
         {{> main}}

@@ -32,10 +32,12 @@ type Metadata = serde_json::map::Map<String,Value>;
 /// output; is it a template that we must load and let Tera take care of;
 /// or is it an asset that we just copy over?
 enum FileKind {
-    Content(ContentKind, NominalPath<Output>),
+    Content(ContentKind, NominalPath<Output>, URL),
     Template { name: String },
     Asset(NominalPath<Output>),
 }
+
+type URL = String;
 
 /// Concerning a file that has page content in it, what format that
 /// content is in.
@@ -78,20 +80,22 @@ fn discern_file_kind(template_suffix: &str, input_path_nominal: &NominalPath<Inp
     let input_path = &input_path_nominal.path;
     let mut input_path_parts = input_path.rsplitn(2, '/');
     let input_filename = input_path_parts.next().expect("No filename!!");
+    let input_parent_dir = input_path_parts.next();
     let same_input_path = || NominalPath { path: input_path.clone(), phantom: PhantomData };
     if input_filename == "index.html"
-        { Ok(FileKind::Content(ContentKind::Html, same_input_path())) }
+        { let url = input_parent_dir.map(|dir| format!("/{}/", dir)).unwrap_or_else(|| String::from("/"));
+          Ok(FileKind::Content(ContentKind::Html, same_input_path(), url)) }
     else {
-        let input_parent_dir = input_path_parts.next();
         let mut input_filename_parts = input_filename.rsplitn(2, '.');
         let input_ext_opt = input_filename_parts.next();
         let input_stem = input_filename_parts.next();
         if let Some(stem) = input_stem {
             let input_ext = input_ext_opt.unwrap();
             let index_html = || NominalPath { path: input_parent_dir.map(|dir| [dir, stem, "index.html"].join("/")).unwrap_or_else(|| [stem, "index.html"].join("/")), phantom: PhantomData };
+            let content_url = || input_parent_dir.map(|dir| format!("/{}/{}/", dir, stem)).unwrap_or_else(|| format!("/{}/", stem));
             match input_ext {
-                "md" => Ok( FileKind::Content(ContentKind::Markdown, index_html()) ),
-                "html" => Ok( FileKind::Content(ContentKind::Html, index_html()) ),
+                "md" => Ok( FileKind::Content(ContentKind::Markdown, index_html(), content_url()) ),
+                "html" => Ok( FileKind::Content(ContentKind::Html, index_html(), content_url()) ),
                 ext if ext == template_suffix => Ok(FileKind::Template { name: input_parent_dir.map(|dir| [dir, stem].join("/")).unwrap_or_else(|| stem.to_owned()) }),
                 _ => Ok( FileKind::Asset(same_input_path()) ),
             }
@@ -171,14 +175,6 @@ fn write_page(output_path: RealPath<Output>, content: Html) -> Result<()> {
     Ok(())
 }
 
-fn register_tag_for_page<'a>(tags: &mut Tags, page: &'a Page, t: &str) {
-    let val = Value::Object(page.data.clone());
-    match tags.0.get_mut(t) {
-        Some(v) => v.push(val),
-        None => { tags.0.insert(t.to_owned(), vec![val]); () },
-    };
-}
-
 fn determine_template_name(templates: &Handlebars, page: &Page) -> Option<String> {
     if let Some(Value::String(name)) = page.data.get("template") { Some(name.clone()) }
     else if templates.has_template(&page.input_path.path) { Some(page.input_path.path.clone()) }
@@ -209,6 +205,16 @@ impl Tags {
     fn new() -> Self {
         Tags(BTreeMap::new())
     }
+
+    fn register(&mut self, t: &str, page: &Page){
+        let val = Value::Object(page.data.clone());
+        match self.0.get_mut(t) {
+            Some(v) => v.push(val),
+            None => { self.0.insert(t.to_owned(), vec![val]); () },
+        };
+        println!("{}: registering with tag {}", page.input_path.path, t);
+    }
+
 }
 
 impl handlebars::HelperDef for Tags {
@@ -273,7 +279,7 @@ fn main() -> Result<()> {
                 println!("{}: registering template as {}", input_path_nominal.path, name);
                 templates.register_template_file(&name, input_path_real.path)?;
             },
-            FileKind::Content(content_kind, output_path) => {
+            FileKind::Content(content_kind, output_path, url) => {
                 println!("{}: reading content", input_path_nominal.path);
                 let (mut data, raw_content) = read_file_with_front_matter(&input_path_real)?;
                 let content = match content_kind {
@@ -284,6 +290,7 @@ fn main() -> Result<()> {
 
                 data.insert(String::from("content"), Value::String(content));
                 data.insert(String::from("path"), json!({"input": input_path_nominal.path, "output": output_path.path}));
+                data.insert(String::from("url"), Value::String(url));
                 let page = Page { data, input_path: input_path_nominal, output_path };
                 pages.push(page);
             }
@@ -298,7 +305,7 @@ fn main() -> Result<()> {
             .and_then(|p| p.file_name())
             // TODO Log something upon decoding failure!
             .and_then(|p| p.to_str());
-        dir_tag.map(|t| register_tag_for_page(&mut tags, page, t));
+        dir_tag.map(|t| tags.register(t, page));
 
         if let Some(Value::Array(meta_tags)) = page.data.get("tags") {
             for tag in meta_tags.iter() {
@@ -306,7 +313,7 @@ fn main() -> Result<()> {
                 match tag {
                     // Don't register with the same tag twice!
                     Value::String(t) if dir_tag != Some(t) =>
-                        register_tag_for_page(&mut tags, page, t),
+                        tags.register(t, page),
                     _ => ()
                 }
             }
