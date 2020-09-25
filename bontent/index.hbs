@@ -1,0 +1,19 @@
+{{#*inline "main"}}
+        <section>
+        <article>
+          {{{content}}}
+        </article>
+        </section>
+        <section id="blog" class="border-top">
+          <h1><a href="/posts">Blog</a></h1>
+          {{#each (take 3 (tag "posts")) as |post|}}{{> post_summary post}}{{/each}}
+          <p class="see-all"><a href="/posts">See all posts …</a></p>
+        </section>
+        <section id="miscellaneous" class="border-top" >
+          <h1><a href="/misc">Miscellaneous lists</a></h1>
+          <ul>
+            <!-- misc pages -->
+          </ul>
+          <p class="see-all"><a href="/misc">See more … </a></p>
+        </section>
+{{/inline}}{{> base}}
