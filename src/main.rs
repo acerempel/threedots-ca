@@ -359,19 +359,15 @@ fn main() -> Result<()> {
         // Each page is tagged with the name of its parent directory.
         let page_input_path: &Path = page.input_path.path.as_ref();
         let dir_tag = page_input_path.parent()
-            .and_then(|p| p.file_name())
             // TODO Log something upon decoding failure!
-            .and_then(|p| p.to_str());
-        dir_tag.map(|t| tags.register(t, page));
+            .and_then(|p| p.to_str()).map(|p| p.replace("/", "_"));
+        dir_tag.as_ref().map(|t| tags.register(t, page));
 
         if let Some(Value::Array(meta_tags)) = page.data.get("tags") {
             for tag in meta_tags.iter() {
                 // Log non-string values as errors?
-                match tag {
-                    // Don't register with the same tag twice!
-                    Value::String(t) if dir_tag != Some(t) =>
-                        tags.register(t, page),
-                    _ => ()
+                if let Value::String(t) = tag {
+                    match dir_tag { Some(ref d) if d != t => tags.register(t, page), _ => () }
                 }
             }
         }
