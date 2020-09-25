@@ -377,7 +377,9 @@ fn main() -> Result<()> {
         let page_input_path: &Path = page.input_path.as_ref();
         let dir_tag = page_input_path.parent()
             // TODO Log something upon decoding failure!
-            .and_then(|p| p.to_str()).map(|p| p.replace("/", "_"));
+            .and_then(|p| p.to_str())
+            .map(|p| p.replace("/", "_"))
+            .map(|p| if p.is_empty() { String::from("_") } else { p });
         dir_tag.as_ref().map(|t| tags.register(t, page));
 
         // and with (2) each string value in an array in the "tags"
