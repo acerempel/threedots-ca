@@ -82,37 +82,36 @@ fn discern_file_kind(template_suffix: &str, input_path_nominal: &NominalPath<Inp
     let input_filename = input_path_parts.next().expect("No filename!!");
     let input_parent_dir = input_path_parts.next();
     let same_input_path = || NominalPath { path: input_path.clone(), phantom: PhantomData };
-    if input_filename == "index.html" {
-        let url = input_parent_dir
-            .map(|dir| format!("/{}/", dir))
-            .unwrap_or_else(|| String::from("/"));
-        Ok(FileKind::Content(ContentKind::Html, same_input_path(), url))
-    } else {
-        let mut input_filename_parts = input_filename.rsplitn(2, '.');
-        let input_ext_opt = input_filename_parts.next();
-        let input_stem = input_filename_parts.next();
-        if let Some(stem) = input_stem {
-            let input_ext = input_ext_opt.unwrap();
-            let index_html = || {
-                let path = input_parent_dir
+    let mut input_filename_parts = input_filename.rsplitn(2, '.');
+    let input_ext_opt = input_filename_parts.next();
+    let input_stem = input_filename_parts.next();
+    if let Some(stem) = input_stem {
+        let input_ext = input_ext_opt.unwrap();
+        let index_html = || {
+            let path = if stem == "index" {
+                input_parent_dir
+                    .map(|dir| [dir, "index.html"].join("/"))
+                    .unwrap_or(String::from("index.html"))
+            } else {
+                input_parent_dir
                     .map(|dir| [dir, stem, "index.html"].join("/"))
-                    .unwrap_or_else(|| [stem, "index.html"].join("/"));
-                NominalPath { path, phantom: PhantomData }
+                    .unwrap_or_else(|| [stem, "index.html"].join("/"))
             };
-            let content_url = || input_parent_dir
-                .map(|dir| format!("/{}/{}/", dir, stem))
-                .unwrap_or_else(|| format!("/{}/", stem));
-            match input_ext {
-                "md" => Ok( FileKind::Content(ContentKind::Markdown, index_html(), content_url()) ),
-                "html" => Ok( FileKind::Content(ContentKind::Html, index_html(), content_url()) ),
-                ext if ext == template_suffix => {
-                    let name = input_parent_dir.map(|dir| [dir, stem].join("/")).unwrap_or_else(|| stem.to_owned());
-                    Ok(FileKind::Template { name })
-                },
-                _ => Ok( FileKind::Asset(same_input_path()) ),
-            }
-        } else { Ok( FileKind::Asset(same_input_path()) ) }
-    }
+            NominalPath { path, phantom: PhantomData }
+        };
+        let content_url = || input_parent_dir
+            .map(|dir| format!("/{}/{}/", dir, stem))
+            .unwrap_or_else(|| format!("/{}/", stem));
+        match input_ext {
+            "md" => Ok( FileKind::Content(ContentKind::Markdown, index_html(), content_url()) ),
+            "html" => Ok( FileKind::Content(ContentKind::Html, index_html(), content_url()) ),
+            ext if ext == template_suffix => {
+                let name = input_parent_dir.map(|dir| [dir, stem].join("/")).unwrap_or_else(|| stem.to_owned());
+                Ok(FileKind::Template { name })
+            },
+            _ => Ok( FileKind::Asset(same_input_path()) ),
+        }
+    } else { Ok( FileKind::Asset(same_input_path()) ) }
 }
 
 use std::marker::PhantomData;
@@ -189,15 +188,18 @@ fn write_page(output_path: RealPath<Output>, content: Html) -> Result<()> {
 
 fn determine_template_name(templates: &Handlebars, page: &Page) -> Option<String> {
     if let Some(Value::String(name)) = page.data.get("template") { Some(name.clone()) }
-    else if templates.has_template(&page.input_path.path) { Some(page.input_path.path.clone()) }
     else {
-        // This is annoying; I just wanted to use `with_file_name`
-        let dir_template_name = page.input_path.path
-            .rsplitn(2, '/').nth(1) // Split on the last path separator, drop the filename
-            .map(|n| [n, "/_each"].join(""))
-            .unwrap_or(String::from("_each"));
-        if templates.has_template(&dir_template_name) { Some(dir_template_name) }
-        else { None }
+        let sans_ext = page.input_path.path.rsplitn(2, ".").nth(1).unwrap();
+        if templates.has_template(&sans_ext) { Some(sans_ext.to_owned()) }
+        else {
+            // This is annoying; I just wanted to use `with_file_name`
+            let dir_template_name = page.input_path.path
+                .rsplitn(2, '/').nth(1) // Split on the last path separator, drop the filename
+                .map(|n| [n, "/_each"].join(""))
+                .unwrap_or(String::from("_each"));
+            if templates.has_template(&dir_template_name) { Some(dir_template_name) }
+            else { None }
+        }
     }
 }
 
@@ -208,6 +210,8 @@ struct Page {
     data: Metadata
 }
 
+#[macro_use]
+extern crate handlebars;
 use handlebars::{Handlebars, ScopedJson, RenderError};
 use std::fs::File;
 
@@ -236,13 +240,52 @@ impl handlebars::HelperDef for Tags {
         _: &'reg Handlebars<'reg>,
         _: &'rc handlebars::Context,
         _: &mut handlebars::RenderContext<'reg, 'rc>
-        ) -> Result<Option<ScopedJson<'reg, 'rc>>, RenderError> {
+        ) -> Result<Option<ScopedJson<'reg, 'rc>>, RenderError>
+    {
         let param = helper.param(0)
             .ok_or_else(|| RenderError::new("no parameter given!"))
             .and_then(|v| v.value().as_str().ok_or_else(|| RenderError::new("parameter is not a string!")))?;
-        Ok(self.0.get(param).map(|tags| ScopedJson::Derived(Value::Array(tags.clone()))))
+        self.0.get(param)
+            .map(|tags| Some(ScopedJson::Derived(Value::Array(tags.clone()))))
+            .ok_or_else(|| RenderError::new(format!("tag not found: {}", param)))
     }
 }
+
+use chrono::NaiveDate;
+use chrono::Datelike;
+
+struct ParseDate;
+
+impl handlebars::HelperDef for ParseDate {
+    fn call_inner<'reg: 'rc, 'rc>(
+        &self,
+        helper: &handlebars::Helper<'reg, 'rc>,
+        _: &'reg Handlebars<'reg>,
+        _: &'rc handlebars::Context,
+        _: &mut handlebars::RenderContext<'reg, 'rc>
+        ) -> Result<Option<ScopedJson<'reg, 'rc>>, RenderError>
+    {
+        let param = helper.param(0)
+            .ok_or_else(|| RenderError::new("no parameter given!"))
+            .and_then(|v| v.value().as_str().ok_or_else(|| RenderError::new("parameter is not a string!")))?;
+        let parsed = param.parse::<NaiveDate>().map_err(|e| RenderError::from_error("date parse error", e))?;
+        let result = json!({"year": parsed.year(), "month": parsed.month(), "day": parsed.day(), "month_name": month_name(parsed.month())});
+        Ok(Some(ScopedJson::Derived(result)))
+    }
+}
+
+fn month_name(y: u32) -> &'static str {
+    match y {
+        1 => "January", 2 => "February", 3 => "March",
+        4 => "April", 5 => "May", 6 => "June",
+        7 => "July", 8 => "August", 9 => "September",
+        10 => "October", 11 => "November", 12 => "December",
+        _ => panic!("Invalid year: {}", y)
+    }
+}
+
+use std::convert::TryInto;
+handlebars_helper!(take: |n: u64, arr: array| if n as usize > arr.len() { arr } else { arr.split_at(n.try_into().unwrap()).0 });
 
 fn main() -> Result<()> {
     // INITIALIZE GLOBAL STATE AND CONFIGURATION {{{
@@ -259,6 +302,8 @@ fn main() -> Result<()> {
 
     let mut templates = Handlebars::new();
     templates.set_strict_mode(true);
+    templates.register_helper("date_parse", Box::new(ParseDate));
+    templates.register_helper("take", Box::new(take));
     // }}}
 
     // WALK THE INPUT DIRECTORY {{{
