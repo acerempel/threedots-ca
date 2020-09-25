@@ -171,7 +171,10 @@ type Html = String;
 // pulldown-cmark's API.
 fn render_markdown(input: String) -> Html {
     let parser = Parser::new(&input);
-    let mut output_buf = String::new(); // I guess we should maybe give a capacity hint
+    // We can reasonably estimate that the length of the HTML will be at
+    // least as great of the length of the markdown, so maybe we can
+    // skip a few allocations by allocating that much up front.
+    let mut output_buf = String::with_capacity(input.len());
     html::push_html(&mut output_buf, parser);
     output_buf
 }
@@ -181,7 +184,7 @@ fn render_markdown(input: String) -> Html {
 fn write_page(output_path: RealPath<Output>, content: Html) -> Result<()> {
     // The path may, in principle, have no parent; this is impossible here because we prepend the
     // output directory in `output_path`.
-    for parent in output_path.path.parent().iter() { fs::DirBuilder::new().recursive(true).create(parent)?; };
+    create_parent_directories(output_path)?;
     fs::write(output_path.path, content)?;
     Ok(())
 }
@@ -246,6 +249,10 @@ impl handlebars::HelperDef for Tags {
             .ok_or_else(|| RenderError::new("no parameter given!"))
             .and_then(|v| v.value().as_str().ok_or_else(|| RenderError::new("parameter is not a string!")))?;
         self.0.get(param)
+            // It would be tempting to return `None` in case the tag
+            // does not exist, but this makes handlebars try the default
+            // implementation of the `call()` method instead, which
+            // returns an empty string.
             .map(|tags| Some(ScopedJson::Derived(Value::Array(tags.clone()))))
             .ok_or_else(|| RenderError::new(format!("tag not found: {}", param)))
     }
@@ -280,7 +287,7 @@ fn month_name(y: u32) -> &'static str {
         4 => "April", 5 => "May", 6 => "June",
         7 => "July", 8 => "August", 9 => "September",
         10 => "October", 11 => "November", 12 => "December",
-        _ => panic!("Invalid year: {}", y)
+        _ => panic!("Invalid month number: {}", y)
     }
 }
 
@@ -314,6 +321,7 @@ fn main() -> Result<()> {
     {
         // The real path, for doing IO with.
         let input_path_real = real_input_path(entry.path());
+
         // The path with the input directory stripped, for making
         // available as a variable in templates, and for computing the
         // URL and output path with.
@@ -356,18 +364,26 @@ fn main() -> Result<()> {
 
     // REGISTER THE TAGS {{{
     for page in pages.iter() {
-        // Each page is tagged with the name of its parent directory.
+        // Each page is tagged with (1) the name of its enclosing
+        // directory, sans trailing slash, and with internal slashes
+        // replaced by underscores;
         let page_input_path: &Path = page.input_path.path.as_ref();
         let dir_tag = page_input_path.parent()
             // TODO Log something upon decoding failure!
             .and_then(|p| p.to_str()).map(|p| p.replace("/", "_"));
         dir_tag.as_ref().map(|t| tags.register(t, page));
 
+        // and with (2) each string value in an array in the "tags"
+        // field in the file's front matter.
         if let Some(Value::Array(meta_tags)) = page.data.get("tags") {
             for tag in meta_tags.iter() {
                 // Log non-string values as errors?
                 if let Value::String(t) = tag {
+                    // Refuse to register a page with the same tag
+                    // twice!
                     match dir_tag { Some(ref d) if d != t => tags.register(t, page), _ => () }
+                } else {
+                    println!("{}: has non-string tag, namely {:?}", page.input_path.path, tag)
                 }
             }
         }
