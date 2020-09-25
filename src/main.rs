@@ -59,6 +59,13 @@ struct Pimisi {
 struct NominalPath<T: PathOrientation>{ path: String, phantom: PhantomData<T> }
 struct RealPath<T: PathOrientation>{ path: PathBuf, phantom: PhantomData<T> }
 
+impl<T: PathOrientation> AsRef<str> for NominalPath<T> { fn as_ref(&self) -> &str { self.path.as_ref() } }
+impl<T: PathOrientation> AsRef<Path> for NominalPath<T> { fn as_ref(&self) -> &Path { self.path.as_ref() } }
+impl<T: PathOrientation> AsRef<Path> for RealPath<T> { fn as_ref(&self) -> &Path { &self.path } }
+
+use std::fmt;
+impl<T: PathOrientation> fmt::Display for NominalPath<T> { fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { self.path.fmt(f) } }
+
 trait PathOrientation {}
 
 struct Input;
@@ -136,8 +143,8 @@ fn strip_input_dir(input_dir: &str, input_path_real: &RealPath<Input>) -> Result
 
 use std::fs;
 
-fn create_parent_directories(output: &RealPath<Output>) -> Result<()> {
-    for parent in output.path.parent().iter() { fs::DirBuilder::new().recursive(true).create(parent)?; }; Ok(())
+fn create_parent_directories<T: AsRef<Path>>(output: &T) -> Result<()> {
+    for parent in output.as_ref().parent().iter() { fs::DirBuilder::new().recursive(true).create(parent)?; }; Ok(())
 }
 
 use pulldown_cmark::{Parser, html};
@@ -145,7 +152,7 @@ use pulldown_cmark::{Parser, html};
 /// Read a file, separate from the content and parse a YAML metadata
 /// block if there is one, and return both metadata and content.
 fn read_file_with_front_matter(input_path: &RealPath<Input>) -> Result<(Metadata, String)> {
-    let entire_content = fs::read_to_string(&input_path.path)?;
+    let entire_content = fs::read_to_string(&input_path)?;
     if let Some(front_plus_content) = entire_content.strip_prefix("---") {
         // We have a YAML metadata block. Split the block from the
         // content that follows.
@@ -184,8 +191,8 @@ fn render_markdown(input: String) -> Html {
 fn write_page(output_path: RealPath<Output>, content: Html) -> Result<()> {
     // The path may, in principle, have no parent; this is impossible here because we prepend the
     // output directory in `output_path`.
-    create_parent_directories(output_path)?;
-    fs::write(output_path.path, content)?;
+    create_parent_directories(&output_path)?;
+    fs::write(output_path, content)?;
     Ok(())
 }
 
@@ -231,7 +238,7 @@ impl Tags {
             Some(v) => v.push(val),
             None => { self.0.insert(t.to_owned(), vec![val]); () },
         };
-        println!("{}: registering with tag {}", page.input_path.path, t);
+        println!("{}: registering with tag {}", page.input_path, t);
     }
 
 }
@@ -335,17 +342,17 @@ fn main() -> Result<()> {
         // files we can, also counting them.
         match file_kind {
             FileKind::Asset(output_path_nominal) => {
-                println!("{}: copying to {}", input_path_nominal.path, output_path_nominal.path);
+                println!("{}: copying to {}", input_path_nominal, output_path_nominal);
                 let output_path = prepend_output_dir(pimisi.output_dir.as_ref(), output_path_nominal);
                 create_parent_directories(&output_path)?;
-                fs::copy(input_path_real.path, output_path.path)?; ()
+                fs::copy(input_path_real, output_path)?; ()
             },
             FileKind::Template { name } => {
-                println!("{}: registering template as {}", input_path_nominal.path, name);
+                println!("{}: registering template as {}", input_path_nominal, name);
                 templates.register_template_file(&name, input_path_real.path)?;
             },
             FileKind::Content(content_kind, output_path, url) => {
-                println!("{}: reading content", input_path_nominal.path);
+                println!("{}: reading content", input_path_nominal);
                 let (mut data, raw_content) = read_file_with_front_matter(&input_path_real)?;
                 let content = match content_kind {
                     // TODO escaping of e.g. '&' surrounded by whitespace?
@@ -367,7 +374,7 @@ fn main() -> Result<()> {
         // Each page is tagged with (1) the name of its enclosing
         // directory, sans trailing slash, and with internal slashes
         // replaced by underscores;
-        let page_input_path: &Path = page.input_path.path.as_ref();
+        let page_input_path: &Path = page.input_path.as_ref();
         let dir_tag = page_input_path.parent()
             // TODO Log something upon decoding failure!
             .and_then(|p| p.to_str()).map(|p| p.replace("/", "_"));
@@ -383,7 +390,7 @@ fn main() -> Result<()> {
                     // twice!
                     match dir_tag { Some(ref d) if d != t => tags.register(t, page), _ => () }
                 } else {
-                    println!("{}: has non-string tag, namely {:?}", page.input_path.path, tag)
+                    println!("{}: has non-string tag, namely {:?}", page.input_path, tag)
                 }
             }
         }
@@ -396,12 +403,12 @@ fn main() -> Result<()> {
         let template_name = determine_template_name(&templates, &page);
         let output = match template_name {
             Some(name) => {
-                println!("{}: applying template {}", page.input_path.path, name);
+                println!("{}: applying template {}", page.input_path, name);
                 templates.render(&name, &page.data)? },
             None => String::from("No content!"), // TODO do something better here
         };
         let output_path_nominal = page.output_path;
-        println!("{}: writing to {}", page.input_path.path, output_path_nominal.path);
+        println!("{}: writing to {}", page.input_path, output_path_nominal);
         let output_path_real = prepend_output_dir(pimisi.output_dir.as_ref(), output_path_nominal);
         write_page(output_path_real, output)?;
     } // }}}
