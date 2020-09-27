@@ -1,2 +1,4 @@
 input_dir: bontent
 output_dir: bite
+tags:
+  posts: {key: date, direction: descending}

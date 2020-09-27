@@ -410,12 +410,20 @@ fn main() -> Result<()> {
     }; /* }}} */
 
     for (tag, sort_by) in pimisi.tags_sorting {
-        let compare_pages = |page1: &Value, page2: &Value|
-                match (page1.get(&sort_by.key), page2.get(&sort_by.key)) {
-                    (Some(Value::String(s1)), Some(Value::String(s2))) => s1.cmp(&s2),
-                    (Some(Value::Number(s1)), Some(Value::Number(s2))) => s1.as_f64().partial_cmp(&s2.as_f64()).unwrap_or(std::cmp::Ordering::Equal),
+        let compare_pages = |page1: &Value, page2: &Value| {
+            let comparison = match (page1.get(&sort_by.key), page2.get(&sort_by.key)) {
+                    (Some(Value::String(s1)), Some(Value::String(s2))) =>
+                        s1.cmp(&s2),
+                    (Some(Value::Number(s1)), Some(Value::Number(s2))) =>
+                        s1.as_f64().partial_cmp(&s2.as_f64())
+                            .unwrap_or(std::cmp::Ordering::Equal),
                     _ => panic!("Ack!")
-                };
+            };
+            match &sort_by.direction {
+                SortDirection::Ascending => comparison,
+                SortDirection::Descending => comparison.reverse()
+            }
+        };
         tags.0.get_mut(&tag).map(|t| t.sort_unstable_by(compare_pages));
     }
 
