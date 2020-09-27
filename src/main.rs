@@ -417,7 +417,10 @@ fn main() -> Result<()> {
                     (Some(Value::Number(s1)), Some(Value::Number(s2))) =>
                         s1.as_f64().partial_cmp(&s2.as_f64())
                             .unwrap_or(std::cmp::Ordering::Equal),
-                    _ => panic!("Ack!")
+                    (a, b) => {
+                        println!("comparison keys {} are neither both strings nor both numbers, they are namely {:?} and {:?}", sort_by.key, a, b);
+                        std::cmp::Ordering::Equal
+                    }
             };
             match &sort_by.direction {
                 SortDirection::Ascending => comparison,
