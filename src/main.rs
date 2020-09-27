@@ -54,6 +54,39 @@ struct Pimisi {
     output_dir: String,
     #[serde(default = "Pimisi::default_template_suffix")]
     template_suffix: String,
+    #[serde(default, rename = "tags")]
+    tags_sorting: BTreeMap<String, SortBy>,
+}
+
+#[derive(Deserialize)]
+struct SortBy { key: String, direction: SortDirection }
+
+enum SortDirection { Ascending, Descending }
+
+use serde::Deserializer;
+
+impl<'de> Deserialize<'de> for SortDirection {
+    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
+        deserializer.deserialize_str(SortDirectionVisitor)
+    }
+}
+
+struct SortDirectionVisitor;
+
+impl<'de> serde::de::Visitor<'de> for SortDirectionVisitor {
+    type Value = SortDirection;
+    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
+        write!(formatter, "the string \"asc\", \"ascending\", \"desc\", or \"descending\"")
+    }
+    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E> where E: serde::de::Error {
+        match v {
+            "ascending" => Ok(SortDirection::Ascending),
+            "asc" => Ok(SortDirection::Ascending),
+            "descending" => Ok(SortDirection::Descending),
+            "desc" => Ok(SortDirection::Descending),
+            _ => Err(E::unknown_variant(v, &["asc", "ascending", "desc", "descending"]))
+        }
+    }
 }
 
 struct NominalPath<T: PathOrientation>{ path: String, phantom: PhantomData<T> }
@@ -375,6 +408,16 @@ fn main() -> Result<()> {
             }
         }
     }; /* }}} */
+
+    for (tag, sort_by) in pimisi.tags_sorting {
+        let compare_pages = |page1: &Value, page2: &Value|
+                match (page1.get(&sort_by.key), page2.get(&sort_by.key)) {
+                    (Some(Value::String(s1)), Some(Value::String(s2))) => s1.cmp(&s2),
+                    (Some(Value::Number(s1)), Some(Value::Number(s2))) => s1.as_f64().partial_cmp(&s2.as_f64()).unwrap_or(std::cmp::Ordering::Equal),
+                    _ => panic!("Ack!")
+                };
+        tags.0.get_mut(&tag).map(|t| t.sort_unstable_by(compare_pages));
+    }
 
     // APPLY TEMPLATES {{{
     for mut page in pages.into_iter() {
