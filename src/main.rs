@@ -1,16 +1,3 @@
-use walkdir::{DirEntry, WalkDir};
-
-fn is_hidden(entry: &DirEntry) -> bool {
-    entry.file_name()
-         .to_str()
-         .map(|s| s.starts_with("."))
-         .unwrap_or(false)
-}
-
-fn is_file(entry: &DirEntry) -> bool {
-    entry.metadata().map(|e| e.is_file()).unwrap_or(false)
-}
-
 #[macro_use]
 extern crate anyhow;
 
@@ -91,8 +78,6 @@ fn discern_file_kind(template_suffix: &str, input_path_nominal: &NominalPath<Inp
     } else { Ok( FileKind::Asset(same_input_path()) ) }
 }
 
-
-
 use pulldown_cmark::{Parser, html};
 
 /// Read a file, separate from the content and parse a YAML metadata
@@ -168,7 +153,7 @@ struct Page {
 
 #[macro_use]
 extern crate handlebars;
-use handlebars::{Handlebars, ScopedJson, RenderError};
+use handlebars::Handlebars;
 use std::fs::File;
 
 struct Tags(BTreeMap<String,Vec<Value>>);
@@ -189,44 +174,13 @@ impl Tags {
 
 }
 
-use chrono::NaiveDate;
-use chrono::Datelike;
-
-struct ParseDate;
-
-impl handlebars::HelperDef for ParseDate {
-    fn call_inner<'reg: 'rc, 'rc>(
-        &self,
-        helper: &handlebars::Helper<'reg, 'rc>,
-        _: &'reg Handlebars<'reg>,
-        _: &'rc handlebars::Context,
-        _: &mut handlebars::RenderContext<'reg, 'rc>
-        ) -> Result<Option<ScopedJson<'reg, 'rc>>, RenderError>
-    {
-        let param = helper.param(0)
-            .ok_or_else(|| RenderError::new("no parameter given!"))
-            .and_then(|v| v.value().as_str().ok_or_else(|| RenderError::new("parameter is not a string!")))?;
-        let parsed = param.parse::<NaiveDate>().map_err(|e| RenderError::from_error("date parse error", e))?;
-        let result = json!({"year": parsed.year(), "month": parsed.month(), "day": parsed.day(), "month_name": month_name(parsed.month())});
-        Ok(Some(ScopedJson::Derived(result)))
-    }
-}
-
-fn month_name(y: u32) -> &'static str {
-    match y {
-        1 => "January", 2 => "February", 3 => "March",
-        4 => "April", 5 => "May", 6 => "June",
-        7 => "July", 8 => "August", 9 => "September",
-        10 => "October", 11 => "November", 12 => "December",
-        _ => panic!("Invalid month number: {}", y)
-    }
-}
-
-use std::convert::TryInto;
-handlebars_helper!(take: |n: u64, arr: array| if n as usize > arr.len() { arr } else { arr.split_at(n.try_into().unwrap()).0 });
+mod helpers;
+use helpers::{ParseDate, take};
 
 mod configuration;
 use configuration::{Pimisi, SortDirection};
+
+mod walk;
 
 fn main() -> Result<()> {
     // INITIALIZE GLOBAL STATE AND CONFIGURATION {{{
@@ -247,14 +201,12 @@ fn main() -> Result<()> {
     templates.register_helper("take", Box::new(take));
     // }}}
 
+    use walk::for_each_input_file;
+
     // WALK THE INPUT DIRECTORY {{{
-    for entry in WalkDir::new(&pimisi.input_dir).into_iter()
-                .filter_entry(|e| !is_hidden(e)) // Filter out hidden files (.\*)
-                .filter_map(|e| e.ok()) // Ignore any errors produced by walkdir
-                .filter(|e| is_file(e)) // Skip directories and whatever else is not a file (symbolic links too I guess)
-    {
+    for_each_input_file(&pimisi.input_dir, |path| {
         // The real path, for doing IO with.
-        let input_path_real = real_input_path(entry.path());
+        let input_path_real = real_input_path(path);
 
         // The path with the input directory stripped, for making
         // available as a variable in templates, and for computing the
@@ -272,11 +224,11 @@ fn main() -> Result<()> {
                 println!("{}: copying to {}", input_path_nominal, output_path_nominal);
                 let output_path = prepend_output_dir(pimisi.output_dir.as_ref(), output_path_nominal);
                 create_parent_directories(&output_path)?;
-                fs::copy(input_path_real, output_path)?; ()
+                fs::copy(input_path_real, output_path)?; Ok(())
             },
             FileKind::Template { name } => {
                 println!("{}: registering template as {}", input_path_nominal, name);
-                templates.register_template_file(&name, input_path_real.path)?;
+                templates.register_template_file(&name, input_path_real.path)?; Ok(())
             },
             FileKind::Content(content_kind, output_path, url) => {
                 println!("{}: reading content", input_path_nominal);
@@ -291,10 +243,10 @@ fn main() -> Result<()> {
                 data.insert(String::from("path"), json!({"input": input_path_nominal.path, "output": output_path.path}));
                 data.insert(String::from("url"), Value::String(url));
                 let page = Page { data, input_path: input_path_nominal, output_path };
-                pages.push(page);
+                pages.push(page); Ok(())
             }
         } /* }}} */
-    }; // }}}
+    })?; // }}}
 
     // REGISTER THE TAGS {{{
     for page in pages.iter() {
