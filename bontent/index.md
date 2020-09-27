@@ -2,7 +2,7 @@
 title: Hello
 link_text: Home
 description: The website of Alan Rempel, a elliptical human man.
-tags: [nav]
+tags: [top_nav]
 weight: 0
 ---
 # Good evening!

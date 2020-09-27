@@ -243,28 +243,6 @@ impl Tags {
 
 }
 
-impl handlebars::HelperDef for Tags {
-    fn call_inner<'reg: 'rc, 'rc>(
-        &self,
-        helper: &handlebars::Helper<'reg, 'rc>,
-        _: &'reg Handlebars<'reg>,
-        _: &'rc handlebars::Context,
-        _: &mut handlebars::RenderContext<'reg, 'rc>
-        ) -> Result<Option<ScopedJson<'reg, 'rc>>, RenderError>
-    {
-        let param = helper.param(0)
-            .ok_or_else(|| RenderError::new("no parameter given!"))
-            .and_then(|v| v.value().as_str().ok_or_else(|| RenderError::new("parameter is not a string!")))?;
-        self.0.get(param)
-            // It would be tempting to return `None` in case the tag
-            // does not exist, but this makes handlebars try the default
-            // implementation of the `call()` method instead, which
-            // returns an empty string.
-            .map(|tags| Some(ScopedJson::Derived(Value::Array(tags.clone()))))
-            .ok_or_else(|| RenderError::new(format!("tag not found: {}", param)))
-    }
-}
-
 use chrono::NaiveDate;
 use chrono::Datelike;
 
@@ -398,17 +376,22 @@ fn main() -> Result<()> {
         }
     }; /* }}} */
 
-    templates.register_helper("tag", Box::new(tags));
-
     // APPLY TEMPLATES {{{
-    for page in pages.into_iter() {
-        let template_name = determine_template_name(&templates, &page);
-        let output = match template_name {
-            Some(name) => {
-                println!("{}: applying template {}", page.input_path, name);
-                templates.render(&name, &page.data)? },
-            None => String::from("No content!"), // TODO do something better here
+    for mut page in pages.into_iter() {
+        let template_name = determine_template_name(&templates, &page)
+                .ok_or_else(|| anyhow!("{}: no template found!", page.input_path))?;
+        println!("{}: applying template {}", page.input_path, template_name);
+
+        // Make available a list of pages under each tag as a variable with the
+        // name of the tag (slashes replaced with underscores).
+        for (tag, tagged_pages) in tags.0.iter() {
+            // Use of `clone()` here is unfortunate, but necessary because serde_json::Value
+            // needs owned data. Would wish not to go via Value.
+            page.data.insert(tag.clone(), Value::Array(tagged_pages.clone()));
         };
+
+        // Render it!
+        let output = templates.render(&template_name, &page.data)?;
         let output_path_nominal = page.output_path;
         println!("{}: writing to {}", page.input_path, output_path_nominal);
         let output_path_real = prepend_output_dir(pimisi.output_dir.as_ref(), output_path_nominal);
