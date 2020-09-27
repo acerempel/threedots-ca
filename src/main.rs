@@ -17,11 +17,9 @@ extern crate anyhow;
 #[macro_use]
 extern crate serde_json;
 
-use std::path::{Path, PathBuf};
 use anyhow::Result;
 
 use std::collections::BTreeMap;
-use serde::Deserialize;
 use serde_json::value::Value;
 
 /// We use `Map` because that's what Handlebars uses under the hood
@@ -46,73 +44,12 @@ enum ContentKind {
     Html,
 }
 
-#[derive(Deserialize)]
-struct Pimisi {
-    #[serde(default = "Pimisi::default_input_dir")]
-    input_dir: String,
-    #[serde(default = "Pimisi::default_output_dir")]
-    output_dir: String,
-    #[serde(default = "Pimisi::default_template_suffix")]
-    template_suffix: String,
-    #[serde(default, rename = "tags")]
-    tags_sorting: BTreeMap<String, SortBy>,
-}
+use std::path::Path;
 
-#[derive(Deserialize)]
-struct SortBy { key: String, direction: SortDirection }
+mod path;
+use path::*;
 
-enum SortDirection { Ascending, Descending }
-
-use serde::Deserializer;
-
-impl<'de> Deserialize<'de> for SortDirection {
-    fn deserialize<D>(deserializer: D) -> Result<Self, D::Error> where D: Deserializer<'de> {
-        deserializer.deserialize_str(SortDirectionVisitor)
-    }
-}
-
-struct SortDirectionVisitor;
-
-impl<'de> serde::de::Visitor<'de> for SortDirectionVisitor {
-    type Value = SortDirection;
-    fn expecting(&self, formatter: &mut fmt::Formatter) -> fmt::Result {
-        write!(formatter, "the string \"asc\", \"ascending\", \"desc\", or \"descending\"")
-    }
-    fn visit_str<E>(self, v: &str) -> Result<Self::Value, E> where E: serde::de::Error {
-        match v {
-            "ascending" => Ok(SortDirection::Ascending),
-            "asc" => Ok(SortDirection::Ascending),
-            "descending" => Ok(SortDirection::Descending),
-            "desc" => Ok(SortDirection::Descending),
-            _ => Err(E::unknown_variant(v, &["asc", "ascending", "desc", "descending"]))
-        }
-    }
-}
-
-struct NominalPath<T: PathOrientation>{ path: String, phantom: PhantomData<T> }
-struct RealPath<T: PathOrientation>{ path: PathBuf, phantom: PhantomData<T> }
-
-impl<T: PathOrientation> AsRef<str> for NominalPath<T> { fn as_ref(&self) -> &str { self.path.as_ref() } }
-impl<T: PathOrientation> AsRef<Path> for NominalPath<T> { fn as_ref(&self) -> &Path { self.path.as_ref() } }
-impl<T: PathOrientation> AsRef<Path> for RealPath<T> { fn as_ref(&self) -> &Path { &self.path } }
-
-use std::fmt;
-impl<T: PathOrientation> fmt::Display for NominalPath<T> { fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result { self.path.fmt(f) } }
-
-trait PathOrientation {}
-
-struct Input;
-struct Output;
-impl PathOrientation for Input {}
-impl PathOrientation for Output {}
-
-impl Pimisi {
-
-    fn default_output_dir() -> String { String::from("_site") }
-    fn default_input_dir() -> String { String::from("content") }
-    fn default_template_suffix() -> String { String::from("hbs") }
-
-}
+use std::fs;
 
 /// Look at a file path and figure out, based on the file
 /// extension(s) or lack thereof, how we should treat it.
@@ -121,7 +58,7 @@ fn discern_file_kind(template_suffix: &str, input_path_nominal: &NominalPath<Inp
     let mut input_path_parts = input_path.rsplitn(2, '/');
     let input_filename = input_path_parts.next().expect("No filename!!");
     let input_parent_dir = input_path_parts.next();
-    let same_input_path = || NominalPath { path: input_path.clone(), phantom: PhantomData };
+    let same_input_path = || NominalPath::from(input_path.clone());
     let mut input_filename_parts = input_filename.rsplitn(2, '.');
     let input_ext_opt = input_filename_parts.next();
     let input_stem = input_filename_parts.next();
@@ -137,7 +74,7 @@ fn discern_file_kind(template_suffix: &str, input_path_nominal: &NominalPath<Inp
                     .map(|dir| [dir, stem, "index.html"].join("/"))
                     .unwrap_or_else(|| [stem, "index.html"].join("/"))
             };
-            NominalPath { path, phantom: PhantomData }
+            NominalPath::from(path)
         };
         let content_url = || input_parent_dir
             .map(|dir| format!("/{}/{}/", dir, stem))
@@ -154,31 +91,7 @@ fn discern_file_kind(template_suffix: &str, input_path_nominal: &NominalPath<Inp
     } else { Ok( FileKind::Asset(same_input_path()) ) }
 }
 
-use std::marker::PhantomData;
 
-fn real_input_path(input_path: &Path) -> RealPath<Input> {
-    RealPath { path: input_path.to_path_buf(), phantom: PhantomData }
-}
-
-fn prepend_output_dir(output_dir: &Path, path: NominalPath<Output>) -> RealPath<Output> {
-    RealPath{ path: output_dir.join(path.path), phantom: path.phantom }
-}
-
-fn strip_input_dir(input_dir: &str, input_path_real: &RealPath<Input>) -> Result<NominalPath<Input>> {
-    // I don't think `strip_prefix` is quite this smart.
-    let stripped =
-        if input_dir == "." { &input_path_real.path }
-        else { input_path_real.path.strip_prefix(input_dir)? };
-    stripped.to_str()
-        .map(|s| Ok(NominalPath { path: s.to_owned(), phantom: PhantomData }))
-        .unwrap_or_else(|| Err(anyhow!("not unicode path! {:?}", stripped)))
-}
-
-use std::fs;
-
-fn create_parent_directories<T: AsRef<Path>>(output: &T) -> Result<()> {
-    for parent in output.as_ref().parent().iter() { fs::DirBuilder::new().recursive(true).create(parent)?; }; Ok(())
-}
 
 use pulldown_cmark::{Parser, html};
 
@@ -311,6 +224,9 @@ fn month_name(y: u32) -> &'static str {
 
 use std::convert::TryInto;
 handlebars_helper!(take: |n: u64, arr: array| if n as usize > arr.len() { arr } else { arr.split_at(n.try_into().unwrap()).0 });
+
+mod configuration;
+use configuration::{Pimisi, SortDirection};
 
 fn main() -> Result<()> {
     // INITIALIZE GLOBAL STATE AND CONFIGURATION {{{
