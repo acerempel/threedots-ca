@@ -1,0 +1,18 @@
+            {% let post_class %}
+            {%- match content %}{% when Synopsis %}{% let post_class = "summary" %}
+            {%- else %}{% let post_class = "preview" %}
+            {%- endmatch %}
+            <article class="post {{ post_class }}">
+              {% match self.link() %}
+              {%- when Some with (l) %}<h3>{{ l }}</h3>
+              {%- else %}<div class="date">{{ date }}</div>
+              {%- endmatch %}
+              {%- match content %}
+              {% when SummaryContent::Synopsis with (syn) %}<p class="synopsis">({{ syn|safe }})</p>
+              {% when SummaryContent::Excerpt with (exc) %}{{ exc|safe }}
+              <p class="read-more">
+                <a href="{{ url }}">Continue reading …</a>
+              </p>
+              {% when SummaryContent::FullContent with (con) %}{{ con|safe }}
+              {%- endmatch %}
+            </article>

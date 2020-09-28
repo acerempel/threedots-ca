@@ -1,0 +1,19 @@
+{% block content %}
+    <article class="full" id="post">
+      <header>
+        <div class="date">
+        {{ date }}
+                {%- match date_revised %}
+                {%- when Some with (r) %}<small>– Revised {{ r }}</small>
+                {%- when None %}
+                {%- endmatch %}
+        </div>
+        {% match title %}
+        {%- when Some with (t) %}<h1 class="title">{{ t }}</h1>
+        {%- when None %}{% endmatch %}
+      </header>
+      {{ content|safe }}
+
+{# include "footnotes.html" #}
+    </article>
+{% endblock %}

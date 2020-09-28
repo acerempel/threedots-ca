@@ -1,0 +1,4 @@
+<a href="{{url}}"
+    {%- match description %}
+    {%- when Some with (d) %} title="{{d}}"
+    {%- when None %}{% endmatch %}>{{content}}</a>

@@ -13,23 +13,12 @@ use serde_json::value::Value;
 /// (by way of serde_json).
 type Metadata = serde_json::map::Map<String,Value>;
 
-/// What kind of file? Does it contain content that we must process and
-/// output; is it a template that we must load and let Tera take care of;
-/// or is it an asset that we just copy over?
-enum FileKind {
-    Content(ContentKind, NominalPath<Output>, URL),
-    Template { name: String },
-    Asset(NominalPath<Output>),
-}
+mod kind;
+mod post;
+mod date;
+mod link;
 
-type URL = String;
-
-/// Concerning a file that has page content in it, what format that
-/// content is in.
-enum ContentKind {
-    Markdown,
-    Html,
-}
+use kind::*;
 
 use std::path::Path;
 
