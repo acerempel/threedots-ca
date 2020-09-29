@@ -5,7 +5,7 @@ use serde::Deserialize;
 use chrono::NaiveDate;
 use askama::Template;
 
-#[derive(Template)]
+#[derive(Template, Clone)]
 #[template(path = "date.html")]
 pub struct Date {
     year: u32,

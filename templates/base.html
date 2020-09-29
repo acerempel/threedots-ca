@@ -26,8 +26,8 @@
     <div class="container">
       <header class="top-header">
         <a class="bold" href="/">three dots …</a>
-        <nav>{% for nav_page in collections.top_nav %}
-          {% link nav_page %}{% if not loop.last %} • {% endif %}
+        <nav>{% for nav_page in nav.header %}
+          {{ nav_page }}{% if !loop.last %} • {% endif %}
         {% endfor %}</nav>
       </header>
       <main>
@@ -36,8 +36,8 @@
       <footer class="border-top">
         <section>
           <nav class="link-plain">
-            {% for nav_page in collections.footer_nav %}
-            <p>{% link nav_page %}</p>
+            {% for nav_page in nav.footer %}
+            <p>{{ nav_page }}</p>
             {% endfor %}
           </nav>
         </section>
