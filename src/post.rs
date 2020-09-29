@@ -10,7 +10,7 @@ use crate::path::NominalPath;
 use crate::link::Link;
 
 #[derive(Template)]
-#[template(path = "post.html", print = "code")]
+#[template(path = "post.html")]
 struct Full <'a> {
     date: &'a Date,
     date_revised: Option<&'a Date>,
