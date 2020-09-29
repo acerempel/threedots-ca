@@ -18,6 +18,7 @@ mod post;
 mod date;
 mod link;
 mod nav;
+mod prose;
 
 use kind::*;
 

@@ -8,10 +8,11 @@ use crate::ContentKind;
 use crate::URL;
 use crate::path::NominalPath;
 use crate::link::Link;
+use crate::prose::FromProse;
 
 #[derive(Template)]
 #[template(path = "post.html")]
-struct Full <'a> {
+pub struct Full <'a> {
     date: &'a Date,
     date_revised: Option<&'a Date>,
     url: &'a str,
@@ -36,7 +37,7 @@ pub struct Post <'a> {
 } 
 
 impl<'a> Post<'a> {
-    fn full(&'a self, nav: Nav<'a>) -> Full<'a> {
+    pub fn full(&'a self, nav: Nav<'a>) -> Full<'a> {
         Full {
             date: &self.date,
             date_revised: self.date_revised.as_ref(),
@@ -48,7 +49,7 @@ impl<'a> Post<'a> {
             nav
         }
     }
-    fn summary(&'a self) -> Summary<'a> {
+    pub fn summary(&'a self) -> Summary<'a> {
         let content =
             if let Some(synopsis) = self.synopsis { SummaryContent::Synopsis(synopsis) }
             else { SummaryContent::FullContent(self.content) };
@@ -63,7 +64,7 @@ impl<'a> Post<'a> {
 }
 
 #[derive(Deserialize)]
-struct PostData<'a> {
+pub struct Data<'a> {
     date: Date,
     #[serde(default)]
     date_revised: Option<Date>,
@@ -77,9 +78,23 @@ struct PostData<'a> {
     canonical: Option<&'a str>,
 }
 
+impl<'a> FromProse<'a> for Post<'a> {
+    type FrontMatter = Data<'a>;
+    fn from_prose(front_matter: Self::FrontMatter, content: &'a str,
+        content_kind: ContentKind, url: String,
+        output_path: NominalPath<Output>) -> Post {
+        Post {
+            content, canonical: front_matter.canonical, date: front_matter.date,
+            date_revised: front_matter.date_revised,
+            title: front_matter.title, description: front_matter.description, synopsis: front_matter.synopsis,
+            content_kind, url, output_path
+        }
+    }
+}
+
 #[derive(Template)]
 #[template(path = "post-summary.html")]
-struct Summary<'a> {
+pub struct Summary<'a> {
     date: &'a Date,
     url: &'a str,
     title: Option<&'a str>,
