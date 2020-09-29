@@ -30,7 +30,7 @@ use std::fs;
 
 /// Look at a file path and figure out, based on the file
 /// extension(s) or lack thereof, how we should treat it.
-fn discern_file_kind(template_suffix: &str, input_path_nominal: &NominalPath<Input>) -> Result<FileKind> {
+fn discern_file_kind(input_path_nominal: &NominalPath<Input>) -> Result<FileKind> {
     let input_path = &input_path_nominal.path;
     let mut input_path_parts = input_path.rsplitn(2, '/');
     let input_filename = input_path_parts.next().expect("No filename!!");
@@ -59,10 +59,6 @@ fn discern_file_kind(template_suffix: &str, input_path_nominal: &NominalPath<Inp
         match input_ext {
             "md" => Ok( FileKind::Content(ContentKind::Markdown, index_html(), content_url()) ),
             "html" => Ok( FileKind::Content(ContentKind::Html, index_html(), content_url()) ),
-            ext if ext == template_suffix => {
-                let name = input_parent_dir.map(|dir| [dir, stem].join("/")).unwrap_or_else(|| stem.to_owned());
-                Ok(FileKind::Template { name })
-            },
             _ => Ok( FileKind::Asset(same_input_path()) ),
         }
     } else { Ok( FileKind::Asset(same_input_path()) ) }
@@ -203,7 +199,7 @@ fn main() -> Result<()> {
         // URL and output path with.
         let input_path_nominal = strip_input_dir(&pimisi.input_dir, &input_path_real)?;
 
-        let file_kind = discern_file_kind(&pimisi.template_suffix, &input_path_nominal)?;
+        let file_kind = discern_file_kind(&input_path_nominal)?;
 
         // INITIAL HANDLING OF INPUT FILES {{{
         // I would prefer eventually to not bail on the first
@@ -215,10 +211,6 @@ fn main() -> Result<()> {
                 let output_path = prepend_output_dir(pimisi.output_dir.as_ref(), output_path_nominal);
                 create_parent_directories(&output_path)?;
                 fs::copy(input_path_real, output_path)?; Ok(())
-            },
-            FileKind::Template { name } => {
-                println!("{}: registering template as {}", input_path_nominal, name);
-                templates.register_template_file(&name, input_path_real.path)?; Ok(())
             },
             FileKind::Content(content_kind, output_path, url) => {
                 println!("{}: reading content", input_path_nominal);

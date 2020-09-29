@@ -5,7 +5,6 @@ use crate::path::*;
 
 pub enum FileKind {
     Content(ContentKind, NominalPath<Output>, URL),
-    Template { name: String },
     Asset(NominalPath<Output>),
 }
 
