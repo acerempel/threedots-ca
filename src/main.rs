@@ -11,6 +11,7 @@ mod date;
 mod link;
 mod page;
 mod prose;
+mod article;
 
 use kind::*;
 use prose::read_prose;
@@ -59,6 +60,8 @@ use configuration::Pimisi;
 
 mod walk;
 
+use article::Article;
+
 fn main() -> Result<()> {
     // INITIALIZE GLOBAL STATE AND CONFIGURATION {{{
     let config_file_path = "threedots.yaml";
@@ -71,6 +74,7 @@ fn main() -> Result<()> {
 
     // let mut articles: Vec<Article> = Vec::with_capacity(32);
     let mut posts: Vec<(Post, RelativePathBuf)> = Vec::with_capacity(64);
+    let mut top_nav: Vec<(Article, RelativePathBuf)> = Vec::with_capacity(8);
     // }}}
 
     use walk::for_each_input_file;
@@ -101,7 +105,12 @@ fn main() -> Result<()> {
                     Some(p) if p == "posts" => {
                         let post = read_prose::<Post>(input_path, content_kind, url)?;
                         posts.push((post, output_path)); Ok(()) },
-                    Some(_) => todo!(),
+                    Some(p) => {
+                        let article = read_prose::<Article>(input_path, content_kind, url)?;
+                        if p == "" {
+                            top_nav.push((article, output_path));
+                        }; Ok(())
+                    },
                     None => panic!("nonsensical path: {}", input_path_nominal)
                 }
             }
