@@ -1,14 +1,14 @@
 use relative_path::RelativePathBuf;
 use askama::Template;
-use crate::link::Link;
+use crate::article::Article;
 
 #[derive(Template)]
 #[template(path = "base.html")]
 pub struct Page<'a, T: PageContent + std::fmt::Display> {
     pub output_path: RelativePathBuf,
     pub content: &'a T,
-    pub header: &'a [Link<'a>],
-    pub footer: &'a [Link<'a>],
+    pub header: &'a [Article],
+    pub footer: &'a [Article],
 }
 
 pub trait PageContent {

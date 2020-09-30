@@ -27,7 +27,7 @@
       <header class="top-header">
         <a class="bold" href="/">three dots …</a>
         <nav>{% for nav_page in header %}
-          {{ nav_page }}{% if !loop.last %} • {% endif %}
+          {{ nav_page.link() }}{% if !loop.last %} • {% endif %}
         {% endfor %}</nav>
       </header>
       <main>
@@ -37,7 +37,7 @@
         <section>
           <nav class="link-plain">
             {% for nav_page in footer %}
-            <p>{{ nav_page }}</p>
+            <p>{{ nav_page.link() }}</p>
             {% endfor %}
           </nav>
         </section>
