@@ -75,6 +75,7 @@ fn main() -> Result<()> {
     // let mut articles: Vec<Article> = Vec::with_capacity(32);
     let mut posts: Vec<(Post, RelativePathBuf)> = Vec::with_capacity(64);
     let mut top_nav: Vec<(Article, RelativePathBuf)> = Vec::with_capacity(8);
+    let mut misc: Vec<(Article, RelativePathBuf)> = Vec::with_capacity(8);
     // }}}
 
     use walk::for_each_input_file;
@@ -107,10 +108,10 @@ fn main() -> Result<()> {
                         posts.push((post, output_path)); Ok(()) },
                     Some(_) => {
                         let article = read_prose::<Article>(input_path, content_kind, url)?;
-                        if article.has_tag("top_nav") {
-                            top_nav.push((article, output_path));
-                        }; Ok(())
-                    },
+                        if article.has_tag("top_nav") { top_nav.push((article, output_path)); }
+                        else if article.has_tag("misc_list") { misc.push((article, output_path)); }
+                        else { println!("{}: dangling article!", input_path_nominal) };
+                        Ok(()) },
                     None => panic!("nonsensical path: {}", input_path_nominal)
                 }
             }
