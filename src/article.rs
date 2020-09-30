@@ -1,5 +1,6 @@
 use serde::Deserialize;
 use askama::Template;
+use std::collections::HashSet;
 
 use crate::date::Date;
 use crate::URL;
@@ -18,6 +19,10 @@ pub struct Data {
     description: Option<String>,
     #[serde(default)]
     canonical: Option<String>,
+    #[serde(default)]
+    weight: i32,
+    #[serde(default)]
+    tags: HashSet<String>
 }
 
 #[derive(Template)]
@@ -28,13 +33,18 @@ pub struct Article {
     url: URL,
     title: String,
     content: String,
+    weight: i32,
     description: Option<String>,
     canonical: Option<String>,
+    tags: HashSet<String>,
 } 
 
 impl Article {
     pub fn link<'a>(&'a self) -> Link<'a> {
         Link { content: &self.title, description: self.description.as_deref(), url: &self.url }
+    }
+    pub fn has_tag(&self, tag: &str) -> bool {
+        self.tags.contains(tag)
     }
 }
 
@@ -53,7 +63,7 @@ impl FromProse for Article {
             content, canonical: front_matter.canonical, date: front_matter.date,
             date_revised: front_matter.date_revised,
             title: front_matter.title, description: front_matter.description,
-            url
+            url, weight: front_matter.weight, tags: front_matter.tags
         }
     }
 }

@@ -105,9 +105,9 @@ fn main() -> Result<()> {
                     Some(p) if p == "posts" => {
                         let post = read_prose::<Post>(input_path, content_kind, url)?;
                         posts.push((post, output_path)); Ok(()) },
-                    Some(p) => {
+                    Some(_) => {
                         let article = read_prose::<Article>(input_path, content_kind, url)?;
-                        if p == "" {
+                        if article.has_tag("top_nav") {
                             top_nav.push((article, output_path));
                         }; Ok(())
                     },
