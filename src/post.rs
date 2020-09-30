@@ -23,7 +23,7 @@ pub struct Post {
 impl Post {
     pub fn summary<'a>(&'a self) -> Summary<'a> {
         let content = // TODO what about excerpt
-            if let Some(synopsis) = self.synopsis { SummaryContent::Synopsis(&synopsis) }
+            if let Some(synopsis) = &self.synopsis { SummaryContent::Synopsis(&synopsis) }
             else { SummaryContent::FullContent(&self.content) };
         Summary {
             date: &self.date,
