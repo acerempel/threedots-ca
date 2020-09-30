@@ -4,7 +4,7 @@
 use relative_path::RelativePathBuf;
 
 pub enum FileKind {
-    Content(ContentKind, ContentFormat, RelativePathBuf, URL),
+    Content(ContentKind, RelativePathBuf, URL),
     Asset(RelativePathBuf),
 }
 
@@ -15,10 +15,4 @@ pub type URL = String;
 pub enum ContentKind {
     Markdown,
     Html,
-}
-
-pub enum ContentFormat {
-    Homepage,
-    Post,
-    Article,
 }

@@ -67,6 +67,7 @@ impl PageContent for Post {
     fn url(&self) -> &str { &self.url }
     fn title(&self) -> Option<&str> { todo!() }
     fn description(&self) -> Option<&str> { todo!() }
+    fn canonical(&self) -> Option<&str> { todo!() }
 }
 
 #[derive(Template)]

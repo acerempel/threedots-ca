@@ -51,17 +51,9 @@ fn discern_file_kind(input_path: &RelativePath) -> Result<FileKind> {
         let content_url = || input_parent_dir
             .map(|dir| format!("/{}/{}/", dir, stem))
             .unwrap_or_else(|| format!("/{}/", stem));
-        let page_kind =
-            if input_path == "index.html" || input_path == "index.md" {
-                ContentFormat::Homepage
-            } else if input_parent_dir == Some(RelativePath::new("posts")) {
-                ContentFormat::Post
-            } else {
-                ContentFormat::Article
-            };
         match input_ext {
-            "md" => Ok( FileKind::Content(ContentKind::Markdown, page_kind, index_html(), content_url()) ),
-            "html" => Ok( FileKind::Content(ContentKind::Html, page_kind, index_html(), content_url()) ),
+            "md" => Ok( FileKind::Content(ContentKind::Markdown, index_html(), content_url()) ),
+            "html" => Ok( FileKind::Content(ContentKind::Html, index_html(), content_url()) ),
             _ => Ok( FileKind::Asset(input_path.to_owned()) ),
         }
     } else { Ok( FileKind::Asset(input_path.to_owned()) ) }
@@ -120,6 +112,39 @@ use configuration::{Pimisi, SortDirection};
 
 mod walk;
 
+fn handle_file<P: FromProse>(pimisi: Pimisi, input_path: &Path) -> Result<Option<P>> {
+    // The path with the input directory stripped, for making
+    // available as a variable in templates, and for computing the
+    // URL and output path with.
+    let input_path_nominal = strip_input_dir(&pimisi.input_dir, &input_path)?;
+
+    let file_kind = discern_file_kind(&input_path_nominal)?;
+
+    // INITIAL HANDLING OF INPUT FILES {{{
+    // I would prefer eventually to not bail on the first
+    // error, but print the errors with a count and process all the
+    // files we can, also counting them.
+    match file_kind {
+        FileKind::Asset(output_path_relative) => {
+            println!("{}: copying to {}", input_path_nominal, output_path_relative);
+            let output_path = output_path_relative.to_path(pimisi.output_dir);
+            create_parent_directories(&output_path)?;
+            fs::copy(input_path, output_path)?; Ok(None)
+        },
+        FileKind::Content(content_kind, output_path, url) => {
+            println!("{}: reading content", input_path_nominal);
+            let (front_matter, raw_content) = read_file_with_front_matter::<P>(&input_path)?;
+            let content = match content_kind {
+                // TODO escaping of e.g. '&' surrounded by whitespace?
+                ContentKind::Html => raw_content,
+                ContentKind::Markdown => render_markdown(raw_content),
+            };
+            let page = P::from_prose(front_matter, content, url);
+            Ok(Some(page))
+        }
+    }
+}
+
 fn main() -> Result<()> {
     // INITIALIZE GLOBAL STATE AND CONFIGURATION {{{
     let config_file_path = "threedots.yaml";
@@ -137,43 +162,9 @@ fn main() -> Result<()> {
     use walk::for_each_input_file;
 
     // WALK THE INPUT DIRECTORY {{{
-    for_each_input_file(&pimisi.input_dir, |input_path| {
-        // The path with the input directory stripped, for making
-        // available as a variable in templates, and for computing the
-        // URL and output path with.
-        let input_path_nominal = strip_input_dir(&pimisi.input_dir, &input_path)?;
-
-        let file_kind = discern_file_kind(&input_path_nominal)?;
-
-        // INITIAL HANDLING OF INPUT FILES {{{
-        // I would prefer eventually to not bail on the first
-        // error, but print the errors with a count and process all the
-        // files we can, also counting them.
-        match file_kind {
-            FileKind::Asset(output_path_relative) => {
-                println!("{}: copying to {}", input_path_nominal, output_path_relative);
-                let output_path = output_path_relative.to_path(pimisi.output_dir);
-                create_parent_directories(&output_path)?;
-                fs::copy(input_path, output_path)?; Ok(())
-            },
-            FileKind::Content(content_kind, page_kind, output_path, url) => {
-                println!("{}: reading content", input_path_nominal);
-                match page_kind {
-                    ContentFormat::Post => {
-                        let (front_matter, raw_content) = read_file_with_front_matter(&input_path)?;
-                        let content = match content_kind {
-                            // TODO escaping of e.g. '&' surrounded by whitespace?
-                            ContentKind::Html => raw_content,
-                            ContentKind::Markdown => render_markdown(raw_content),
-                        };
-                        let post = Post::from_prose(front_matter, content, url);
-                        posts.push(post);
-                    },
-                    _ => todo!()
-                };
-                Ok(())
-            }
-        } /* }}} */
+    for_each_input_file(&Path::new(&pimisi.input_dir).join("posts"), |input_path| {
+        let post = handle_file(pimisi, input_path)?;
+        if let Some(p) = post { posts.push(p); }; Ok(())
     })?; // }}}
 
     // APPLY TEMPLATES {{{

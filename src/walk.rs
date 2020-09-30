@@ -14,7 +14,7 @@ fn is_file(entry: &DirEntry) -> bool {
 }
 
 
-pub fn for_each_input_file<F: FnMut(&Path) -> Result<()>>(dir: &str, mut clos: F) -> Result<()> {
+pub fn for_each_input_file<P: AsRef<Path>, F: FnMut(&Path) -> Result<()>>(dir: &P, mut clos: F) -> Result<()> {
     WalkDir::new(dir).into_iter()
         .filter_entry(|e| !is_hidden(e)) // Filter out hidden files (.\*)
         .filter_map(|e| e.ok()) // Ignore any errors produced by walkdir
