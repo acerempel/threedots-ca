@@ -10,19 +10,13 @@ use crate::page::PageContent;
 
 #[derive(Deserialize)]
 pub struct Data {
-    #[serde(default)]
-    date: Option<Date>,
-    #[serde(default)]
-    date_revised: Option<Date>,
+    #[serde(default)] date: Option<Date>,
+    #[serde(default)] date_revised: Option<Date>,
     title: String,
-    #[serde(default)]
-    description: Option<String>,
-    #[serde(default)]
-    canonical: Option<String>,
-    #[serde(default)]
-    weight: i32,
-    #[serde(default)]
-    tags: HashSet<String>
+    #[serde(default)] description: Option<String>,
+    #[serde(default)] canonical: Option<String>,
+    #[serde(default)] weight: i32,
+    #[serde(default)] tags: HashSet<String>
 }
 
 #[derive(Template)]

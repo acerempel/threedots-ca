@@ -38,16 +38,11 @@ impl Post {
 #[derive(Deserialize)]
 pub struct Data {
     date: Date,
-    #[serde(default)]
-    date_revised: Option<Date>,
-    #[serde(default)]
-    title: Option<String>,
-    #[serde(default)]
-    description: Option<String>,
-    #[serde(default)]
-    synopsis: Option<String>,
-    #[serde(default)]
-    canonical: Option<String>,
+    #[serde(default)] date_revised: Option<Date>,
+    #[serde(default)] title: Option<String>,
+    #[serde(default)] description: Option<String>,
+    #[serde(default)] synopsis: Option<String>,
+    #[serde(default)] canonical: Option<String>,
 }
 
 impl FromProse for Post {
