@@ -65,9 +65,9 @@ impl FromProse for Post {
 
 impl PageContent for Post {
     fn url(&self) -> &str { &self.url }
-    fn title(&self) -> Option<&str> { todo!() }
-    fn description(&self) -> Option<&str> { todo!() }
-    fn canonical(&self) -> Option<&str> { todo!() }
+    fn title(&self) -> Option<&str> { self.title.as_deref() }
+    fn description(&self) -> Option<&str> { self.description.as_deref() }
+    fn canonical(&self) -> Option<&str> { self.canonical.as_deref() }
 }
 
 #[derive(Template)]
@@ -87,7 +87,7 @@ enum SummaryContent<'a> {
 }
 
 impl<'a> Summary<'a> {
-    fn link(&'a self) -> Option<Link<'a>> {
+    pub fn link(&'a self) -> Option<Link<'a>> {
         self.title.map(|title| Link { content: title, url: self.url, description: self.description })
     }
 }

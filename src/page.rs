@@ -11,7 +11,7 @@ pub struct Page<'a, T: PageContent + std::fmt::Display> {
     pub footer: &'a [Link<'a>],
 }
 
-pub trait PageContent: Template {
+pub trait PageContent {
     fn title(&self) -> Option<&str>;
     fn description(&self) -> Option<&str>;
     fn url(&self) -> &str;
