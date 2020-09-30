@@ -5,12 +5,6 @@ use crate::post::Post;
 use relative_path::{RelativePath, RelativePathBuf};
 use anyhow::Result;
 
-use serde_json::value::Value;
-
-/// We use `Map` because that's what Handlebars uses under the hood
-/// (by way of serde_json).
-type Metadata = serde_json::map::Map<String,Value>;
-
 mod kind;
 mod post;
 mod date;
@@ -19,7 +13,7 @@ mod page;
 mod prose;
 
 use kind::*;
-use prose::{Html, read_prose};
+use prose::read_prose;
 
 use std::path::Path;
 
@@ -56,16 +50,6 @@ fn discern_file_kind(input_path: &RelativePath) -> Result<FileKind> {
             _ => Ok( FileKind::Asset(input_path.to_owned()) ),
         }
     } else { Ok( FileKind::Asset(input_path.to_owned()) ) }
-}
-
-// Write some HTML to a file, creating the parent directories of the
-// file if they don't already exist.
-fn write_page(output_path: &Path, content: Html) -> Result<()> {
-    // The path may, in principle, have no parent; this is impossible here because we prepend the
-    // output directory in `output_path`.
-    create_parent_directories(&output_path)?;
-    fs::write(output_path, content)?;
-    Ok(())
 }
 
 use std::fs::File;
