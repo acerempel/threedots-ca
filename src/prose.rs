@@ -1,14 +1,10 @@
-use serde::Deserialize;
-use crate::kind::ContentKind;
-use crate::path::{NominalPath, Output};
+use serde::de::DeserializeOwned;
 
-pub trait FromProse<'a> {
-    type FrontMatter: Deserialize<'a>;
+pub trait FromProse {
+    type FrontMatter: DeserializeOwned;
     fn from_prose(
         front_matter: Self::FrontMatter,
-        content: &'a str,
-        kind: ContentKind,
+        content: String,
         url: String,
-        output_path: NominalPath<Output>,
     ) -> Self;
 }

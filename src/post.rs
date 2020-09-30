@@ -1,95 +1,72 @@
-use crate::nav::Nav;
-use crate::Output;
 use serde::Deserialize;
 use askama::Template;
 
 use crate::date::Date;
-use crate::ContentKind;
 use crate::URL;
-use crate::path::NominalPath;
 use crate::link::Link;
 use crate::prose::FromProse;
+use crate::page::PageContent;
 
 #[derive(Template)]
 #[template(path = "post.html")]
-pub struct Full <'a> {
-    date: &'a Date,
-    date_revised: Option<&'a Date>,
-    url: &'a str,
-    title: Option<&'a str>,
-    content: &'a str,
-    description: Option<&'a str>,
-    canonical: Option<&'a str>,
-    nav: Nav<'a>
-}
-
-pub struct Post <'a> {
+pub struct Post {
     date: Date,
     date_revised: Option<Date>,
     url: URL,
-    output_path: NominalPath<Output>,
-    title: Option<&'a str>,
-    content: &'a str,
-    content_kind: ContentKind,
-    description: Option<&'a str>,
-    synopsis: Option<&'a str>,
-    canonical: Option<&'a str>,
+    title: Option<String>,
+    content: String,
+    description: Option<String>,
+    synopsis: Option<String>,
+    canonical: Option<String>,
 } 
 
-impl<'a> Post<'a> {
-    pub fn full(&'a self, nav: Nav<'a>) -> Full<'a> {
-        Full {
-            date: &self.date,
-            date_revised: self.date_revised.as_ref(),
-            url: &self.url,
-            title: self.title,
-            content: self.content,
-            description: self.description,
-            canonical: self.canonical,
-            nav
-        }
-    }
-    pub fn summary(&'a self) -> Summary<'a> {
-        let content =
-            if let Some(synopsis) = self.synopsis { SummaryContent::Synopsis(synopsis) }
-            else { SummaryContent::FullContent(self.content) };
+impl Post {
+    pub fn summary<'a>(&'a self) -> Summary<'a> {
+        let content = // TODO what about excerpt
+            if let Some(synopsis) = self.synopsis { SummaryContent::Synopsis(&synopsis) }
+            else { SummaryContent::FullContent(&self.content) };
         Summary {
             date: &self.date,
             url: &self.url,
-            title: self.title,
-            description: self.description,
+            title: self.title.as_deref(),
+            description: self.description.as_deref(),
             content
         }
     }
 }
 
 #[derive(Deserialize)]
-pub struct Data<'a> {
+pub struct Data {
     date: Date,
     #[serde(default)]
     date_revised: Option<Date>,
     #[serde(default)]
-    title: Option<&'a str>,
+    title: Option<String>,
     #[serde(default)]
-    description: Option<&'a str>,
+    description: Option<String>,
     #[serde(default)]
-    synopsis: Option<&'a str>,
+    synopsis: Option<String>,
     #[serde(default)]
-    canonical: Option<&'a str>,
+    canonical: Option<String>,
 }
 
-impl<'a> FromProse<'a> for Post<'a> {
-    type FrontMatter = Data<'a>;
-    fn from_prose(front_matter: Self::FrontMatter, content: &'a str,
-        content_kind: ContentKind, url: String,
-        output_path: NominalPath<Output>) -> Post {
+impl FromProse for Post {
+    type FrontMatter = Data;
+    fn from_prose(front_matter: Self::FrontMatter, content: String,
+        url: String) -> Post {
         Post {
             content, canonical: front_matter.canonical, date: front_matter.date,
             date_revised: front_matter.date_revised,
             title: front_matter.title, description: front_matter.description, synopsis: front_matter.synopsis,
-            content_kind, url, output_path
+            url
         }
     }
+}
+
+impl PageContent for Post {
+    fn url(&self) -> &str { &self.url }
+    fn title(&self) -> Option<&str> { todo!() }
+    fn description(&self) -> Option<&str> { todo!() }
 }
 
 #[derive(Template)]

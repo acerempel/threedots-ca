@@ -8,13 +8,13 @@
     <meta name="color-scheme" content="light dark">
     <meta name="author" content="Alan Rempel">
     <link rel="canonical" href="http://threedots.ca
-      {%- match canonical %}
+      {%- match content.canonical() %}
       {%- when Some with (c) %}{{ c }}
-      {%- when None %}{{ url }}
+      {%- when None %}{{ content.url() }}
       {%- endmatch %}">
-    <title>{% match title %}{% when Some with (t) -%}
+    <title>{% match content.title() %}{% when Some with (t) -%}
       {{ t }} … {% when None %}{% endmatch %}‹three dots›</title>
-    {% match description %}{% when Some with (d) -%}
+    {% match content.description() %}{% when Some with (d) -%}
       <meta name="description" content="{{ d }}">
     {%- when None %}{% endmatch %}
     <link rel="alternate" type="application/atom+xml" href="/posts/feed.xml">
@@ -26,17 +26,17 @@
     <div class="container">
       <header class="top-header">
         <a class="bold" href="/">three dots …</a>
-        <nav>{% for nav_page in nav.header %}
+        <nav>{% for nav_page in header %}
           {{ nav_page }}{% if !loop.last %} • {% endif %}
         {% endfor %}</nav>
       </header>
       <main>
-        {% block content%}{% endblock %}
+        {{ content }}
       </main>
       <footer class="border-top">
         <section>
           <nav class="link-plain">
-            {% for nav_page in nav.footer %}
+            {% for nav_page in footer %}
             <p>{{ nav_page }}</p>
             {% endfor %}
           </nav>

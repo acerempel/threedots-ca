@@ -1,11 +1,11 @@
 /// What kind of file? Does it contain content that we must process and
 /// output; is it a template that we must load and let Tera take care of;
 /// or is it an asset that we just copy over?
-use crate::path::*;
+use relative_path::RelativePathBuf;
 
 pub enum FileKind {
-    Content(ContentKind, NominalPath<Output>, URL),
-    Asset(NominalPath<Output>),
+    Content(ContentKind, ContentFormat, RelativePathBuf, URL),
+    Asset(RelativePathBuf),
 }
 
 pub type URL = String;
@@ -17,3 +17,8 @@ pub enum ContentKind {
     Html,
 }
 
+pub enum ContentFormat {
+    Homepage,
+    Post,
+    Article,
+}
