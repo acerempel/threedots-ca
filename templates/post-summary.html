@@ -4,8 +4,8 @@
             {%- endmatch %}
             <article class="post {{ post_class }}">
               {% match self.link() %}
-              {%- when Some with (l) %}<h3>{{ l }}</h3>
-              {%- else %}<div class="date">{{ date }}</div>
+              {%- when Some with (l) %}<h3>{{ l|safe }}</h3>
+              {%- else %}<div class="date">{{ date|safe }}</div>
               {%- endmatch %}
               {%- match content %}
               {% when SummaryContent::Synopsis with (syn) %}<p class="synopsis">({{ syn|safe }})</p>

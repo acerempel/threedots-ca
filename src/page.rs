@@ -4,14 +4,14 @@ use crate::article::Article;
 
 #[derive(Template)]
 #[template(path = "base.html")]
-pub struct Page<'a, T: PageContent + std::fmt::Display> {
+pub struct Page<'a, T: PageContent> {
     pub output_path: RelativePathBuf,
     pub content: &'a T,
     pub header: &'a [Article],
     pub footer: &'a [Article],
 }
 
-pub trait PageContent {
+pub trait PageContent: std::fmt::Display {
     fn title(&self) -> Option<&str>;
     fn description(&self) -> Option<&str>;
     fn url(&self) -> &str;

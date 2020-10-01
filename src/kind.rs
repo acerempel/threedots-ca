@@ -37,9 +37,15 @@ pub fn discern_file_kind(input_path: &RelativePath) -> Result<FileKind> {
                     .unwrap_or_else(|| RelativePath::new(stem).join(RelativePath::new("index.html")))
             }
         };
-        let content_url = || input_parent_dir
-            .map(|dir| format!("/{}/{}/", dir, stem))
-            .unwrap_or_else(|| format!("/{}/", stem));
+        let content_url = || if stem == "index" {
+            input_parent_dir
+                .and_then(|p| if p == "" { None } else { Some(p) })
+                .map(|dir| format!("/{}/", dir))
+                .unwrap_or(String::from("/")) }
+            else { input_parent_dir
+                .and_then(|p| if p == "" { None } else { Some(p) })
+                .map(|dir| format!("/{}/{}/", dir, stem))
+                .unwrap_or_else(|| format!("/{}/", stem)) };
         match input_ext {
             "md" => Ok( FileKind::Content(ContentKind::Markdown, index_html(), content_url()) ),
             "html" => Ok( FileKind::Content(ContentKind::Html, index_html(), content_url()) ),

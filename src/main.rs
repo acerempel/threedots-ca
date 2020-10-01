@@ -2,7 +2,7 @@
 extern crate anyhow;
 
 use crate::post::Post;
-use relative_path::RelativePathBuf;
+use relative_path::{RelativePathBuf, RelativePath};
 use anyhow::Result;
 
 mod kind;
@@ -32,6 +32,13 @@ mod walk;
 
 use article::Article;
 
+fn url_to_path(url: &str) -> RelativePathBuf {
+    // Strip leading slash
+    let mut path = RelativePath::new(&url[1..]).to_owned();
+    if path.ends_with("/") { path.push("index.html"); };
+    path
+}
+
 fn main() -> Result<()> {
     // INITIALIZE GLOBAL STATE AND CONFIGURATION {{{
     let config_file_path = "threedots.yaml";
@@ -43,9 +50,10 @@ fn main() -> Result<()> {
     };
 
     // let mut articles: Vec<Article> = Vec::with_capacity(32);
-    let mut posts: Vec<(Post, RelativePathBuf)> = Vec::with_capacity(64);
-    let mut top_nav: Vec<(Article, RelativePathBuf)> = Vec::with_capacity(8);
-    let mut misc: Vec<(Article, RelativePathBuf)> = Vec::with_capacity(8);
+    let mut posts: Vec<Post> = Vec::with_capacity(64);
+    let mut top_nav: Vec<Article> = Vec::with_capacity(8);
+    let footer_nav: Vec<Article> = Vec::new();
+    let mut misc: Vec<Article> = Vec::with_capacity(8);
     // }}}
 
     use walk::for_each_input_file;
@@ -75,11 +83,11 @@ fn main() -> Result<()> {
                 match input_path_nominal.parent() {
                     Some(p) if p == "posts" => {
                         let post = read_prose::<Post>(input_path, content_kind, url)?;
-                        posts.push((post, output_path)); Ok(()) },
+                        posts.push(post); Ok(()) },
                     Some(_) => {
                         let article = read_prose::<Article>(input_path, content_kind, url)?;
-                        if article.has_tag("top_nav") { top_nav.push((article, output_path)); }
-                        else if article.has_tag("misc_list") { misc.push((article, output_path)); }
+                        if article.has_tag("top_nav") { top_nav.push(article); }
+                        else if article.has_tag("misc_list") { misc.push(article); }
                         else { println!("{}: dangling article!", input_path_nominal) };
                         Ok(()) },
                     None => panic!("nonsensical path: {}", input_path_nominal)
@@ -87,6 +95,25 @@ fn main() -> Result<()> {
             }
         }
     })?; // }}}
+
+    use page::{Page, PageContent};
+    use askama::Template;
+    use std::io::Write;
+
+    fn render_page_to_file<P: PageContent>(page: Page<P>, pimisi: &Pimisi) -> Result<()> {
+        let output_path = page.output_path.to_path(&pimisi.output_dir);
+        println!("Writing url {} to path {}", page.content.url(), output_path.display());
+        let mut output_file = File::create(output_path)?;
+        let rendered = page.render()?;
+        let _ = output_file.write(rendered.as_ref())?; Ok(())
+    }
+
+    for post in posts.iter() {
+        let page = Page {
+            header: &top_nav[..], footer: &footer_nav[..],
+            content: post, output_path: url_to_path(post.url()) };
+        render_page_to_file(page, &pimisi)?;
+    }
 
     Ok(())
 }
