@@ -1,5 +1,4 @@
 use chrono::NaiveDate;
-use chrono::Datelike;
 use askama::Template;
 
 #[derive(Template, Clone)]
@@ -13,5 +12,4 @@ impl Date {
     fn nice(&self) -> String {
         format!("{}", self.0.format("%B %-d, %Y"))
     }
-    pub fn year(&self) -> i32 { self.0.year() }
 }

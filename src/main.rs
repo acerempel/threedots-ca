@@ -98,9 +98,12 @@ fn main() -> Result<()> {
         }
     })?; // }}}
 
+    posts.sort_unstable_by(|p1, p2| p2.date.0.cmp(&p1.date.0));
+
     use page::{Page, PageContent};
     use askama::Template;
     use std::io::Write;
+    use chrono::Datelike;
 
     fn render_page_to_file<P: PageContent>(page: Page<P>, pimisi: &Pimisi) -> Result<()> {
         let output_path = url_to_path(page.content.url()).to_path(&pimisi.output_dir);
@@ -119,7 +122,7 @@ fn main() -> Result<()> {
 
     let mut posts_by_year: HashMap<i32, Vec<post::Summary>> = HashMap::new();
     for post in posts.iter() {
-        posts_by_year.entry(post.date.year()).or_insert_with(|| {
+        posts_by_year.entry(post.date.0.year()).or_insert_with(|| {
             let mut v = Vec::with_capacity(5);
             v.push(post.summary()); v
         });
