@@ -28,7 +28,7 @@ pub struct Article {
     url: URL,
     title: String,
     content: String,
-    weight: i32,
+    pub weight: i32,
     description: Option<String>,
     canonical: Option<String>,
     tags: HashSet<String>,

@@ -99,6 +99,7 @@ fn main() -> Result<()> {
     })?; // }}}
 
     posts.sort_unstable_by(|p1, p2| p2.date.0.cmp(&p1.date.0));
+    top_nav.sort_unstable_by_key(|a| a.weight);
 
     use page::{Page, PageContent};
     use askama::Template;
