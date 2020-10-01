@@ -78,7 +78,7 @@ fn main() -> Result<()> {
                 create_parent_directories(&output_path)?;
                 fs::copy(input_path, output_path)?; Ok(())
             },
-            FileKind::Content(content_kind, output_path, url) => {
+            FileKind::Content(content_kind, url) => {
                 println!("{}: reading content", input_path_nominal);
                 match input_path_nominal.parent() {
                     Some(p) if p == "posts" => {
