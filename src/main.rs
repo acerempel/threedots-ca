@@ -123,10 +123,9 @@ fn main() -> Result<()> {
 
     let mut posts_by_year: HashMap<i32, Vec<post::Summary>> = HashMap::new();
     for post in posts.iter() {
-        posts_by_year.entry(post.date.0.year()).or_insert_with(|| {
-            let mut v = Vec::with_capacity(5);
-            v.push(post.summary()); v
-        });
+        posts_by_year.entry(post.date.0.year())
+            .or_insert_with(|| { Vec::with_capacity(5) })
+            .push(post.summary());
     };
     use all_posts::AllPosts;
     let all_posts_page = Page {
