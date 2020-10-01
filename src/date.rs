@@ -9,7 +9,7 @@ use askama::Template;
 #[derive(Template, Clone)]
 #[template(path = "date.html")]
 pub struct Date {
-    year: i32,
+    pub year: i32,
     month: u32,
     day: u32,
     month_name: &'static str

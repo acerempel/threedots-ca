@@ -1,6 +1,7 @@
 #[macro_use]
 extern crate anyhow;
 
+use std::collections::HashMap;
 use crate::post::Post;
 use relative_path::{RelativePathBuf, RelativePath};
 use anyhow::Result;
@@ -12,6 +13,7 @@ mod link;
 mod page;
 mod prose;
 mod article;
+mod all_posts;
 
 use kind::*;
 use prose::read_prose;
@@ -101,7 +103,7 @@ fn main() -> Result<()> {
     use std::io::Write;
 
     fn render_page_to_file<P: PageContent>(page: Page<P>, pimisi: &Pimisi) -> Result<()> {
-        let output_path = page.output_path.to_path(&pimisi.output_dir);
+        let output_path = url_to_path(page.content.url()).to_path(&pimisi.output_dir);
         println!("Writing url {} to path {}", page.content.url(), output_path.display());
         let mut output_file = File::create(output_path)?;
         let rendered = page.render()?;
@@ -111,9 +113,23 @@ fn main() -> Result<()> {
     for post in posts.iter() {
         let page = Page {
             header: &top_nav[..], footer: &footer_nav[..],
-            content: post, output_path: url_to_path(post.url()) };
+            content: post };
         render_page_to_file(page, &pimisi)?;
     }
+
+    let mut posts_by_year: HashMap<i32, Vec<post::Summary>> = HashMap::new();
+    for post in posts.iter() {
+        posts_by_year.entry(post.date.year).or_insert_with(|| {
+            let mut v = Vec::with_capacity(5);
+            v.push(post.summary()); v
+        });
+    };
+    use all_posts::AllPosts;
+    let all_posts_page = Page {
+        header: &top_nav[..], footer: &footer_nav[..],
+        content: &AllPosts { posts_by_year }
+    };
+    render_page_to_file(all_posts_page, &pimisi)?;
 
     Ok(())
 }

@@ -10,7 +10,7 @@ use crate::page::PageContent;
 #[derive(Template)]
 #[template(path = "post.html")]
 pub struct Post {
-    date: Date,
+    pub date: Date,
     date_revised: Option<Date>,
     url: URL,
     title: Option<String>,
