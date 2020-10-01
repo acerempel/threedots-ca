@@ -37,8 +37,8 @@ impl Post {
 
 #[derive(Deserialize)]
 pub struct Data {
-    date: Date,
-    #[serde(default)] date_revised: Option<Date>,
+    date: chrono::NaiveDate,
+    #[serde(default)] date_revised: Option<chrono::NaiveDate>,
     #[serde(default)] title: Option<String>,
     #[serde(default)] description: Option<String>,
     #[serde(default)] synopsis: Option<String>,
@@ -50,8 +50,8 @@ impl FromProse for Post {
     fn from_prose(front_matter: Self::FrontMatter, content: String,
         url: String) -> Post {
         Post {
-            content, canonical: front_matter.canonical, date: front_matter.date,
-            date_revised: front_matter.date_revised,
+            content, canonical: front_matter.canonical, date: Date(front_matter.date),
+            date_revised: front_matter.date_revised.map(Date),
             title: front_matter.title, description: front_matter.description, synopsis: front_matter.synopsis,
             url
         }

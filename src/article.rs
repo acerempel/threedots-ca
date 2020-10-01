@@ -1,6 +1,7 @@
 use serde::Deserialize;
 use askama::Template;
 use std::collections::HashSet;
+use chrono::NaiveDate;
 
 use crate::date::Date;
 use crate::URL;
@@ -10,8 +11,8 @@ use crate::page::PageContent;
 
 #[derive(Deserialize)]
 pub struct Data {
-    #[serde(default)] date: Option<Date>,
-    #[serde(default)] date_revised: Option<Date>,
+    #[serde(default)] date: Option<NaiveDate>,
+    #[serde(default)] date_revised: Option<NaiveDate>,
     title: String,
     #[serde(default)] description: Option<String>,
     #[serde(default)] canonical: Option<String>,
@@ -54,8 +55,8 @@ impl FromProse for Article {
     fn from_prose(front_matter: Self::FrontMatter, content: String,
         url: String) -> Article {
         Article {
-            content, canonical: front_matter.canonical, date: front_matter.date,
-            date_revised: front_matter.date_revised,
+            content, canonical: front_matter.canonical, date: front_matter.date.map(Date),
+            date_revised: front_matter.date_revised.map(Date),
             title: front_matter.title, description: front_matter.description,
             url, weight: front_matter.weight, tags: front_matter.tags
         }
