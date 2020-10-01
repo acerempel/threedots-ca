@@ -1,5 +1,6 @@
             {% let post_class %}
-            {%- match content %}{% when Synopsis %}{% let post_class = "summary" %}
+            {%- match content %}
+            {%- when SummaryContent::Synopsis with (_) %}{% let post_class = "summary" %}
             {%- else %}{% let post_class = "preview" %}
             {%- endmatch %}
             <article class="post {{ post_class }}">
