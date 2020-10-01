@@ -11,7 +11,7 @@ pub struct AllPosts<'a> {
 
 impl<'a> PageContent for AllPosts<'a> {
     fn title(&self) -> Option<&str> { Some("Blog") }
-    fn url(&self) -> &str { "/posts" }
-    fn description(&self) -> Option<&str> { todo!() }
+    fn url(&self) -> &str { "/posts/" }
+    fn description(&self) -> Option<&str> { Some("All posts in the three dots blog, grouped by year.") }
     fn canonical(&self) -> Option<&str> { None }
 }
