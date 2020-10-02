@@ -16,6 +16,7 @@ pub struct Data {
     title: String,
     #[serde(default)] description: Option<String>,
     #[serde(default)] canonical: Option<String>,
+    #[serde(default)] link_text: Option<String>,
     #[serde(default)] weight: i32,
     #[serde(default)] tags: HashSet<String>
 }
@@ -28,6 +29,7 @@ pub struct Article {
     url: URL,
     title: String,
     content: String,
+    link_text: Option<String>,
     pub weight: i32,
     description: Option<String>,
     canonical: Option<String>,
@@ -36,7 +38,7 @@ pub struct Article {
 
 impl Article {
     pub fn link<'a>(&'a self) -> Link<'a> {
-        Link { content: &self.title, description: self.description.as_deref(), url: &self.url }
+        Link { content: self.link_text.as_ref().unwrap_or(&self.title), description: self.description.as_deref(), url: &self.url }
     }
     pub fn has_tag(&self, tag: &str) -> bool {
         self.tags.contains(tag)
@@ -58,7 +60,8 @@ impl FromProse for Article {
             content, canonical: front_matter.canonical, date: front_matter.date.map(Date),
             date_revised: front_matter.date_revised.map(Date),
             title: front_matter.title, description: front_matter.description,
-            url, weight: front_matter.weight, tags: front_matter.tags
+            url, weight: front_matter.weight, tags: front_matter.tags,
+            link_text: front_matter.link_text
         }
     }
 }

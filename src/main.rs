@@ -14,6 +14,7 @@ mod page;
 mod prose;
 mod article;
 mod all_posts;
+mod index;
 
 use kind::*;
 use prose::read_prose;
@@ -51,17 +52,17 @@ fn main() -> Result<()> {
         serde_yaml::from_reader(config_file)?
     };
 
-    // let mut articles: Vec<Article> = Vec::with_capacity(32);
-    let mut posts: Vec<Post> = Vec::with_capacity(64);
-    let mut top_nav: Vec<Article> = Vec::with_capacity(8);
-    let footer_nav: Vec<Article> = Vec::new();
-    let mut misc: Vec<Article> = Vec::with_capacity(8);
+    use link::Link;
+    use std::collections::BTreeMap;
+
+    let mut posts: Vec<Post> = Vec::with_capacity(32);
+    let mut articles: Vec<Article> = Vec::with_capacity(16);
     // }}}
 
     use walk::for_each_input_file;
 
     // WALK THE INPUT DIRECTORY {{{
-    for_each_input_file(&Path::new(&pimisi.input_dir).join("posts"), |input_path| {
+    for_each_input_file(&Path::new(&pimisi.input_dir), |input_path| {
         // The path with the input directory stripped, for making
         // available as a variable in templates, and for computing the
         // URL and output path with.
@@ -88,18 +89,38 @@ fn main() -> Result<()> {
                         posts.push(post); Ok(()) },
                     Some(_) => {
                         let article = read_prose::<Article>(input_path, content_kind, url)?;
-                        if article.has_tag("top_nav") { top_nav.push(article); }
-                        else if article.has_tag("misc_list") { misc.push(article); }
-                        else { println!("{}: dangling article!", input_path_nominal) };
-                        Ok(()) },
+                        articles.push(article); Ok(()) },
                     None => panic!("nonsensical path: {}", input_path_nominal)
                 }
             }
         }
     })?; // }}}
 
+    // let mut articles: Vec<Article> = Vec::with_capacity(32);
+    let mut top_nav_by_weight: BTreeMap<i32, Link> = BTreeMap::new();
+    let footer_nav: Vec<Link> = Vec::new();
+    let mut misc: Vec<Link> = Vec::with_capacity(8);
     posts.sort_unstable_by(|p1, p2| p2.date.0.cmp(&p1.date.0));
-    top_nav.sort_unstable_by_key(|a| a.weight);
+    for article in articles.iter() {
+        if article.has_tag("top_nav") { top_nav_by_weight.insert(article.weight, article.link()); }
+        else if article.has_tag("misc_list") { misc.push(article.link()); }
+        else { println!("{}: dangling article!", article.url()) };
+    };
+    let top_nav: Vec<Link> = top_nav_by_weight.into_iter().map(|l| l.1).collect();
+    use index::Index;
+    for article in articles.iter() {
+        if article.url() == "/" {
+            let index = Page {
+                header: &top_nav[..], footer: &footer_nav[..],
+                content: &Index { latest_posts: &posts[..3], misc_pages: &misc[..], content: article } };
+            render_page_to_file(index, &pimisi)?;
+        } else {
+            let page = Page {
+                header: &top_nav[..], footer: &footer_nav[..],
+                content: article };
+            render_page_to_file(page, &pimisi)?;
+        }
+    };
 
     use page::{Page, PageContent};
     use askama::Template;
@@ -109,6 +130,7 @@ fn main() -> Result<()> {
     fn render_page_to_file<P: PageContent>(page: Page<P>, pimisi: &Pimisi) -> Result<()> {
         let output_path = url_to_path(page.content.url()).to_path(&pimisi.output_dir);
         println!("Writing url {} to path {}", page.content.url(), output_path.display());
+        create_parent_directories(&output_path)?;
         let mut output_file = File::create(output_path)?;
         let rendered = page.render()?;
         let _ = output_file.write(rendered.as_ref())?; Ok(())

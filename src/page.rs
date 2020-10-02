@@ -1,12 +1,12 @@
+use crate::link::Link;
 use askama::Template;
-use crate::article::Article;
 
 #[derive(Template)]
 #[template(path = "base.html")]
 pub struct Page<'a, T: PageContent> {
     pub content: &'a T,
-    pub header: &'a [Article],
-    pub footer: &'a [Article],
+    pub header: &'a [Link<'a>],
+    pub footer: &'a [Link<'a>],
 }
 
 pub trait PageContent: std::fmt::Display {

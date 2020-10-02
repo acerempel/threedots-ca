@@ -1,11 +1,10 @@
 ---
-title: Hello
+title: Good evening!
 link_text: Home
 description: The website of Alan Rempel, a elliptical human man.
 tags: [top_nav]
 weight: 0
 ---
-# Good evening!
 
 I am Alan; this is my website.
 Currently it consists of my <a href="/#blog"><b>blog</b></a>, which I update according as I
