@@ -14,6 +14,7 @@ mod prose;
 mod article;
 mod all_posts;
 mod index;
+mod util;
 
 use kind::*;
 use prose::read_prose;
@@ -151,7 +152,7 @@ fn main() -> Result<()> {
     use all_posts::AllPosts;
     let all_posts_page = Page {
         header: &top_nav[..], footer: &footer_nav[..],
-        content: &AllPosts { posts_by_year }
+        content: &AllPosts { posts_by_year: util::group_contiguous_by(&posts[..], |p| p.date.0.year()) }
     };
     render_page_to_file(all_posts_page, &pimisi)?;
 

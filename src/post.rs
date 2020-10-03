@@ -24,6 +24,9 @@ impl Post {
     pub fn summary(&self) -> Summary {
         let content = // TODO what about excerpt
             if let Some(synopsis) = &self.synopsis { SummaryContent::Synopsis(&synopsis) }
+            else if let Some(excerpt) = &self.content.rsplit("<!-- FOLD -->").nth(1) {
+                SummaryContent::Excerpt(excerpt)
+            }
             else { SummaryContent::FullContent(&self.content) };
         Summary {
             date: &self.date,

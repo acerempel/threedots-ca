@@ -1,12 +1,11 @@
 use askama::Template;
-use std::collections::BTreeMap;
 use crate::page::PageContent;
-use crate::post;
+use crate::post::Post;
 
 #[derive(Template)]
 #[template(path = "posts.html")]
 pub struct AllPosts<'a> {
-    pub posts_by_year: BTreeMap<i32, Vec<post::Summary<'a>>>
+    pub posts_by_year: Vec<(i32, &'a [Post])>
 }
 
 impl<'a> PageContent for AllPosts<'a> {
