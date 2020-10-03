@@ -97,10 +97,12 @@ fn main() -> Result<()> {
     })?; // }}}
 
     // let mut articles: Vec<Article> = Vec::with_capacity(32);
+    posts.sort_unstable_by(|p1, p2| p2.date.0.cmp(&p1.date.0));
     let mut top_nav_by_weight: BTreeMap<i32, Link> = BTreeMap::new();
+    let all_posts = AllPosts { posts_by_year: util::group_contiguous_by(&posts[..], |p| p.date.0.year()) };
+    top_nav_by_weight.insert(8, all_posts.link());
     let footer_nav: Vec<Link> = Vec::new();
     let mut misc: Vec<Link> = Vec::with_capacity(8);
-    posts.sort_unstable_by(|p1, p2| p2.date.0.cmp(&p1.date.0));
     for article in articles.iter() {
         if article.has_tag("top_nav") { top_nav_by_weight.insert(article.weight, article.link()); }
         else if article.has_tag("misc_list") { misc.push(article.link()); }
@@ -143,16 +145,10 @@ fn main() -> Result<()> {
         render_page_to_file(page, &pimisi)?;
     }
 
-    let mut posts_by_year: BTreeMap<i32, Vec<post::Summary>> = BTreeMap::new();
-    for post in posts.iter() {
-        posts_by_year.entry(post.date.0.year())
-            .or_insert_with(|| { Vec::with_capacity(5) })
-            .push(post.summary());
-    };
     use all_posts::AllPosts;
     let all_posts_page = Page {
         header: &top_nav[..], footer: &footer_nav[..],
-        content: &AllPosts { posts_by_year: util::group_contiguous_by(&posts[..], |p| p.date.0.year()) }
+        content: &all_posts
     };
     render_page_to_file(all_posts_page, &pimisi)?;
 

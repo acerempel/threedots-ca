@@ -14,4 +14,11 @@ pub trait PageContent: std::fmt::Display {
     fn description(&self) -> Option<&str>;
     fn url(&self) -> &str;
     fn canonical(&self) -> Option<&str>;
+    fn link(&self) -> Link {
+        Link {
+            content: self.title().unwrap(),
+            description: self.description(),
+            url: &self.url(),
+        }
+    }
 }

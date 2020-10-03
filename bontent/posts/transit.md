@@ -24,7 +24,7 @@ Well, why *should* it bring me joy? I wouldn't expect anyone else to
 love it.—In my case, I can think of two reasons:
 
 * I have thought for a long time that transit is very important and good and beneficial.
-  It seems consonant with these thoughts like being on transit.{% note 1 %} One hardly wishes to
+  It seems consonant with these thoughts like being on transit.<!-- note 1 --> One hardly wishes to
   think to think when out walking, “Ah, transit is good”, and to think
   when on the bus, “Ah, this stupid bus!”
 * For most of my life, I have taken transit only occasionally and
@@ -79,11 +79,11 @@ character of the trip than with the transit itself.
 
 The fact that my commute so long as 45 minutes is not the transit
 agency's fault. The issue is that my workplace is in a
-neighbourhood{% note 3 %} that is awkward for transit to serve and generates very
+neighbourhood<!-- note 2 --> that is awkward for transit to serve and generates very
 little ridership. My trip to work would be more convenient if the bus I
 take came more often (than every half-hour), but its ridership cannot
 justify more frequency. This is basically a predictable consequence of
-where my workplace is.{% note 2 %}
+where my workplace is.<!-- note 3 -->
 
 I could make my trip shorter and more pleasant, however, by procuring a
 bicycle. That would change everything about my trips to work. I could
