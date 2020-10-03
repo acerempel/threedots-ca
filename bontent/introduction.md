@@ -28,8 +28,8 @@ I am an elliptical man.
 my own corner of the internet where I can experiment with prose and
 fiddle with stylesheets. Some people are good at making their bedrooms
 or living rooms into nice spaces that bring them comfort, look lovely, display things they value, and tell visitors something
-about themselves. I'm not so good at that in real life, but my website is the fruit of my hope to create
-something analogous for myself on the internet. If
+about themselves. I'm not so good at that in real life, but my website is something like an attempt to create
+an analogous space on the internet. If
 only I could actually bring my guests some sparkling water!
 
 I post new content <em>highly</em> irregularly.
@@ -37,11 +37,6 @@ Blog posts are dated by when I <em>originally</em> composed
 their content. This date may be months or years earlier than
 when the post appears here; I often post backdated items that
 I had written down somewhere else much earlier.
-
-On the technical side, the website consists of statically generated
-<abbr title="HyperText Markup Language">HTML</abbr> (and some handwritten CSS), hosted
-with GitHub Pages. The HTML is generated with
-[Eleventy](https://eleventy.dev).
 
 I am <s>constantly</s> intermittently adding, editing, removing stuff,
 adding stuff back again, and tweaking the design of the site, so
