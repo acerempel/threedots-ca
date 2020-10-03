@@ -1,7 +1,6 @@
 #[macro_use]
 extern crate anyhow;
 
-use std::collections::HashMap;
 use crate::post::Post;
 use relative_path::{RelativePathBuf, RelativePath};
 use anyhow::Result;
@@ -143,7 +142,7 @@ fn main() -> Result<()> {
         render_page_to_file(page, &pimisi)?;
     }
 
-    let mut posts_by_year: HashMap<i32, Vec<post::Summary>> = HashMap::new();
+    let mut posts_by_year: BTreeMap<i32, Vec<post::Summary>> = BTreeMap::new();
     for post in posts.iter() {
         posts_by_year.entry(post.date.0.year())
             .or_insert_with(|| { Vec::with_capacity(5) })

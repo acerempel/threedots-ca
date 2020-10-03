@@ -30,7 +30,7 @@ pub fn discern_file_kind(input_path: &RelativePath) -> Result<FileKind> {
             input_parent_dir
                 .and_then(|p| if p == "" { None } else { Some(p) })
                 .map(|dir| format!("/{}/", dir))
-                .unwrap_or(String::from("/")) }
+                .unwrap_or_else(|| String::from("/")) }
             else { input_parent_dir
                 .and_then(|p| if p == "" { None } else { Some(p) })
                 .map(|dir| format!("/{}/{}/", dir, stem))

@@ -37,7 +37,7 @@ pub struct Article {
 } 
 
 impl Article {
-    pub fn link<'a>(&'a self) -> Link<'a> {
+    pub fn link(&self) -> Link {
         Link { content: self.link_text.as_ref().unwrap_or(&self.title), description: self.description.as_deref(), url: &self.url }
     }
     pub fn has_tag(&self, tag: &str) -> bool {

@@ -1,6 +1,7 @@
 ---
 date: 2019-11-21
 date_revised: 2020-05-16
+layout: post
 ---
 
 This city is a strange place—so much of it is paved.

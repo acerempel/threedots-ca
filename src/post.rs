@@ -21,7 +21,7 @@ pub struct Post {
 } 
 
 impl Post {
-    pub fn summary<'a>(&'a self) -> Summary<'a> {
+    pub fn summary(&self) -> Summary {
         let content = // TODO what about excerpt
             if let Some(synopsis) = &self.synopsis { SummaryContent::Synopsis(&synopsis) }
             else { SummaryContent::FullContent(&self.content) };
