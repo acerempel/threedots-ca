@@ -12,4 +12,4 @@ have spare time and whim, some <a href="/#miscellaneous"><b>miscellaneous lists<
 a page with a little more <a href="/introduction"><b>about</b></a> this website and me.
 Feel free to browse.
 
-<small class="date">Last updated on <time datetime="2020-08-27">Thursday, August 27th, 2020</time></small>
+<small class="date">Last updated on <time datetime="2020-10-16">Friday, October 16th, 2020</time></small>

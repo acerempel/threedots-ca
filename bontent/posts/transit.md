@@ -1,8 +1,7 @@
 ---
 date: 2020-08-28
-layout: post
 title: On transit
-hidden: true
+tags: [hidden]
 description: >
   I used to think that I generally enjoyed riding transit. I have
   realized, though, that although I sometimes enjoy riding it, transit's

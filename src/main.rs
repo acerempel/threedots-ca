@@ -86,7 +86,8 @@ fn main() -> Result<()> {
                 match input_path_nominal.parent() {
                     Some(p) if p == "posts" => {
                         let post = read_prose::<Post>(input_path, content_kind, url)?;
-                        posts.push(post); Ok(()) },
+                        if !post.tags.contains("hidden") { posts.push(post); };
+                        Ok(()) },
                     Some(_) => {
                         let article = read_prose::<Article>(input_path, content_kind, url)?;
                         articles.push(article); Ok(()) },

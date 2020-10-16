@@ -1,4 +1,4 @@
 input_dir: bontent
-output_dir: bite
+output_dir: _site.live
 tags:
   posts: {key: date, direction: descending}

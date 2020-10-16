@@ -1,5 +1,6 @@
 use serde::Deserialize;
 use askama::Template;
+use std::collections::HashSet;
 
 use crate::date::Date;
 use crate::URL;
@@ -18,6 +19,7 @@ pub struct Post {
     description: Option<String>,
     synopsis: Option<String>,
     canonical: Option<String>,
+    pub tags: HashSet<String>,
 } 
 
 impl Post {
@@ -46,6 +48,7 @@ pub struct Data {
     #[serde(default)] description: Option<String>,
     #[serde(default)] synopsis: Option<String>,
     #[serde(default)] canonical: Option<String>,
+    #[serde(default)] tags: HashSet<String>,
 }
 
 impl FromProse for Post {
@@ -56,7 +59,7 @@ impl FromProse for Post {
             content, canonical: front_matter.canonical, date: Date(front_matter.date),
             date_revised: front_matter.date_revised.map(Date),
             title: front_matter.title, description: front_matter.description, synopsis: front_matter.synopsis,
-            url
+            url, tags: front_matter.tags
         }
     }
 }
