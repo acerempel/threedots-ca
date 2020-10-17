@@ -3,7 +3,6 @@ title: Holy Communion on Harry Lake
 description: At Holy Communion at 7:00 am on the Fall Retreat, I remark upon the beauty of the mist over the lake, and almost burn my hand.
 synopsis: In which it is cold, early morning, misty over the lake; I set my service leaflet on fire.
 date: 2019-10-27
-layout: post
 ---
 
 At this year’s Fall Retreat at Mersey River Chalets, Holy
