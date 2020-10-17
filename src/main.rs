@@ -29,7 +29,7 @@ use std::fs;
 use std::fs::File;
 
 mod configuration;
-use configuration::Pimisi;
+use configuration::{Pimisi, Zimisi};
 
 mod walk;
 
@@ -49,7 +49,9 @@ fn main() -> Result<()> {
         // TODO what if the file does not exist? In that case defaults
         // should be used.
         let config_file = File::open(config_file_path)?;
-        serde_yaml::from_reader(config_file)?
+        let config: Zimisi = serde_yaml::from_reader(config_file)?;
+        let cmdline: Zimisi = argh::from_env();
+        Pimisi::from_zimisis(cmdline, config)
     };
 
     use link::Link;
