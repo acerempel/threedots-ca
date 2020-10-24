@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>{{ site_title }}</title>
+  <subtitle>{{ site_desc }}</subtitle>
+  <link href="{{ site_url|safe }}{{ self.link().url|safe }}" rel="self"/>
+  <link href="{{ site_url|safe }}"/>
+  <updated>{{ datetime_now.to_rfc3339() }}</updated>
+  <id>{{ site_url|safe }}/</id>
+  <author>
+    <name>{{ site_author }}</name>
+  </author>
+  {%- for post in all_posts %}
+  <entry>
+    {%- match post.title() %}
+    {%- when Some with (title) %}
+    <title type="text">{{ title }}</title>
+    {%- when None %}
+    <title type="text">{{ post.content|sans_tags|first_few_words }}</title>
+    {%- endmatch %}
+    {%- let abs_url = site_url.clone() + post.url() %}
+    <link href="{{ abs_url|safe }}"/>
+    {%- match post.date_revised %}
+    {%- when Some with (date_rev) %}
+    <updated>{{ date_rev.to_local_datetime().to_rfc3339() }}</updated>
+    <published>{{ post.date.to_local_datetime().to_rfc3339()  }}</published>
+    {%- else %}
+    <updated>{{ post.date.to_local_datetime().to_rfc3339() }}</updated>
+    {%- endmatch %}
+    <id>{{ abs_url|safe }}</id>
+    {%- match post.summary().content %}
+    {%- when SummaryContent::Synopsis with (synop) %}
+    <summary>{{ synop }}</summary>
+    {%- else %}{% match post.description() %}
+    {%- when Some with (desc) %}
+    <summary>{{ desc }}</summary>
+    {%- else %}{% endmatch %}{% endmatch %}
+    <content type="html">{{ post.content }}</content>
+  </entry>
+  {%- endfor %}
+</feed>

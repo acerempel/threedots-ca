@@ -1,6 +1,9 @@
 #[macro_use]
 extern crate anyhow;
 
+#[macro_use]
+extern crate lazy_static;
+
 use crate::post::Post;
 use relative_path::{RelativePathBuf, RelativePath};
 use anyhow::Result;
@@ -12,6 +15,7 @@ mod link;
 mod page;
 mod prose;
 mod article;
+mod feed;
 mod all_posts;
 mod index;
 mod util;
@@ -38,7 +42,7 @@ use article::Article;
 fn url_to_path(url: &str) -> RelativePathBuf {
     // Strip leading slash
     let mut path = RelativePath::new(&url[1..]).to_owned();
-    if path.ends_with("/") { path.push("index.html"); };
+    if url.ends_with('/') { path.push("index.html"); };
     path
 }
 
@@ -104,7 +108,6 @@ fn main() -> Result<()> {
     let mut top_nav_by_weight: BTreeMap<i32, Link> = BTreeMap::new();
     let all_posts = AllPosts { posts_by_year: util::group_contiguous_by(&posts[..], |p| p.date.0.year()) };
     top_nav_by_weight.insert(8, all_posts.link());
-    let footer_nav: Vec<Link> = Vec::new();
     let mut misc: Vec<Link> = Vec::with_capacity(8);
     for article in articles.iter() {
         if article.has_tag("top_nav") { top_nav_by_weight.insert(article.weight, article.link()); }
@@ -112,6 +115,16 @@ fn main() -> Result<()> {
         else { println!("{}: dangling article!", article.url()) };
     };
     let top_nav: Vec<Link> = top_nav_by_weight.into_iter().map(|l| l.1).collect();
+    use feed::Feed;
+    let feed = Feed {
+        all_posts: &posts[..],
+        datetime_now: chrono::offset::Local::now(),
+        site_title: "Three Dots".to_string(),
+        site_author: "Alan Rempel".to_string(),
+        site_url: "http://threedots.ca".to_string(),
+        site_desc: "The website of an elliptical human".to_string(), 
+    };
+    let footer_nav: Vec<Link> = vec![feed.link()];
     use index::Index;
     for article in articles.iter() {
         if article.url() == "/" {
@@ -128,16 +141,19 @@ fn main() -> Result<()> {
     };
 
     use page::{Page, PageContent};
-    use askama::Template;
     use std::io::Write;
     use chrono::Datelike;
 
     fn render_page_to_file<P: PageContent>(page: Page<P>, pimisi: &Pimisi) -> Result<()> {
         let output_path = url_to_path(page.content.url()).to_path(&pimisi.output_dir);
         println!("Writing url {} to path {}", page.content.url(), output_path.display());
+        render_template_to_file(&page, &output_path)?; Ok(())
+    }
+
+    fn render_template_to_file<P: askama::Template>(tmpl: &P, output_path: &Path) -> Result<()> {
         create_parent_directories(&output_path)?;
         let mut output_file = File::create(output_path)?;
-        let rendered = page.render()?;
+        let rendered = tmpl.render()?;
         let _ = output_file.write(rendered.as_ref())?; Ok(())
     }
 
@@ -154,6 +170,8 @@ fn main() -> Result<()> {
         content: &all_posts
     };
     render_page_to_file(all_posts_page, &pimisi)?;
+
+    render_template_to_file(&feed, &url_to_path(feed.link().url).to_path(&pimisi.output_dir))?;
 
     Ok(())
 }
