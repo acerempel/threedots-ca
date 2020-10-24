@@ -1,5 +1,5 @@
 ---
-date: 2020-06-01
+date_revised: 2020-06-01
 title: All the words I have looked up in the dictionary on my phone
 tags: [misc_list]
 ---
