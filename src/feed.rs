@@ -31,7 +31,7 @@ mod filters {
         lazy_static!{
             static ref TAG_REGEX: Regex = Regex::new("<[^>]*>").unwrap();
         }
-        Ok(TAG_REGEX.replace(string, ""))
+        Ok(TAG_REGEX.replace_all(string, ""))
     }
     pub fn first_few_words(string: &str) -> askama::Result<String> {
         let mut words = Vec::with_capacity(11);
