@@ -12,10 +12,10 @@ use crate::page::PageContent;
 #[template(path = "post.html")]
 pub struct Post {
     pub date: Date,
-    date_revised: Option<Date>,
+    pub date_revised: Option<Date>,
     url: URL,
     title: Option<String>,
-    content: String,
+    pub content: String,
     description: Option<String>,
     synopsis: Option<String>,
     canonical: Option<String>,
@@ -78,10 +78,10 @@ pub struct Summary<'a> {
     url: &'a str,
     title: Option<&'a str>,
     description: Option<&'a str>,
-    content: SummaryContent<'a>,
+    pub content: SummaryContent<'a>,
 }
 
-enum SummaryContent<'a> {
+pub enum SummaryContent<'a> {
     Synopsis(&'a str),
     Excerpt(&'a str),
     FullContent(&'a str),
@@ -89,6 +89,6 @@ enum SummaryContent<'a> {
 
 impl<'a> Summary<'a> {
     pub fn link(&'a self) -> Option<Link<'a>> {
-        self.title.map(|title| Link { content: title, url: self.url, description: self.description })
+        self.title.map(|title| Link::new(self.url, title).description_opt(self.description))
     }
 }

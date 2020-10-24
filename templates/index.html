@@ -14,6 +14,9 @@
             {%- for misc_page in misc_pages -%}
             <li>
               {{ misc_page|safe }}
+              {%- match misc_page.date_revised %}
+              {%- when Some with (dr) %} <small class="light">— Updated {{ dr|safe }}</small>
+              {%- when None %}{% endmatch %}
             </li>
             {%- endfor %}
           </ul>

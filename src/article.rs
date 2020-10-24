@@ -38,7 +38,10 @@ pub struct Article {
 
 impl Article {
     pub fn link(&self) -> Link {
-        Link { content: self.link_text.as_ref().unwrap_or(&self.title), description: self.description.as_deref(), url: &self.url }
+        let link_text = self.link_text.as_ref().unwrap_or(&self.title);
+        Link::new(&self.url, link_text)
+            .description_opt(self.description.as_deref())
+            .date_revised_opt(self.date_revised.as_ref())
     }
     pub fn has_tag(&self, tag: &str) -> bool {
         self.tags.contains(tag)
