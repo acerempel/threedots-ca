@@ -1,7 +1,7 @@
         <section>
           {{content|safe}}
         </section>
-        <section id="blog" class="border-top">
+        <section id="blog" class="border-top" itemscope itemtype="https://schema.org/Blog">
           <h1><a href="/posts">Blog</a></h1>
           {%- for post in latest_posts %}
           {{post.summary()|safe}}
@@ -12,8 +12,8 @@
           <h1>Miscellaneous lists</h1>
           <ul>
             {%- for misc_page in misc_pages -%}
-            <li>
-              {{ misc_page|safe }}
+            <li itemscope itemtype="https://schema.org/Article">
+              <span itemprop="headline">{{ misc_page|safe }}</span>
               {%- match misc_page.date_revised %}
               {%- when Some with (dr) %} <small class="light">— Updated {{ dr|safe }}</small>
               {%- when None %}{% endmatch %}

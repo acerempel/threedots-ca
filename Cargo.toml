@@ -9,6 +9,7 @@ edition = "2018"
 [dependencies]
 regex = "1.4"
 lazy_static = "1.4"
+delegate-attr = "0.2"
 pulldown-cmark = "0.8"
 walkdir = "2"
 serde_yaml = "0.8"

@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <meta name="google-site-verification" content="DhZUgJjUNSRFdHhycAzNuCiTKprn-1Csb49PU1lsABo" >
+    <meta name="google-site-verification" content="DhZUgJjUNSRFdHhycAzNuCiTKprn-1Csb49PU1lsABo">
     <meta name="color-scheme" content="light dark">
     <meta name="author" content="Alan Rempel">
     <link rel="canonical" href="http://threedots.ca
@@ -26,9 +26,11 @@
     <div class="container">
       <header class="top-header">
         <a class="bold" href="/">three dots …</a>
-        <nav>{% for nav_page in header %}
-          {{ nav_page|safe }}{% if !loop.last %} • {% endif %}
-        {% endfor %}</nav>
+        <nav>
+          {% for nav_page in header -%}
+          <span itemscope itemtype="https://schema.org/WebPage"><span itemprop="name">{{ nav_page|safe }}</span></span>{% if !loop.last %} • {% endif %}
+          {%- endfor %}
+        </nav>
       </header>
       <main>
         {{ content|safe }}

@@ -60,8 +60,8 @@ impl FromProse for Article {
     fn from_prose(front_matter: Self::FrontMatter, content: String,
         url: String) -> Article {
         Article {
-            content, canonical: front_matter.canonical, date: front_matter.date.map(Date),
-            date_revised: front_matter.date_revised.map(Date),
+            content, canonical: front_matter.canonical, date: front_matter.date.map(Date::published),
+            date_revised: front_matter.date_revised.map(Date::revised),
             title: front_matter.title, description: front_matter.description,
             url, weight: front_matter.weight, tags: front_matter.tags,
             link_text: front_matter.link_text

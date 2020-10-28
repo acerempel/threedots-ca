@@ -4,6 +4,9 @@ extern crate anyhow;
 #[macro_use]
 extern crate lazy_static;
 
+#[macro_use]
+extern crate delegate_attr;
+
 use crate::post::Post;
 use relative_path::{RelativePathBuf, RelativePath};
 use anyhow::Result;
@@ -104,9 +107,9 @@ fn main() -> Result<()> {
     })?; // }}}
 
     // let mut articles: Vec<Article> = Vec::with_capacity(32);
-    posts.sort_unstable_by(|p1, p2| p2.date.0.cmp(&p1.date.0));
+    posts.sort_unstable_by(|p1, p2| p2.date.cmp(&p1.date));
     let mut top_nav_by_weight: BTreeMap<i32, Link> = BTreeMap::new();
-    let all_posts = AllPosts { posts_by_year: util::group_contiguous_by(&posts[..], |p| p.date.0.year()) };
+    let all_posts = AllPosts { posts_by_year: util::group_contiguous_by(&posts[..], |p| p.date.year()) };
     top_nav_by_weight.insert(8, all_posts.link());
     let mut misc: Vec<Link> = Vec::with_capacity(8);
     for article in articles.iter() {
@@ -142,7 +145,6 @@ fn main() -> Result<()> {
 
     use page::{Page, PageContent};
     use std::io::Write;
-    use chrono::Datelike;
 
     fn render_page_to_file<P: PageContent>(page: Page<P>, pimisi: &Pimisi) -> Result<()> {
         let output_path = url_to_path(page.content.url()).to_path(&pimisi.output_dir);

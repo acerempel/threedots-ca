@@ -1,4 +1,4 @@
-    <article class="full" id="post">
+    <article class="full h-entry" id="post" itemscope itemtype="https://schema.org/BlogPosting">
       <header>
         <div class="date">
         {{ date|safe }}
@@ -8,10 +8,10 @@
                 {%- endmatch %}
         </div>
         {% match title %}
-        {%- when Some with (t) %}<h1 class="title">{{ t }}</h1>
+        {%- when Some with (t) %}<h1 class="title p-name" itemprop="headline">{{ t }}</h1>
         {%- when None %}{% endmatch %}
       </header>
-      {{ content|safe }}
+      <div class="e-content" itemprop="articleBody">{{ content|safe }}</div>
 
 {# include "footnotes.html" #}
     </article>

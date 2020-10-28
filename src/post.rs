@@ -56,8 +56,8 @@ impl FromProse for Post {
     fn from_prose(front_matter: Self::FrontMatter, content: String,
         url: String) -> Post {
         Post {
-            content, canonical: front_matter.canonical, date: Date(front_matter.date),
-            date_revised: front_matter.date_revised.map(Date),
+            content, canonical: front_matter.canonical, date: Date::published(front_matter.date),
+            date_revised: front_matter.date_revised.map(Date::revised),
             title: front_matter.title, description: front_matter.description, synopsis: front_matter.synopsis,
             url, tags: front_matter.tags
         }

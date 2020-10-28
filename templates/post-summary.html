@@ -3,17 +3,17 @@
             {%- when SummaryContent::Synopsis with (_) %}{% let post_class = "summary" %}
             {%- else %}{% let post_class = "preview" %}
             {%- endmatch %}
-            <article class="post {{ post_class }}">
+            <article itemscope itemtype="https://schema.org/BlogPosting" class="h-entry post {{ post_class }}">
               {% match self.link() %}
-              {%- when Some with (l) %}<h3>{{ l|safe }}</h3>
+              {%- when Some with (l) %}<h3 itemprop="headline" class="p-name">{{ l|safe }}</h3>
               {%- else %}<div class="date">{{ date|safe }}</div>
               {%- endmatch %}
               {%- match content %}
-              {% when SummaryContent::Synopsis with (syn) %}<p class="synopsis">({{ syn|safe }})</p>
-              {% when SummaryContent::Excerpt with (exc) %}{{ exc|safe }}
+              {% when SummaryContent::Synopsis with (syn) %}<p class="h-summary synopsis" itemprop="abstract">({{ syn|safe }})</p>
+              {% when SummaryContent::Excerpt with (exc) %}<div class="h-summary" itemprop="abstract">{{ exc|safe }}</div>
               <p class="read-more">
                 <a href="{{ url }}">Continue reading …</a>
               </p>
-              {% when SummaryContent::FullContent with (con) %}{{ con|safe }}
+              {% when SummaryContent::FullContent with (con) %}<div class="e-content" itemprop="articleBody">{{ con|safe }}</div>
               {%- endmatch %}
             </article>
