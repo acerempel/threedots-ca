@@ -4,6 +4,7 @@ use crate::post::Post;
 use crate::post::SummaryContent;
 use crate::page::PageContent;
 use chrono::prelude::*;
+use std::borrow::Borrow;
 
 #[derive(Template)]
 #[template(path = "atom.xml")]
