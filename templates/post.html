@@ -3,7 +3,7 @@
         <div class="date">
         {{ date|safe }}
                 {%- match date_revised %}
-                {%- when Some with (r) %}<small>– Revised {{ r|safe }}</small>
+                {%- when Some with (r) %}<small> – Revised {{ r|safe }}</small>
                 {%- when None %}
                 {%- endmatch %}
         </div>
