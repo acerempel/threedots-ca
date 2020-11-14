@@ -5,7 +5,7 @@
   <link href="{{ site_url|safe }}{{ self.link().url|safe }}" rel="self"/>
   <link href="{{ site_url|safe }}"/>
   <updated>{{ datetime_now.to_rfc3339() }}</updated>
-  <id>{{ site_url|safe }}/</id>
+  <id>{{ site_url|safe }}</id>
   <author>
     <name>{{ site_author }}</name>
   </author>
@@ -19,13 +19,13 @@
     {%- endmatch %}
     {%- let abs_url = site_url.clone() + post.url() %}
     <link href="{{ abs_url|safe }}"/>
+    {%- let date_updated %}
     {%- match post.date_revised %}
-    {%- when Some with (date_rev) %}
-    <updated>{{ date_rev.to_local_datetime().to_rfc3339() }}</updated>
-    <published>{{ post.date.to_local_datetime().to_rfc3339()  }}</published>
-    {%- else %}
-    <updated>{{ post.date.to_local_datetime().to_rfc3339() }}</updated>
+      {%- when Some with (date_rev) %}{% let date_updated = date_rev.borrow() %}
+      {%- else %}{% let date_updated = post.date.borrow() %}
     {%- endmatch %}
+    <updated>{{ date_updated.to_local_datetime().to_rfc3339() }}</updated>
+    <published>{{ post.date.to_local_datetime().to_rfc3339()  }}</published>
     <id>{{ abs_url|safe }}</id>
     {%- match post.summary().content %}
     {%- when SummaryContent::Synopsis with (synop) %}
