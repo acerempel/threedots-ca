@@ -280,6 +280,18 @@ main > section:first-child {
   letter-spacing: 0.02em;
 }
 
+.smaller {
+  font-size: smaller;
+  line-height: calc(var(--base-line-height)*0.875);
+}
+
+figcaption {
+  margin-left: 4%;
+  margin-right: 4%;
+  margin-top: calc(var(--base-line-height)*0.25);
+  font-size: calc(var(--base-font-size)*0.9375);
+}
+
 img {
   width: 100%;
 }
