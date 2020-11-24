@@ -9,7 +9,7 @@ weight: 16
 
 ## About me
 
-Good evening! I am Alan. I am a student at the [University of King's College][UKC];
+<span class=greeting>Good evening</span>! I am Alan. I am a student at the [University of King's College][UKC];
 I drink a lot of tea. Those are pretty much the only two facts
 about me that have remained true over the past seven years.
 
