@@ -25,10 +25,10 @@
   <body class="colour-scheme-auto">
     <div class="container">
       <header class="top-header">
-        <a class="bold" href="/">three dots …</a>
+        <h1><a class="bold" href="/">three dots …</a></h1>
         <nav class="mt-small">
           {% for nav_page in header -%}
-          <span itemscope itemtype="https://schema.org/WebPage"><span itemprop="name">{{ nav_page|safe }}</span></span>{% if !loop.last %} • {% endif %}
+          {{ nav_page|safe }}{% if !loop.last %} • {% endif %}
           {%- endfor %}
         </nav>
       </header>
