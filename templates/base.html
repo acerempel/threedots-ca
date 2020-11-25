@@ -26,7 +26,7 @@
     <div class="container">
       <header class="top-header">
         <a class="bold" href="/">three dots …</a>
-        <nav>
+        <nav class="mt-small">
           {% for nav_page in header -%}
           <span itemscope itemtype="https://schema.org/WebPage"><span itemprop="name">{{ nav_page|safe }}</span></span>{% if !loop.last %} • {% endif %}
           {%- endfor %}

@@ -1,13 +1,14 @@
 ---
 date: 2020-10-22
 date_revised: 2020-11-07
+title: On chickpeas
 description: I muse upon my fondness for removing the skin from chickpeas.
 ---
 
 Whenever I open up and rinse a can of chickpeas, I find myself idly
 picking one up and and with two fingers swiftly slipping off its
-transparent skin—and then another—a satisfying sensation: soon I am
-engrossed in plucking off each of their slippery coats one by one.<!-- FOLD --> I
+transparent skin—<!-- FOLD -->and then another—a satisfying sensation: soon I am
+engrossed in plucking off each of their slippery coats one by one. I
 know I have other things to do—chop sweet potatoes, for instance—my
 better judgement protests, but my hands are borne away, unheeding, until
 every last chickpea gleams pure *[kabuli][poischiche]*-yellow, unrefracted by its natal

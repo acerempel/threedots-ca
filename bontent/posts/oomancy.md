@@ -4,6 +4,7 @@ title: On oomancy
 description: >
   I recount an egg-related incident that I realized in
   retrospect was probably a revelation of my fate.
+synopsis: In which I reflect upon the inciting incident in my relationship with oomancy.
 ---
 
 Yesterday evening we had friends over to our apartment for our weekly

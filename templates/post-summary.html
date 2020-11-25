@@ -9,7 +9,7 @@
               {%- else %}<div class="date">{{ date|safe }}</div>
               {%- endmatch %}
               {%- match content %}
-              {% when SummaryContent::Synopsis with (syn) %}<p class="h-summary synopsis" itemprop="abstract">({{ syn|safe }})</p>
+              {% when SummaryContent::Synopsis with (syn) %}<p class="h-summary synopsis" itemprop="abstract">{{ syn|safe }}</p>
               {% when SummaryContent::Excerpt with (exc) %}<div class="h-summary" itemprop="abstract">{{ exc|safe }}</div>
               <p class="read-more">
                 <a href="{{ url }}">Continue reading …</a>

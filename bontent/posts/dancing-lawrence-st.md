@@ -2,12 +2,11 @@
 date: 2017-05-05
 layout: post
 description: In which I have danced
-title: Having danced
 ---
 
 Whatever is nec­es­sary
 that such dance par­ties as that of last night
-should hap­pen again—that’s what mat­ters to me. That
+should hap­pen again—that’s what mat­ters to me.<!-- FOLD --> That
 everybody should be able to dance with their
 friends in a safe and com­fort­able space and know this and dance freely
 and en­joy it and have lots of fun, know­ing that they are among
