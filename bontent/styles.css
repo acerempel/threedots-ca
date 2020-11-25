@@ -355,18 +355,10 @@ sup {
 
 .grid {
   margin-top: calc(var(--base-line-height)*0.5);
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(30ch, 1fr));
+  grid-template-rows: auto;
+  grid-column-gap: calc(1.5*var(--base-line-height));
+  grid-row-gap: var(--base-line-height);
 }
-
-@media (min-width: 680px) {
-  .grid {
-    display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-column-gap: calc(1.5*var(--base-line-height));
-    grid-row-gap: var(--base-line-height);
-  }
-  .grid > * { margin: 0; }
-}
-
-@media (min-width: 970px) {
-  .grid { grid-template-columns: repeat(3, 1fr); }
-}
+.grid > * { margin: 0; }
