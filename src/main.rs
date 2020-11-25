@@ -133,7 +133,7 @@ fn main() -> Result<()> {
         if article.url() == "/" {
             let index = Page {
                 header: &top_nav[..], footer: &footer_nav[..],
-                content: &Index { latest_posts: &posts[..3], misc_pages: &misc[..], content: article } };
+                content: &Index { latest_posts: &posts[..4], misc_pages: &misc[..], content: article } };
             render_page_to_file(index, &pimisi)?;
         } else {
             let page = Page {

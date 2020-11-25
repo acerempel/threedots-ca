@@ -37,13 +37,6 @@
       </main>
       <footer class="border-top">
         <section>
-          <nav class="link-plain">
-            {% for nav_page in footer %}
-            <p>{{ nav_page|safe }}</p>
-            {% endfor %}
-          </nav>
-        </section>
-        <section>
           <p>
             <label for="colour-scheme">Colour scheme:</label>
             <select required id="colour-scheme">
@@ -52,6 +45,13 @@
               <option value="dark">Dark</option>
             </select>
           </p>
+        </section>
+        <section>
+          <nav class="link-plain">
+            {% for nav_page in footer %}
+            <p>{{ nav_page|safe }}</p>
+            {% endfor %}
+          </nav>
         </section>
       </footer>
     </div>
