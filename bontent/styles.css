@@ -285,11 +285,6 @@ main > section:first-child {
   margin-top: var(--base-line-height);
 }
 
-.top-header nav {
-  font-weight: 600;
-  margin-bottom: calc(var(--base-line-height)*0.125);
-}
-
 .smallcaps {
   font-variant-caps: all-small-caps;
   letter-spacing: 0.02em;
@@ -386,4 +381,11 @@ border-radius: 0.5em;
 border: var(--text-colour-lighter) solid 0.1em;
 right: 0;
 box-shadow: 1px 1px 6px 2px #E88188;
+}
+
+.nav-link { }
+.nav-divider {
+  flex-basis: 3ch;
+  text-align: center;
+  flex-shrink: 1;
 }

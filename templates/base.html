@@ -45,7 +45,7 @@
                     </div>
                   </details>
         </div>
-        <nav class="mt-small">
+        <nav class="semibold">
           {% for nav_page in header -%}
           {{ nav_page|safe }}{% if !loop.last %} • {% endif %}
           {%- endfor %}
