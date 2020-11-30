@@ -8,13 +8,11 @@
           </nav>
         </header>
         {%- for (year, posts) in posts_by_year %}
-        <section id="y{{ year }}" class="border-top">
+        <section id="y{{ year }}" class="border-top article-list">
           <h2>{{ year }}</h2>
-          <div class="grid">
             {%- for post in posts %}
             {{ post.summary()|safe }}
             {%- endfor %}
-          </div>
         </section>
         {%- endfor %}
       </section>

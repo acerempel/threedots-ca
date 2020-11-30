@@ -117,7 +117,6 @@ fn main() -> Result<()> {
         else if article.has_tag("misc_list") { misc.push(article.link()); }
         else { println!("{}: dangling article!", article.url()) };
     };
-    let top_nav: Vec<Link> = top_nav_by_weight.into_iter().map(|l| l.1).collect();
     use feed::Feed;
     let feed = Feed {
         all_posts: &posts[..],
@@ -127,7 +126,13 @@ fn main() -> Result<()> {
         site_url: "http://threedots.ca".to_string(),
         site_desc: "The website of an elliptical human".to_string(), 
     };
-    let footer_nav: Vec<Link> = vec![feed.link()];
+    use std::iter;
+    let top_nav: Vec<Link> =
+        top_nav_by_weight.into_iter()
+        .map(|l| l.1)
+        .chain(iter::once(feed.link()))
+        .collect();
+    let footer_nav: Vec<Link> = Vec::new();
     use index::Index;
     for article in articles.iter() {
         if article.url() == "/" {

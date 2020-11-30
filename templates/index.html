@@ -2,13 +2,11 @@
           <h1><span class="greeting">{{content.title}}</span>!</h1>
           {{content.content|safe}}
         </section>
-        <section id="blog" class="border-top" itemscope itemtype="https://schema.org/Blog">
+        <section id="blog" class="border-top article-list" itemscope itemtype="https://schema.org/Blog">
           <h1><a href="/posts">Blog</a></h1>
-          <div class="grid">
             {%- for post in latest_posts %}
             {{post.summary()|safe}}
             {%- endfor %}
-          </div>
           <p class="see-all"><a href="/posts">See all posts …</a></p>
         </section>
         <section id="miscellaneous" class="border-top" >

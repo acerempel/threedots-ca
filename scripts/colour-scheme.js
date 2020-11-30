@@ -14,6 +14,10 @@ function setFontSize(size) {
   document.documentElement.style.setProperty("--base-font-size", size + "rem");
 }
 
+function setLineHeight(size) {
+  document.documentElement.style.setProperty("--base-line-height", size + "rem");
+}
+
 function setUpControl(elementId, eventName, applyValue) {
   var control = document.getElementById(elementId);
   if (!control) {
@@ -32,4 +36,4 @@ function setUpControl(elementId, eventName, applyValue) {
   control.addEventListener(eventName, callback, {passive: true});
 }
 
-export { setUpControl, setFontSize, setColourScheme };
+export { setUpControl, setFontSize, setColourScheme, setLineHeight };

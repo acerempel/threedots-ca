@@ -11,6 +11,10 @@
     element.classList.add(colourSchemeClassName);
   }
 
+  function setLineHeight(size) {
+    document.documentElement.style.setProperty("--base-line-height", size + "rem");
+  }
+
   function setUpControl(elementId, eventName, applyValue) {
     var control = document.getElementById(elementId);
     if (!control) {
@@ -707,6 +711,7 @@
   // 'DOMContentLoaded' event will not yet have fired when it is run.
   document.addEventListener("DOMContentLoaded", function(_event) {
     setUpControl("colour-scheme", "change", setColourScheme);
+    setUpControl("line-height", "change", setLineHeight);
     set_greetings();
     D();
   });
