@@ -17,7 +17,7 @@
   --light-background-normal: #f8f8f8;
   --light-background-lighter: #e8e8e8;
   --container-max-width: 60ch;
-  --article-max-width: 45ch;
+  --article-max-width: 50ch;
 }
 
 @media (prefers-color-scheme: light) {
