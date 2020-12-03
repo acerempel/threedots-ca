@@ -1,4 +1,5 @@
 import resolve from '@rollup/plugin-node-resolve';
+import { string } from "rollup-plugin-string";
 
 export default {
   input: 'scripts/main.js',
@@ -6,5 +7,7 @@ export default {
     file: 'bontent/bundle.js',
     format: 'iife'
   },
-  plugins: [resolve()]
+  plugins: [
+    resolve(),
+    string({ include: "bontent/base.css" })]
 };
