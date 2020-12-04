@@ -80,7 +80,6 @@ body {
 .container {
   margin-left: auto; margin-right: auto;
   padding-left: 20px; padding-right: 20px;
-  position: relative;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
@@ -126,7 +125,7 @@ h1 {
 
 main {
   --h1-fs-factor: 2;
-  --h1-lh-factor: 2;
+  --h1-lh-factor: 1.75;
   --h2-fs-factor: 1.5;
   --h2-lh-factor: 1.2;
   --h3-fs-factor: 1.2;
