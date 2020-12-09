@@ -1,12 +1,12 @@
     <article class="full h-entry" id="post" itemscope itemtype="https://schema.org/BlogPosting">
       <header>
-        <div class="date">
+        <p class="colour-lighter light">
         {{ date|safe }}
                 {%- match date_revised %}
                 {%- when Some with (r) %}<small> – Revised {{ r|safe }}</small>
                 {%- when None %}
                 {%- endmatch %}
-        </div>
+        </p>
         {% match title %}
         {%- when Some with (t) %}<h1 class="title p-name" itemprop="headline">{{ t }}</h1>
         {%- when None %}{% endmatch %}

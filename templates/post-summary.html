@@ -1,18 +1,15 @@
-            {% let post_class %}
-            {%- match content %}
-            {%- when SummaryContent::Synopsis with (_) %}{% let post_class = "summary" %}
-            {%- else %}{% let post_class = "preview" %}
-            {%- endmatch %}
-            <article itemscope itemtype="https://schema.org/BlogPosting" class="h-entry post {{ post_class }}">
+            <article itemscope itemtype="https://schema.org/BlogPosting" class="h-entry post p-space-1/4">
               {% match self.link() %}
-              {%- when Some with (l) %}<h3 itemprop="headline" class="p-name">{{ l|safe }}</h3>
-              {%- else %}<div class="date">{{ date|safe }}</div>
+              {%- when Some with (l) %}<h3 itemprop="headline" class="p-name" id="{{ date.iso8601() }}-title">{{ l|safe }}</h3>
+              {%- else %}<p class="colour-lighter light">{{ date|safe }}</p>
               {%- endmatch %}
               {%- match content %}
-              {% when SummaryContent::Synopsis with (syn) %}<p class="h-summary synopsis" itemprop="abstract">{{ syn|safe }}</p>
+              {% when SummaryContent::Synopsis with (syn) %}<p class="h-summary oblique" itemprop="abstract">{{ syn|safe }}</p>
               {% when SummaryContent::Excerpt with (exc) %}<div class="h-summary" itemprop="abstract">{{ exc|safe }}</div>
-              <p class="read-more">
-                <a href="{{ url }}">Continue reading …</a>
+              <p class="link-plain">
+                <a href="{{ url|safe }}" id="{{ date.iso8601() }}-read-more"
+                 aria-labelledby="{{ date.iso8601() }}-read-more {{ date.iso8601() }}-title"
+                >Continue reading …</a>
               </p>
               {% when SummaryContent::FullContent with (con) %}<div class="e-content" itemprop="articleBody">{{ con|safe }}</div>
               {%- endmatch %}

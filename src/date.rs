@@ -19,7 +19,7 @@ impl Date {
     pub fn revised(inner: NaiveDate) -> Self {
         Date(inner, Some(Revised))
     }
-    fn iso8601(&self) -> String {
+    pub fn iso8601(&self) -> String {
         format!("{}", self.0)
     }
     fn nice(&self) -> String {

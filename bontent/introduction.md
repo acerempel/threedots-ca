@@ -9,9 +9,9 @@ weight: 16
 
 ## About me
 
-<span class=greeting>Good evening</span>! I am Alan. I am a student at the [University of King's College][UKC];
-I drink a lot of tea. Those are pretty much the only two facts
-about me that have remained true over the past seven years.
+<span class=greeting>Good evening</span>! I am Alan.
+I drink a lot of tea. You may also find [me on Instagram][Instagram],
+and possibly elsewhere on the internet.
 
 [UKC]: https://ukings.ca "University of King's College | Halifax, Nova Scotia"
 [Instagram]: https://instagram.com/alan_rempel_mdash/
@@ -26,11 +26,8 @@ I am an elliptical man.
 
 <b>Why have a website? Why write a blog?</b> I don't know. I like having
 my own corner of the internet where I can experiment with prose and
-fiddle with stylesheets. Some people are good at making their bedrooms
-or living rooms into nice spaces that bring them comfort, look lovely, display things they value, and tell visitors something
-about themselves. I'm not so good at that in real life, but my website is something like an attempt to create
-an analogous space on the internet. If
-only I could actually bring my guests some sparkling water!
+fiddle with stylesheets. If
+only I could bring my guests some sparkling water!
 
 I post new content <em>highly</em> irregularly.
 Blog posts are dated by when I <em>originally</em> composed

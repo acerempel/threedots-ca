@@ -2,7 +2,6 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <meta name="google-site-verification" content="DhZUgJjUNSRFdHhycAzNuCiTKprn-1Csb49PU1lsABo">
     <meta name="color-scheme" content="light dark">
@@ -19,14 +18,13 @@
     {%- when None %}{% endmatch %}
     <link rel="alternate" type="application/atom+xml" href="/posts/feed.xml">
     <link href="/styles.css" rel="stylesheet">
-    <link rel="stylesheet" href="/base.css">
     <script defer src="/bundle.js"></script>
   </head>
   <body class="colour-scheme-auto">
     <div class="container">
-      <header class="top-header">
+      <header class="mt-1">
         <div class="flex row space-between wrap">
-        <h1><a class="bold" href="/">three dots …</a></h1>
+        <h1 class="bold fs-1 lh-1"><a href="/">three dots …</a></h1>
         <details class="dropdown">
                     <summary class="dropdown-toggle">Settings</summary>
                     <div class="dropdown-inner">
@@ -45,13 +43,13 @@
                     </div>
                   </details>
         </div>
-        <nav class="semibold">
+        <nav class="semibold colour-highlight">
           {% for nav_page in header -%}
           {{ nav_page|safe }}{% if !loop.last %} • {% endif %}
           {%- endfor %}
         </nav>
       </header>
-      <main>
+      <main class="mt-1 mb-1">
         {{ content|safe }}
       </main>
     </div>
