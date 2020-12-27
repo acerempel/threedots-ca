@@ -1,46 +1,42 @@
-#[macro_use]
-extern crate anyhow;
+#[macro_use] extern crate anyhow;
+#[macro_use] extern crate lazy_static;
+#[macro_use] extern crate delegate_attr;
 
-#[macro_use]
-extern crate lazy_static;
-
-#[macro_use]
-extern crate delegate_attr;
-
-use crate::post::Post;
-use relative_path::{RelativePathBuf, RelativePath};
-use anyhow::Result;
-
-mod kind;
-mod post;
+mod all_posts;
+mod article;
+mod configuration;
 mod date;
+mod feed;
+mod index;
+mod kind;
 mod link;
 mod page;
-mod prose;
-mod article;
-mod feed;
-mod all_posts;
-mod index;
-mod util;
-
-use kind::*;
-use prose::read_prose;
-
-use std::path::Path;
-
 mod path;
-use path::*;
-
-use std::fs;
-
-use std::fs::File;
-
-mod configuration;
-use configuration::{Pimisi, Zimisi};
-
+mod post;
+mod prose;
+mod util;
 mod walk;
 
 use article::Article;
+use configuration::{Pimisi, Zimisi};
+use feed::Feed;
+use index::Index;
+use kind::*;
+use link::Link;
+use page::{Page, PageContent};
+use path::*;
+use prose::read_prose;
+use post::Post;
+use walk::for_each_input_file;
+
+use std::collections::BTreeMap;
+use std::fs::{self, File};
+use std::io::Write;
+use std::iter;
+use std::path::Path;
+
+use relative_path::{RelativePathBuf, RelativePath};
+use anyhow::Result;
 
 fn url_to_path(url: &str) -> RelativePathBuf {
     // Strip leading slash
@@ -61,15 +57,10 @@ fn main() -> Result<()> {
         Pimisi::from_zimisis(cmdline, config)
     };
 
-    use link::Link;
-    use std::collections::BTreeMap;
-
     let mut posts: Vec<Post> = Vec::with_capacity(32);
     let mut articles: Vec<Article> = Vec::with_capacity(16);
     let bundle = include_str!("../bontent/bundle.js");
     // }}}
-
-    use walk::for_each_input_file;
 
     // WALK THE INPUT DIRECTORY {{{
     for_each_input_file(&Path::new(&pimisi.input_dir), |input_path| {
@@ -118,7 +109,6 @@ fn main() -> Result<()> {
         else if article.has_tag("misc_list") { misc.push(article.link()); }
         else { println!("{}: dangling article!", article.url()) };
     };
-    use feed::Feed;
     let feed = Feed {
         all_posts: &posts[..],
         datetime_now: chrono::offset::Local::now(),
@@ -127,14 +117,12 @@ fn main() -> Result<()> {
         site_url: "http://threedots.ca".to_string(),
         site_desc: "The website of an elliptical human".to_string(), 
     };
-    use std::iter;
     let top_nav: Vec<Link> =
         top_nav_by_weight.into_iter()
         .map(|l| l.1)
         .chain(iter::once(feed.link()))
         .collect();
     let footer_nav: Vec<Link> = Vec::new();
-    use index::Index;
     for article in articles.iter() {
         if article.url() == "/" {
             let index = Page {
@@ -150,9 +138,6 @@ fn main() -> Result<()> {
             render_page_to_file(page, &pimisi)?;
         }
     };
-
-    use page::{Page, PageContent};
-    use std::io::Write;
 
     fn render_page_to_file<P: PageContent>(page: Page<P>, pimisi: &Pimisi) -> Result<()> {
         let output_path = url_to_path(page.content.url()).to_path(&pimisi.output_dir);
