@@ -5,16 +5,20 @@
                'Segoe UI', Lato, 'Open Sans',
                Ubuntu, Roboto, Noto,
                sans-serif;
-  --light-text-normal: #222222;
-  --light-text-highlight: #864a83;
-  --light-text-lighter: #555555;
-  --light-background-normal: #f8f8f8;
-  --light-background-lighter: #e8e8e8;
-  --dark-text-normal: #e8e8e8;
-  --dark-text-highlight: #e38fdf;
-  --dark-text-lighter: #c8c8c8;
-  --dark-background-normal: #2f2f2f;
-  --dark-background-lighter: #4f4f4f;
+  --light-text-normal: #111;
+  --light-text-highlight: #6c2f54;
+  --light-text-lighter: #4d4d4d;
+  --light-text-alternate: #1c513a;
+  --light-background-normal: #f9f7f0;
+  --light-background-lighter: #eceae6;
+  --light-background-alternate: #d4f4e6;
+  --dark-text-normal: #eee;
+  --dark-text-highlight: #e397e0;
+  --dark-text-lighter: #d7d7d7;
+  --dark-text-alternate: #c6eada;
+  --dark-background-normal: #241321;
+  --dark-background-lighter: #313734;
+  --dark-background-alternate: #1c513a;
   --container-max-width: 60ch;
   --article-max-width: 50ch;
 }
@@ -24,8 +28,10 @@
     --text-colour-normal: var(--light-text-normal);
     --text-colour-highlight: var(--light-text-highlight);
     --text-colour-lighter: var(--light-text-lighter);
+    --text-colour-alternate: var(--light-text-alternate);
     --background-colour-normal: var(--light-background-normal);
     --background-colour-lighter: var(--light-background-lighter);
+    --background-colour-alternate: var(--light-background-alternate);
   }
 }
 @media (prefers-color-scheme: dark) {
@@ -33,8 +39,10 @@
     --text-colour-normal: var(--dark-text-normal);
     --text-colour-highlight: var(--dark-text-highlight);
     --text-colour-lighter: var(--dark-text-lighter);
+    --text-colour-alternate: var(--dark-text-alternate);
     --background-colour-normal: var(--dark-background-normal);
     --background-colour-lighter: var(--dark-background-lighter);
+    --background-colour-alternate: var(--dark-background-alternate);
   }
 }
 @media (prefers-color-scheme: no-preference) {
@@ -42,8 +50,10 @@
     --text-colour-normal: var(--light-text-normal);
     --text-colour-highlight: var(--light-text-highlight);
     --text-colour-lighter: var(--light-text-lighter);
+    --text-colour-alternate: var(--light-text-alternate);
     --background-colour-normal: var(--light-background-normal);
     --background-colour-lighter: var(--light-background-lighter);
+    --background-colour-alternate: var(--light-background-alternate);
   }
 }
 
@@ -51,16 +61,20 @@
   --text-colour-normal: var(--light-text-normal);
   --text-colour-highlight: var(--light-text-highlight);
   --text-colour-lighter: var(--light-text-lighter);
+  --text-colour-alternate: var(--light-text-alternate);
   --background-colour-normal: var(--light-background-normal);
   --background-colour-lighter: var(--light-background-lighter);
+  --background-colour-alternate: var(--light-background-alternate);
 }
 
 .colour-scheme-dark {
     --text-colour-normal: var(--dark-text-normal);
     --text-colour-highlight: var(--dark-text-highlight);
     --text-colour-lighter: var(--dark-text-lighter);
+    --text-colour-alternate: var(--dark-text-alternate);
     --background-colour-normal: var(--dark-background-normal);
     --background-colour-lighter: var(--dark-background-lighter);
+    --background-colour-alternate: var(--dark-background-alternate);
 }
 
 body {
@@ -74,6 +88,14 @@ body {
   background-color: var(--background-colour-normal);
   font-size: var(--base-font-size);
   line-height: var(--base-line-height);
+}
+@media(prefers-color-scheme: dark) {
+  body {
+    background: linear-gradient(165deg, var(--background-colour-normal), var(--background-colour-alternate));
+  }
+}
+body.colour-scheme-dark {
+  background: linear-gradient(165deg, var(--background-colour-normal), var(--background-colour-alternate));
 }
 
 .container {
@@ -190,9 +212,10 @@ sup {
   // margin-inline-start: 0.1rem;
 }
 mark {
-  background-color: var(--text-colour-highlight);
-  color: var(--background-colour-normal);
-  padding: 0.1em 0.2em;
+  background-color: var(--background-colour-alternate);
+  color: var(--text-colour-alternate);
+  padding: 0.015em 0.1em;
+  font-weight: 500;
   border-radius: 0.2em;
 }
 
