@@ -6,7 +6,7 @@ description: I muse upon my fondness for removing the skin from chickpeas.
 ---
 
 Whenever I open up and rinse a can of chickpeas, I find myself idly
-picking one up and and with two fingers swiftly slipping off its
+picking one up and with two fingers swiftly slipping off its
 transparent skin—<!-- FOLD -->and then another—a satisfying sensation: soon I am
 engrossed in plucking off each of their slippery coats one by one. I
 know I have other things to do—chop sweet potatoes, for instance—my
