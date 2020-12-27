@@ -1,6 +1,7 @@
 ---
 title: On “taxpayer dollars”
 date: 2020-12-07
+tags: [hidden]
 description: >
   Calling government expenses ‘taxpayer dollars’ perpetuates the
   assumption that they depend on taxes for funding. For the Canadian
