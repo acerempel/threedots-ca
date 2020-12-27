@@ -7,6 +7,7 @@ pub struct Page<'a, T: PageContent> {
     pub content: &'a T,
     pub header: &'a [Link<'a>],
     pub footer: &'a [Link<'a>],
+    pub script: &'a str,
 }
 
 pub trait PageContent: std::fmt::Display {

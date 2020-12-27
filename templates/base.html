@@ -18,7 +18,7 @@
     {%- when None %}{% endmatch %}
     <link rel="alternate" type="application/atom+xml" href="/posts/feed.xml">
     <link href="/styles.css" rel="stylesheet">
-    <script defer src="/bundle.js"></script>
+    <script>{{ script|safe }}</script>
   </head>
   <body class="colour-scheme-auto">
     <div class="container">

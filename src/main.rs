@@ -66,6 +66,7 @@ fn main() -> Result<()> {
 
     let mut posts: Vec<Post> = Vec::with_capacity(32);
     let mut articles: Vec<Article> = Vec::with_capacity(16);
+    let bundle = include_str!("../bontent/bundle.js");
     // }}}
 
     use walk::for_each_input_file;
@@ -138,12 +139,14 @@ fn main() -> Result<()> {
         if article.url() == "/" {
             let index = Page {
                 header: &top_nav[..], footer: &footer_nav[..],
-                content: &Index { latest_posts: &posts[..4], misc_pages: &misc[..], content: article } };
+                content: &Index { latest_posts: &posts[..4], misc_pages: &misc[..], content: article },
+                script: bundle,
+            };
             render_page_to_file(index, &pimisi)?;
         } else {
             let page = Page {
                 header: &top_nav[..], footer: &footer_nav[..],
-                content: article };
+                content: article, script: bundle, };
             render_page_to_file(page, &pimisi)?;
         }
     };
@@ -167,14 +170,14 @@ fn main() -> Result<()> {
     for post in posts.iter() {
         let page = Page {
             header: &top_nav[..], footer: &footer_nav[..],
-            content: post };
+            content: post, script: bundle, };
         render_page_to_file(page, &pimisi)?;
     }
 
     use all_posts::AllPosts;
     let all_posts_page = Page {
         header: &top_nav[..], footer: &footer_nav[..],
-        content: &all_posts
+        content: &all_posts, script: bundle,
     };
     render_page_to_file(all_posts_page, &pimisi)?;
 
