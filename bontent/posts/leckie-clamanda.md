@@ -2,23 +2,39 @@
 date: 2020-12-18
 ---
 
-As I was reading my book last night – namely the novel <a href="https://www.goodreads.com/book/show/17333324-ancillary-justice"><cite>Ancillary Justice</cite></a> by Ann Leckie, – I came across a familiar-looking song, sung by the protagonist, Breq, to herself as she ventures off on a daring mission:<!-- FOLD -->
+As I was reading my book last night – namely the novel [<cite>Ancillary
+Justice</cite>][AJ] by Ann Leckie, – I came across a familiar-looking
+song, sung by the protagonist, Breq, to herself as she ventures off on a
+daring mission:<!-- FOLD -->
 
-> Oh, have you gone to the battlefield<br>
+[AJ]: https://www.goodreads.com/book/show/17333324-ancillary-justice
+
+> <i>Oh, have you gone to the battlefield<br>
 > Armored and well armed?<br>
 > And shall dreadful events<br>
-> Force you to drop your weapons?
+> Force you to drop your weapons?</i>
 
-It struck me immediately that this was a paraphrase – as though translated into Breq's native tongue and back into English – of <cite>Clamanda</cite>, from the page 42 of the <b class="medium">Sacred Harp</b>:
+It struck me immediately that this was a paraphrase – as though
+it had been translated into Breq's native tongue and back into English – of
+<cite>Clamanda</cite>, from the page 42 of the <b class="medium">Sacred
+Harp</b>:
 
-> Oh, have you ventured to the field<br>
+> <i>Oh, have you ventured to the field<br>
 > Well armed with helmet, sword, and shield?<br>
 > And shall the world, with dread alarms,<br>
-> Compel you now to ground your arms?
+> Compel you now to ground your arms?</i>
 
-I was intrigued. Does Ann Leckie know of the Sacred Harp? It would not be surprising. Certainly she seems a lover of songs and choral music: her main character sings to herself continually and is fond of collecting songs from societies that she visits. Leckie also has a music degree from Washington University in St Louis, Missouri.
+I was intrigued. Does Ann Leckie know of the Sacred Harp? It would not
+be surprising. Certainly she seems to be a lover of songs and choral music:
+her main character sings to herself continually and is fond of
+collecting songs from societies that she visits. Leckie also has a music
+degree from Washington University in St Louis, Missouri.
 
-It turned my intuition was right! Leckie is a Sacred Harp aficionado, and the song was what I thought: so reveals an interview included as a postscript to my edition of the book. She even gives a plug for shape note singing:
+It turned my intuition was right! When I reached the end of the book, I
+found that it had a postscript that included an interview with Leckie. In it,
+Leckie reveals that she is a shape-note singing aficionado, and tells the
+reader that the song quoted above is indeed from the Sacred Harp, as I
+had suspected. She even gives a plug for shape note singing:
 
 > … I wish people felt freer to sing, and freer to enjoy people around them singing.
 >
