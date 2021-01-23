@@ -1,16 +1,16 @@
-            <article itemscope itemtype="https://schema.org/BlogPosting" class="h-entry post p-space-1/4">
-              {% match self.link() %}
-              {%- when Some with (l) %}<h3 itemprop="headline" class="p-name" id="{{ date.iso8601() }}-title">{{ l|safe }}</h3>
-              {%- else %}<p class="colour-lighter light">{{ date|safe }}</p>
-              {%- endmatch %}
-              {%- match content %}
-              {% when SummaryContent::Synopsis with (syn) %}<p class="h-summary oblique" itemprop="abstract">{{ syn|safe }}</p>
-              {% when SummaryContent::Excerpt with (exc) %}<div class="h-summary" itemprop="abstract">{{ exc|safe }}</div>
-              <p class="link-plain">
-                <a href="{{ url|safe }}" id="{{ date.iso8601() }}-read-more"
-                 aria-labelledby="{{ date.iso8601() }}-read-more {{ date.iso8601() }}-title"
-                >Continue reading …</a>
-              </p>
-              {% when SummaryContent::FullContent with (con) %}<div class="e-content" itemprop="articleBody">{{ con|safe }}</div>
-              {%- endmatch %}
-            </article>
+<article itemscope itemtype="https://schema.org/BlogPosting" class="h-entry post p-space-1/4">
+  {% match self.link() %}
+  {%- when Some with (l) %}<h3 itemprop="headline" class="p-name font-size-3 medium" id="{{ date.iso8601() }}-title">{{ l|safe }}</h3>
+  {%- else %}<p class="colour-lighter light">{{ date|safe }}</p>
+  {%- endmatch %}
+  {%- match content %}
+  {% when SummaryContent::Synopsis with (syn) %}<p class="h-summary oblique" itemprop="abstract">{{ syn|safe }}</p>
+  {% when SummaryContent::Excerpt with (exc) %}<div class="h-summary" itemprop="abstract">{{ exc|safe }}</div>
+  <p class="link-plain">
+    <a href="{{ url|safe }}" id="{{ date.iso8601() }}-read-more"
+     aria-labelledby="{{ date.iso8601() }}-read-more {{ date.iso8601() }}-title"
+    >Continue reading …</a>
+  </p>
+  {% when SummaryContent::FullContent with (con) %}<div class="e-content" itemprop="articleBody">{{ con|safe }}</div>
+  {%- endmatch %}
+</article>

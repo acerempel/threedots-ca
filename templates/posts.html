@@ -1,6 +1,6 @@
       <section itemscope itemtype="https://schema.org/Blog">
         <header>
-          <h1>Blog</h1>
+          <h1 class="font-size-5 bold">Blog</h1>
           <nav class="flex row mt-1/4" aria-label="Jump to posts from a specific year" >
             {%- for (year, _) in posts_by_year %}
             <a class="nav-link" href="#y{{ year }}">{{ year }}</a>{% if loop.last %}{% else %}<span class="nav-divider">•</span>{% endif %}
@@ -9,7 +9,7 @@
         </header>
         {%- for (year, posts) in posts_by_year %}
         <section id="y{{ year }}" class="border-top article-list">
-          <h2>{{ year }}</h2>
+          <h2 class="font-size-4 semibold">{{ year }}</h2>
             {%- for post in posts %}
             {{ post.summary()|safe }}
             {%- endfor %}

@@ -1,16 +1,16 @@
-        <h1><span class="greeting">{{content.title}}</span>!</h1>
+        <h1 class="font-size-5 bold"><span class="greeting">{{content.title}}</span>!</h1>
         <section id="intro" class="p-space-1/2">
           {{content.content|safe}}
         </section>
         <section id="blog" class="border-top article-list" itemscope itemtype="https://schema.org/Blog">
-          <h2><a href="/posts">Blog</a></h2>
+          <h2 class="font-size-4 semibold"><a href="/posts">Blog</a></h2>
             {%- for post in latest_posts %}
             {{post.summary()|safe}}
             {%- endfor %}
           <p class="mt-1"><a href="/posts">See all posts …</a></p>
         </section>
         <section id="miscellaneous" class="border-top p-space-1/2" >
-          <h2>Miscellaneous lists</h2>
+          <h2 class="font-size-4 semibold">Miscellaneous lists</h2>
           <ul>
             {%- for misc_page in misc_pages -%}
             <li itemscope itemtype="https://schema.org/Article">

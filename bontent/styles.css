@@ -19,8 +19,7 @@
   --dark-background-normal: #241321;
   --dark-background-lighter: #313734;
   --dark-background-alternate: #1c513a;
-  --container-max-width: 60ch;
-  --article-max-width: 50ch;
+  --container-max-width: 56ch;
 }
 
 @media (prefers-color-scheme: light) {
@@ -86,8 +85,6 @@ body {
   text-rendering: optimizeLegibility;
   color: var(--text-colour-normal);
   background-color: var(--background-colour-normal);
-  font-size: var(--base-font-size);
-  line-height: var(--base-line-height);
 }
 @media(prefers-color-scheme: dark) {
   body {
@@ -99,7 +96,6 @@ body.colour-scheme-dark {
 }
 
 .container {
-  margin-left: auto; margin-right: auto;
   padding-left: 20px; padding-right: 20px;
   max-width: var(--container-max-width);
 }
@@ -131,10 +127,6 @@ p, ol, ul, nav, blockquote, details {
 ol, ul {
   padding-inline-start: 1.5em;
 }
-
-b { font-weight: 600; }
-strong { font-weight: 700; }
-cite { font-style: oblique; }
 
 code {
   font-family: Monaco, Hack, Menlo, 'Fira Code', 'Courier Next', monospace;
@@ -189,11 +181,11 @@ figcaption {
 
 img { width: 100%; }
 
-.medium { font-weight: 500; }
-.semibold { font-weight: 600; }
-.bold { font-weight: 700; }
+.medium, article h3 { font-weight: 500; }
+.semibold, b, article h2 { font-weight: 600; }
+.bold, strong { font-weight: 700; }
 .light { font-weight: 300; }
-.oblique { font-style: oblique; }
+.oblique, cite { font-style: oblique; }
 
 .block { display: block; }
 
@@ -202,7 +194,6 @@ sup {
   vertical-align: baseline;
   position: relative;
   top: calc(var(--base-line-height)*-0.25);
-  // margin-inline-start: 0.1rem;
 }
 mark {
   background-color: var(--background-colour-alternate);
@@ -222,10 +213,11 @@ mark {
 .mt-1\/2 { margin-top: calc(var(--base-line-height)*0.5); }
 .mt-1\/4 { margin-top: calc(var(--base-line-height)*0.25); }
 
-.mb-1 { margin-bottom: var(--base-line-height); }
+.mx-auto {
+  margin-right: auto; margin-left: auto;
+}
 
-.fs-1 { font-size: var(--base-font-size); }
-.lh-1 { line-height: var(--base-line-height); }
+.mb-1 { margin-bottom: var(--base-line-height); }
 
 .colour-highlight { color: var(--text-colour-highlight) }
 .colour-normal { color: var(--text-colour-normal) }
@@ -248,32 +240,43 @@ article {
   --paragraph-spacing-factor: 0.5;
 }
 
-article.full {
-  max-width: var(--article-max-width);
-  margin-left: auto; margin-right: auto;
-}
-
-h1 {
-  font-weight: 700;
+.font-size-5 {
   font-size: calc(var(--base-font-size)*2);
   line-height: calc(var(--base-line-height)*1.75);
 }
 
-h2 {
-  font-weight: 600;
-  font-size: calc(var(--base-font-size)*1.5);
-  line-height: calc(var(--base-line-height)*1.2);
+.font-size-4\.5 {
+  font-size: calc(var(--base-font-size)*1.75);
+  line-height: calc(var(--base-line-height)*1.5);
 }
 
-h3 {
-  font-weight: 500;
-  font-size: calc(var(--base-font-size)*1.2);
-  line-height: calc(var(--base-line-height)*1);
+.font-size-4 {
+  font-size: calc(var(--base-font-size)*1.5);
+  line-height: calc(var(--base-line-height)*1.25);
+}
+
+.font-size-3, article h2 {
+  font-size: calc(var(--base-font-size)*1.25);
+  line-height: calc(var(--base-line-height)*1.125);
+}
+
+.font-size-2, article h3 {
+  font-size: calc(var(--base-font-size)*1.125);
+  line-height: var(--base-line-height);
+}
+
+.font-size-1 {
+  font-size: var(--base-font-size);
+  line-height: var(--base-line-height);
 }
 
 /* For when a heading occurs inside a markdown block. */
 article h2 {
   margin-top: calc(var(--base-line-height)*0.75);
+}
+
+article h3 {
+  margin-top: calc(var(--base-line-height)*0.5);
 }
 
 nav {
