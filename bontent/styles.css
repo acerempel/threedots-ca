@@ -86,14 +86,6 @@ body {
   color: var(--text-colour-normal);
   background-color: var(--background-colour-normal);
 }
-@media(prefers-color-scheme: dark) {
-  body {
-    background: linear-gradient(165deg, var(--background-colour-normal), var(--background-colour-alternate));
-  }
-}
-body.colour-scheme-dark {
-  background: linear-gradient(165deg, var(--background-colour-normal), var(--background-colour-alternate));
-}
 
 .container {
   padding-left: 20px; padding-right: 20px;
