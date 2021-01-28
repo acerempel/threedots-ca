@@ -11,6 +11,6 @@ export default {
   plugins: [
     resolve(),
     replace({ 'process.env.NODE_ENV': JSON.stringify('development') }),
-    terser({ ecma: 2015 })
+    terser({ ecma: 2017 })
   ]
 };

@@ -1,5 +1,14 @@
-/target
-_site
-_site.live
-bite
-.nova
+# Jigsaw stuff
+/build_local/
+/build_staging/
+/build_production/
+/cache/
+/vendor/
+
+# Yarn stuff
+/.pnp.*
+/.yarn/*
+!/.yarn/releases
+!/.yarn/plugins
+!/.yarn/sdks
+!/.yarn/versions

@@ -1,7 +1,8 @@
 ---
-date: 2020-06-01
+date_revised: 2020-06-01
 title: All the words I have looked up in the dictionary on my phone
-tags: [misc_list]
+extends: _layouts.base
+section: body
 ---
 
 Some of these I looked up because I did not know them at all, some because I was curious
