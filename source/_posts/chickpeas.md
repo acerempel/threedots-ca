@@ -1,10 +1,9 @@
 ---
+extends: _layouts.post
 date: 2020-10-22
 date_revised: 2020-11-07
 title: On chickpeas
 description: I muse upon my fondness for removing the skin from chickpeas.
-extends: _layouts.post
-section: content
 ---
 
 Whenever I open up and rinse a can of chickpeas, I find myself idly

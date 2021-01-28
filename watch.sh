@@ -1,4 +1,4 @@
-#! /bin/bash
-serve --index index.html --port 8000 bite &
+#!/bin/bash
+miniserve --index index.html --port 8000 build_local &
 trap 'kill %1' EXIT
-fd . -t f bontent | entr -d ./target/debug/threedots -o bite
+fd . -t f source | entr -d ./vendor/bin/jigsaw build --cache

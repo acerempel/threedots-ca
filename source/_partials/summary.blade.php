@@ -11,13 +11,13 @@
 
   @php $excerpt_marker = '<!-- FOLD -->'; @endphp
   @if ($post->synopsis) <p class="h-summary oblique" itemprop="abstract">{{ $post->synopsis }}</p>
-  @elseif (str_contains($post->getContent(), $excerpt_marker))
+  @elseif ($post->getContent() !== null && str_contains($post->getContent(), $excerpt_marker))
     <div class="h-summary" itemprop="abstract">{!! explode($excerpt_marker, $post->getContent())[0] !!}</div>
     <p class="link-plain">
     <a href="{!! $post->getPath() !!}" id="{{ $post->getFilename() }}-read-more"
       aria-labelledby="{{ $post->getFilename() }}-read-more {{ $post->getFilename() }}-title"
       >Continue reading …</a>
     </p>
-  @else <div class="e-content" itemprop="articleBody">{!! $post->_content !!}</div>
+  @else <div class="e-content" itemprop="articleBody">{!! $post->getContent() !!}</div>
   @endif
 </article>
