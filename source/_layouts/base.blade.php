@@ -3,14 +3,15 @@
   <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{{ $page->title ?? "Good evening" }} … ‹three dots›</title>
+    <link rel="stylesheet" href="{{ mix('css/main.css', 'assets/build') }}">
     <link rel="canonical" href="{{ $page->getUrl() }}">
     <meta name="google-site-verification" content="DhZUgJjUNSRFdHhycAzNuCiTKprn-1Csb49PU1lsABo">
     <meta name="color-scheme" content="light dark">
     <meta name="description" content="{{ $page->description }}">
     <meta name="author" content="{{ $page->author }}">
-    <title>{{ $page->title ?? "Good evening" }} … ‹three dots›</title>
-    <link rel="stylesheet" href="{{ mix('css/main.css', 'assets/build') }}">
     <link rel="alternate" type="application/atom+xml" href="/posts/feed.xml">
+    <script>{!! inline(mix('js/main.js', 'assets/build')) !!}</script>
   </head>
   <body class="colour-scheme-auto font-size-1">
     <div class="container mx-auto">

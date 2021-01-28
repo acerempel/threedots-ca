@@ -3,9 +3,9 @@ import replace from "@rollup/plugin-replace";
 import { terser } from "rollup-plugin-terser";
 
 export default {
-  input: 'scripts/main.js',
+  input: 'source/_scripts/main.js',
   output: {
-    file: 'bontent/bundle.js',
+    file: 'source/assets/build/js/main.js',
     format: 'iife'
   },
   plugins: [
