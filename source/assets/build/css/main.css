@@ -106,7 +106,7 @@ a:hover {
   text-decoration-thickness: var(--link-hover-text-decoration-thickness, 0.1em);
 }
 
-p, ol, ul, nav, blockquote, details {
+p, ol, ul, nav, blockquote, aside, details {
   --link-colour: var(--text-colour-highlight);
   --link-initial-text-decoration-thickness: 0.05em;
   --link-hover-text-decoration-thickness: 0.14em;
@@ -312,3 +312,5 @@ right: 0;
   text-align: center;
   flex-shrink: 1;
 }
+
+.columns { column-count: 2 }
