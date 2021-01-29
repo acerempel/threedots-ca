@@ -14,7 +14,7 @@ return [
       ],
       'misc' => [
         'path' => '{filename}',
-        'sort' => 'date_revied'
+        'sort' => '-date_revised'
       ],
       'posts' => [
         'sort' => '-date'

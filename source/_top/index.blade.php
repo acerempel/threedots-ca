@@ -32,7 +32,7 @@ weight: 0
     </li>
     @endforeach
   </ul>
-  <!-- <p class="see-all"><a href="/misc">See more … </a></p> -->
+  <p><a href="/lists">See more … </a></p>
 </section>
 
 @endsection('body')
