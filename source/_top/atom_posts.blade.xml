@@ -5,7 +5,7 @@ link_text: RSS feed
 weight: 48
 ---
 
-@php echo '<?xml version="1.0" encoding="utf-8"?>\n'; @endphp
+@php echo '<?xml version="1.0" encoding="utf-8"?>'; echo "\n"; @endphp
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>{{ $page->site_title }}</title>
   <subtitle>The blog of an elliptical human</subtitle>
@@ -50,13 +50,12 @@ weight: 48
       <title type="text">{{ implode(' ', array_slice($words, 0, $num_words)) }}</title>
     @endif
     <link href="{{ $post->getUrl() }}"/>
-    <updated>{{ date('c', $post->date_revised || $post->date) }}</updated>
+    <updated>{{ date('c', $post->date_revised ?? $post->date) }}</updated>
     <published>{{ date('c', $post->date)  }}</published>
-    <id>{{ $post->getUrl() }}</id>
-    @php $summary = $post->synopsis || $post->description; @endphp
-    @if ($summary)
-    <summary>{{ $summary }}</summary>
-    @endif
+    <id>{{ $post->getUrl() }}/</id>
+    @php $summary = $post->synopsis ?? $post->description; @endphp
+    @if ($summary) <summary>{{ $summary }}</summary> @endif
+
     <content type="html">{{ $post->getContent() }}</content>
   </entry>
   @endforeach
