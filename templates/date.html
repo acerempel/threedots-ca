@@ -1,8 +1,0 @@
-<time
-{%- match self.1 %}
-{%- when Some with (role) %}
-{%- match role %}
-{% when Role::Published %}  class="dt-published" itemprop="datePublished"
-{% when Role::Revised %}  class="dt-updated" itemprop="dateModified"
-{%- endmatch %}{% when None %}{% endmatch %}
-  datetime="{{self.iso8601()}}">{{self.nice()}}</time>
