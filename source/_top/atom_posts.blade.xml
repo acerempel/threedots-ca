@@ -16,38 +16,12 @@ weight: 48
   <author>
     <name>{{ $page->author }}</name>
   </author>
-  @php $punctuation = ['.',',',':',';','!','?','—','–']; @endphp
   @foreach ($posts as $post)
   <entry>
     @if ($post->title)
     <title type="text">{{ $post->title }}</title>
     @else
-      @php $words = explode(' ', (strip_tags($post->getContent())));
-           $num_words = count($words);
-           $max_words = 23;
-      @endphp
-      @foreach ($words as $word)
-        @if ($loop->iteration == $max_words)
-          @php $num_words = $max_words; @endphp
-          @break
-        @else
-          @php $haspunct = false; @endphp
-          @foreach ($punctuation as $punct)
-            @php $pos = strrpos($word, $punct); @endphp
-            @if ($pos)
-              @php
-                $num_words = $loop->parent->iteration;
-                $words[$loop->parent->index] = str_split($word, $pos)[0];
-                $haspunct = true;
-              @endphp
-              @break
-            @endif
-          @endforeach
-          @if ($haspunct) @break @endif
-        @endif
-      @endforeach
-
-      <title type="text">{{ implode(' ', array_slice($words, 0, $num_words)) }}</title>
+    <title type="text">{{ $page->getIncipit($post->getContent) }}</title>
     @endif
     <link href="{{ $post->getUrl() }}"/>
     <updated>{{ date('c', $post->date_revised ?? $post->date) }}</updated>
