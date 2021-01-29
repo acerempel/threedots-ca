@@ -15,7 +15,7 @@ weight: 0
 </section>
 <section id="blog" class="border-top article-list" itemscope itemtype="https://schema.org/Blog">
   <h2 class="font-size-4 semibold"><a href="/posts">Blog</a></h2>
-    @foreach ($posts->take(4) as $post)
+    @foreach ($posts->take(3) as $post)
     @include('_partials.summary', ['post' => $post])
     @endforeach
   <p class="mt-1"><a href="/posts">See all posts …</a></p>
