@@ -1,8 +1,7 @@
 ---
 date_revised: 2020-06-01
 title: All the words I have looked up in the dictionary on my phone
-extends: _layouts.base
-section: body
+extends: _layouts.article
 ---
 
 Some of these I looked up because I did not know them at all, some because I was curious

@@ -1,10 +1,10 @@
 ---
-extends: _layouts.base
+extends: _layouts.article
 title: Other blogs that I read fondly
 date_revised: 2020-10-23
 ---
 
-@section('body')
+@section('content')
 
     <ul>
       <li><a href="https://jocelynveevers.wordpress.com" title="Jocelyn Veevers – Reading, sewing, pondering"><b>Jocelyn Veevers</b> writes eloquently</a>
