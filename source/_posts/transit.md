@@ -2,7 +2,7 @@
 extends: _layouts.post
 date: 2020-08-28
 title: On transit
-tags: [hidden]
+status: hidden
 description: >
   I used to think that I generally enjoyed riding transit. I have
   realized, though, that although I sometimes enjoy riding it, transit's

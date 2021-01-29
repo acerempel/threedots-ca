@@ -16,7 +16,10 @@ return [
         'sort' => '-date_revised'
       ],
       'posts' => [
-        'sort' => '-date'
+        'sort' => '-date',
+        'filter' => function ($post) {
+          return $post->status !== 'hidden';
+        }
       ]
     ],
 ];

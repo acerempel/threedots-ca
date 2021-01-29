@@ -1,8 +1,8 @@
 ---
 extends: _layouts.post
 title: Roasted cauliflower and chickpeas with tahini
+status: hidden
 date: 2021-01-22
-tags: [hidden]
 ---
 
 It is nice! From <cite>The Green Roasting Tin</cite>.<!-- FOLD -->

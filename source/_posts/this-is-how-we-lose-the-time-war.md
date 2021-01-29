@@ -1,7 +1,7 @@
 ---
 extends: _layouts.post
 date: 2020-11-10
-tags: [hidden]
+status: hidden
 title: On sentences
 ---
 
