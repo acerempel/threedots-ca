@@ -23,7 +23,7 @@ weight: 0
 <section id="miscellaneous" class="border-top p-space-1/2" >
   <h2 class="font-size-4 semibold">Miscellaneous lists</h2>
   <ul>
-    @foreach ($misc as $misc_page)
+    @foreach ($misc->take(3) as $misc_page)
     <li itemscope itemtype="https://schema.org/Article">
       <span itemprop="headline">@link(['page' => $misc_page])</span>
       @if ($misc_page->date_revised)
@@ -32,7 +32,7 @@ weight: 0
     </li>
     @endforeach
   </ul>
-  <p><a href="/lists">See more … </a></p>
+  <p><a href="/lists">See all lists …</a></p>
 </section>
 
 @endsection('body')
