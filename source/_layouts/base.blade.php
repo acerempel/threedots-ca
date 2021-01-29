@@ -27,7 +27,7 @@
           @endforeach
         </nav>
       </header>
-      <main class="mt-1 mb-1">
+      <main class="mt-3/4 mb-1">
         @yield('body')
       </main>
     </div>
