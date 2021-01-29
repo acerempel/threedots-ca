@@ -8,7 +8,7 @@
     <link rel="canonical" href="{{ $page->getUrl() }}">
     <meta name="google-site-verification" content="DhZUgJjUNSRFdHhycAzNuCiTKprn-1Csb49PU1lsABo">
     <meta name="color-scheme" content="light dark">
-    <meta name="description" content="{{ $page->description }}">
+    @if ($page->description)<meta name="description" content="{{ $page->description }}">@endif
     <meta name="author" content="{{ $page->author }}">
     <link rel="alternate" type="application/atom+xml" href="/posts/feed.xml">
     <script>{!! inline(mix('js/main.js', 'assets/build')) !!}</script>
