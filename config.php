@@ -29,7 +29,9 @@ return [
     },
     'collections' => [
       'top' => [
-        'path' => '{filename}',
+        'path' => function ($page) {
+          return $page->permalink ?? $page->getFilename();
+        },
         'sort' => 'weight'
       ],
       'misc' => [
