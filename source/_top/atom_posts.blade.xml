@@ -5,6 +5,8 @@ link_text: RSS feed
 weight: 48
 ---
 
+@extends('_layouts.blank')
+@section('body')
 @php echo '<?xml version="1.0" encoding="utf-8"?>'; echo "\n"; @endphp
 <feed xmlns="http://www.w3.org/2005/Atom">
   <title>{{ $page->site_title }}</title>
@@ -34,3 +36,4 @@ weight: 48
   </entry>
   @endforeach
 </feed>
+@endsection
