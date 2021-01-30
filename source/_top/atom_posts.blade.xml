@@ -2,6 +2,7 @@
 permalink: posts/feed.xml
 description: Provide this link to your RSS reader, and get updates whenever something new is posted!
 link_text: RSS feed
+link_type: application/atom+xml
 weight: 48
 ---
 
