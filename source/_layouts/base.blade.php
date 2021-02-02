@@ -5,15 +5,19 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $page->title ?? "Good evening" }} … ‹three dots›</title>
     <link rel="stylesheet" href="{{ mix('css/main.css', 'assets/build') }}">
+    <template id="fancyFonts">
+      <link rel="preconnect" href="https://fonts.gstatic.com"> 
+      <link href="https://fonts.googleapis.com/css2?family=Vollkorn:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
+      <link href="https://fonts.googleapis.com/css2?family=Palanquin:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    </template>
     <script>
-if (localStorage.getItem('fonts') === 'fancy') {
-  document.write(`
-    <link rel="preconnect" href="https://fonts.gstatic.com"> 
-    <link href="https://fonts.googleapis.com/css2?family=Vollkorn:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Palanquin:wght@300;400;500;600;700&display=swap" rel="stylesheet">
-  `);
-}
-</script>
+      'use strict';
+      function loadFancyFonts() {
+        document.head.appendChild(document.getElementById('fancyFonts').content);
+        window.fancyFontsLoaded = true;
+      }
+      if(localStorage.getItem('fonts')==='fancy')loadFancyFonts();
+    </script>
     <link rel="canonical" href="{{ $page->getUrl() }}">
     <meta name="google-site-verification" content="DhZUgJjUNSRFdHhycAzNuCiTKprn-1Csb49PU1lsABo">
     <meta name="color-scheme" content="light dark">

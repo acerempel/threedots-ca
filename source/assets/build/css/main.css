@@ -236,6 +236,9 @@ article {
 .sans-serif, article h2, article h3 {
   font-family: Palanquin, var(--sans-serif-fonts);
 }
+.fonts-default .serif, .fonts-default .sans-serif {
+  font-family: var(--sans-serif-fonts);
+}
 
 .font-size-5 {
   font-size: calc(var(--base-font-size)*2);

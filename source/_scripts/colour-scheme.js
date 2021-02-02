@@ -18,19 +18,20 @@ function setLineHeight(size) {
   document.documentElement.style.setProperty("--base-line-height", size + "rem");
 }
 
-function setUpControl(elementId, eventName, applyValue) {
+function setUpControl(elementId, applyValue, setValue) {
   var control = document.getElementById(elementId);
   var stored = window.localStorage.getItem(elementId);
   if (stored) {
     applyValue(stored);
-    control.value = stored;
+    setValue(control, stored);
   }
   var callback = function(event) {
-    var val = event.target.value;
+    var target = event.target;
+    var val = "checked" in target ? (target.checked ? target.value : 'default') : target.value;
     applyValue(val);
     window.localStorage.setItem(elementId, val);
   };
-  control.addEventListener(eventName, callback, {passive: true});
+  control.addEventListener("change", callback);
 }
 
 export { setUpControl, setFontSize, setColourScheme, setLineHeight };
