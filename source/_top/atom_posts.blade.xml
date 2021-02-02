@@ -24,12 +24,13 @@ weight: 48
     @if ($post->title)
     <title type="text">{{ $post->title }}</title>
     @else
-    <title type="text">{{ $page->getIncipit($post->getContent) }}</title>
+    <title type="text">{{ $page->getIncipit($post->getContent()) }}</title>
     @endif
-    <link href="{{ $post->getUrl() }}"/>
+    @if ($post->getUrl() != '')<link href="{{ $post->getUrl() }}"/>
+    @endif
     <updated>{{ date('c', $post->date_revised ?? $post->date) }}</updated>
     <published>{{ date('c', $post->date)  }}</published>
-    <id>{{ $post->getUrl() }}/</id>
+    <id>{{ $page->getNominalUrlForPost($post) }}/</id>
     @php $summary = $post->synopsis ?? $post->description; @endphp
     @if ($summary) <summary>{{ $summary }}</summary> @endif
 

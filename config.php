@@ -26,6 +26,10 @@ return [
       }
       return implode(' ', array_slice($words, 0, $num_words ?? $max_words));
     },
+    'getNominalUrlForPost' => function ($page, $post) {
+      $url = $post->getUrl();
+       return ($url != '') ? $url : ($page->baseUrl . '/posts/' . $post->getFilename());
+    },
     'collections' => [
       'top' => [
         'path' => function ($page) {
