@@ -10,7 +10,7 @@ return [
       $punctuation = ['.',',',':',';','!','?','—','–'];
       $words = explode(' ', (strip_tags($content)));
       $max_words = 23;
-      $num_words = $max_words;
+      $num_words = null;
       $haspunct = false;
       foreach ($words as $index => $word) {
         if ($index + 1 === $max_words) break;
@@ -24,7 +24,7 @@ return [
         }
         if ($haspunct) break;
       }
-      return implode(' ', array_slice($words, 0, $num_words));
+      return implode(' ', array_slice($words, 0, $num_words ?? $max_words));
     },
     'collections' => [
       'top' => [
