@@ -8,7 +8,6 @@ return [
     'excerpt_marker' => '<!-- FOLD -->',
     'getIncipit' => function ($page, $content) {
       $punctuation = ['.',',',':',';','!','?','—','–'];
-      return "";
       $words = explode(' ', (strip_tags($content)));
       $max_words = 23;
       $num_words = $max_words;
