@@ -8,7 +8,7 @@ Some of these I looked up because I did not know them at all, some because I was
 about their etymology, and of some I wanted their definition as evidence for a discussion about a linguistic matter.
 Here they are, in chronological order (beginning with the most recent) of when I looked them up:
 
-<ul class="columns">
+<ul class="inline-list">
 <li>Utopia
 <li>Vegetarian
 <li>Chimera
