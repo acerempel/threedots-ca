@@ -6,6 +6,7 @@ import set_greetings from './greeting.js';
 document.addEventListener("DOMContentLoaded", function(_event) {
   setUpControl("colour-scheme", "change", setColourScheme);
   setUpControl("line-height", "change", setLineHeight);
+  setUpControl("fonts", "change", function () {});
   set_greetings();
   document.addEventListener("click", function(event) {
     let closestDropdown = event.target.closest(".dropdown");

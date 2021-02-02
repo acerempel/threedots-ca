@@ -230,6 +230,13 @@ article {
   --paragraph-spacing-factor: 0.5;
 }
 
+.serif {
+  font-family: Vollkorn, var(--sans-serif-fonts);
+}
+.sans-serif, article h2, article h3 {
+  font-family: Palanquin, var(--sans-serif-fonts);
+}
+
 .font-size-5 {
   font-size: calc(var(--base-font-size)*2);
   line-height: calc(var(--base-line-height)*1.75);

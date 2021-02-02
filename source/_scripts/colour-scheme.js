@@ -1,7 +1,7 @@
 'use strict';
 
 var prefix = "colour-scheme-";
-var colourSchemeClassNames = ['auto', 'light', 'dark'].map(function(c) {return prefix.concat(c)});
+var colourSchemeClassNames = ['auto', 'light', 'dark'].map(c => prefix.concat(c));
 
 function setColourScheme(colourScheme) {
   var element = document.querySelector("body");
@@ -20,9 +20,6 @@ function setLineHeight(size) {
 
 function setUpControl(elementId, eventName, applyValue) {
   var control = document.getElementById(elementId);
-  if (!control) {
-    console.log("Error! Element with id " + elementId + "not found!");
-  }
   var stored = window.localStorage.getItem(elementId);
   if (stored) {
     applyValue(stored);

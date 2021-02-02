@@ -13,5 +13,9 @@
                 <label for="line-height">Spacing:</label>
                 <input id="line-height" type="range" min="1.2" max="1.8" step="0.1" value="1.5">
               </p>
+              <p>
+                <input type="checkbox" value="fancy" id="fonts">
+                <label for="fonts">Fancy fonts</label>
+              </p>
             </div>
           </details>

@@ -12,7 +12,7 @@ weight: 8
         @endpush
         @push('years_list')
         <section id="y{{ $year }}" class="border-top article-list">
-          <h2 class="font-size-4 semibold">{{ $year }}</h2>
+          <h2 class="font-size-4 semibold sans-serif">{{ $year }}</h2>
             @foreach ($year_posts as $post)
             @include ('_partials.summary', ['post' => $post])
             @endforeach
@@ -20,9 +20,9 @@ weight: 8
         @endpush
       @endforeach
       <section itemscope itemtype="https://schema.org/Blog">
-        <header>
+        <header class="sans-serif">
           <h1 class="font-size-5 bold">Blog</h1>
-          <nav class="flex row mt-1/4" aria-label="Jump to posts from a specific year" >
+          <nav class="flex row mt-1/4 font-size-2" aria-label="Jump to posts from a specific year" >
             @stack('years_nav')
           </nav>
         </header>
