@@ -129,7 +129,7 @@ label {
   margin-inline-end: 0.5em;
 }
 
-h1, h2, h3, h4, h5, h6, .heading-like {
+h1, h2, h3, h4, h5, h6 {
   margin: 0;
   --link-text-decoration-line: none;
   --link-colour: inherit;
@@ -171,8 +171,8 @@ figcaption {
 
 img { width: 100%; }
 
-.medium, .prose h3 { font-weight: 500; }
-.semibold, b, .prose h2 { font-weight: 600; }
+.medium { font-weight: 500; }
+.semibold, b { font-weight: 600; }
 .bold, strong { font-weight: 700; }
 .light { font-weight: 300; }
 .oblique, cite { font-style: oblique; }
@@ -226,14 +226,10 @@ mark {
   margin-top: var(--base-line-height);
 }
 
-.prose {
-  --paragraph-spacing-factor: 0.5;
-}
-
 .serif {
   font-family: Vollkorn, var(--sans-serif-fonts);
 }
-.sans-serif, .prose h1, .prose h2, .prose h3 {
+.sans-serif {
   font-family: Palanquin, var(--sans-serif-fonts);
 }
 .fonts-default .serif, .fonts-default .sans-serif {
@@ -255,12 +251,12 @@ mark {
   line-height: calc(var(--base-line-height)*1.25);
 }
 
-.font-size-3, .prose h2 {
+.font-size-3 {
   font-size: calc(var(--base-font-size)*1.25);
   line-height: calc(var(--base-line-height)*1.125);
 }
 
-.font-size-2, .prose h3 {
+.font-size-2 {
   font-size: calc(var(--base-font-size)*1.125);
   line-height: var(--base-line-height);
 }
@@ -270,13 +266,19 @@ mark {
   line-height: var(--base-line-height);
 }
 
-/* For when a heading occurs inside a markdown block. */
-.prose h2 {
-  margin-top: calc(var(--base-line-height)*0.75);
-}
-
-.prose h3 {
-  margin-top: calc(var(--base-line-height)*0.5);
+.prose {
+  --paragraph-spacing-factor: 0.5;
+  h1, h2, h3, h4 {
+    @extend .sans-serif;
+  }
+  h2 {
+    @extend .font-size-3, .semibold;
+    margin-top: calc(var(--base-line-height)*0.75);
+  }
+  h3 {
+    @extend .font-size-2, .medium;
+    margin-top: calc(var(--base-line-height)*0.5);
+  }
 }
 
 nav {
@@ -313,34 +315,31 @@ border: var(--text-colour-lighter) solid 0.1em;
 right: 0;
 }
 
-.nav-link { }
 .nav-divider {
   flex-basis: 3ch;
   text-align: center;
   flex-shrink: 1;
 }
 
+$media-small: 376px;
+
 .inline-list {
   display: flex;
   flex-wrap: wrap;
-}
-.inline-list li:first-child::before {
-  content: "\200B";
-}
-.inline-list li {
-  list-style: none;
-  margin-inline-start: 0;
-  margin-inline-end: 1em;
-}
-.inline-list {
   margin-inline-start: 1em;
-}
-@media (min-width: 376px) {
-  .inline-list {
+  @media (min-width: $media-small) {
     margin-inline-start: 1.5em;
   }
-  .inline-list li {
-    margin-inline-end: 1.5em;
+  & li {
+    list-style: none;
+    margin-inline-start: 0;
+    margin-inline-end: 1em;
+    @media (min-width: $media-small) {
+      margin-inline-end: 1.5em;
+    }
+    &:first-child::before {
+      content: "\200B";
+    }
   }
 }
 

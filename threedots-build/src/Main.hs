@@ -20,13 +20,16 @@ makeShakeOptions options =
     { shakeRebuild = if rebuildAll options then [(RebuildNow, "**/*")] else []
     , shakeTimings = timings options
     , shakeVerbosity = verbosity options
-    , shakeVersion = "2"
+    , shakeVersion = "3"
     }
 
 rollupConfig = "rollup.config.js"
 yarnLockfile = "yarn.lock"
 sourceDirectory = "source" -- TODO make this configurable
 jsSubdirectory = "_scripts"
+scssSubdirectory = "_styles"
+mainScssFile = "main.scss"
+cssFile = sourceDirectory </> "assets/build/css/main.css"
 jsBundle = sourceDirectory </> "assets/build/js/main.js"
 
 build :: Options -> Rules ()
@@ -45,6 +48,12 @@ build options = do
     need ["package.json"]
     cmd_ (UserCommand "yarn install") "yarn install"
 
+  cssFile %> \_ -> do
+    scssFiles <- getDirectoryFiles "" [sourceDirectory </> scssSubdirectory </> "**/*.scss"]
+    need scssFiles
+    let mainScssPath = sourceDirectory </> scssSubdirectory </> mainScssFile
+    cmd_ "sass" mainScssPath cssFile "--embed-sources"
+
 data SiteQ = SiteQ Mode
   deriving stock ( Eq, Show, Generic )
   deriving anyclass ( Hashable, Binary, NFData )
@@ -62,7 +71,7 @@ runSiteQ (SiteQ buildMode) _mbStored runMode = do
         Development -> ["config.php"]
         Production -> ["config.php", "config.production.php"]
   let phpFiles = ["blade.php", "bootstrap.php"]
-  need $ jsBundle : configFiles ++ phpFiles ++ inputFiles
+  need $ jsBundle : cssFile : configFiles ++ phpFiles ++ inputFiles
 
   let outputDirectory = case buildMode of
         Development -> "build_local"
