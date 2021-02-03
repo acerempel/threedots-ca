@@ -1,0 +1,6 @@
+packages: threedots-build
+
+package threedots-build
+  ghc-options:
+    -Wall -Wno-missing-signatures -Wincomplete-uni-patterns
+    -Wpartial-fields
