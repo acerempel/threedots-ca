@@ -171,8 +171,8 @@ figcaption {
 
 img { width: 100%; }
 
-.medium, article h3 { font-weight: 500; }
-.semibold, b, article h2 { font-weight: 600; }
+.medium, .prose h3 { font-weight: 500; }
+.semibold, b, .prose h2 { font-weight: 600; }
 .bold, strong { font-weight: 700; }
 .light { font-weight: 300; }
 .oblique, cite { font-style: oblique; }
@@ -226,14 +226,14 @@ mark {
   margin-top: var(--base-line-height);
 }
 
-article {
+.prose {
   --paragraph-spacing-factor: 0.5;
 }
 
 .serif {
   font-family: Vollkorn, var(--sans-serif-fonts);
 }
-.sans-serif, article h2, article h3 {
+.sans-serif, .prose h1, .prose h2, .prose h3 {
   font-family: Palanquin, var(--sans-serif-fonts);
 }
 .fonts-default .serif, .fonts-default .sans-serif {
@@ -255,12 +255,12 @@ article {
   line-height: calc(var(--base-line-height)*1.25);
 }
 
-.font-size-3, article h2 {
+.font-size-3, .prose h2 {
   font-size: calc(var(--base-font-size)*1.25);
   line-height: calc(var(--base-line-height)*1.125);
 }
 
-.font-size-2, article h3 {
+.font-size-2, .prose h3 {
   font-size: calc(var(--base-font-size)*1.125);
   line-height: var(--base-line-height);
 }
@@ -271,11 +271,11 @@ article {
 }
 
 /* For when a heading occurs inside a markdown block. */
-article h2 {
+.prose h2 {
   margin-top: calc(var(--base-line-height)*0.75);
 }
 
-article h3 {
+.prose h3 {
   margin-top: calc(var(--base-line-height)*0.5);
 }
 

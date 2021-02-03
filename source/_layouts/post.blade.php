@@ -1,6 +1,6 @@
 @extends('_layouts.base')
 @section('body')
-    <article class="mx-auto h-entry" id="post" itemscope itemtype="https://schema.org/BlogPosting">
+    <article class="mx-auto h-entry prose" itemscope itemtype="https://schema.org/BlogPosting">
       <header class="sans-serif">
         <p class="colour-lighter light">
           @date($page->date)

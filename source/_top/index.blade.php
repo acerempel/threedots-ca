@@ -10,7 +10,7 @@ weight: 0
 @section('body')
 
 <h1 class="font-size-5 bold"><span class="greeting">Good evening</span>!</h1>
-<section id="intro" class="p-space-1/2">
+<section id="intro" class="p-space-1/2 prose">
   @include('_content.index')
   <aside><small class="colour-lighter light">Last updated on @date(time())</small></aside>
 </section>

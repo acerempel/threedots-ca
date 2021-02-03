@@ -1,4 +1,4 @@
-<article itemscope itemtype="https://schema.org/BlogPosting" class="h-entry post p-space-1/4">
+<article itemscope itemtype="https://schema.org/BlogPosting" class="h-entry prose p-space-1/4">
   @if ($post->title)
     <h3 itemprop="headline"
       class="p-name font-size-3 medium sans-serif"
