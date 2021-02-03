@@ -1,0 +1,28 @@
+cabal-version:      2.0
+name:               threedots-build
+version:            0.1.0.0
+synopsis:           Build threedots.ca
+license:            MIT
+license-file:       LICENSE
+author:             Alan Rempel
+maintainer:         alan.rempel@gmail.com
+build-type:         Simple
+extra-source-files: CHANGELOG.md
+
+executable threedots
+  main-is:            Main.hs
+  build-depends:
+      base                  >=4.10 && <5
+    , bytestring            ^>=0.11
+    , directory             ^>=1.3
+    , optparse-applicative  >=0.14 && <0.17
+    , shake                 >=0.19 && <1.0
+
+  hs-source-dirs:     src
+  default-language:   Haskell2010
+  default-extensions:
+    DeriveAnyClass
+    DeriveGeneric
+    DerivingStrategies
+    MultiWayIf
+    TypeFamilies
