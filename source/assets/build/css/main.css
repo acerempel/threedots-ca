@@ -344,11 +344,11 @@ right: 0;
   }
 }
 
-.inline-list li:nth-child(2n) { font-weight: 300; }
-.inline-list li:nth-child(3n) { font-weight: 500; }
-.inline-list li:nth-child(5n) { font-style: oblique; }
-.inline-list li:nth-child(5n + 2) { color: #466915; }
-.inline-list li:nth-child(7n) { color: #461260; }
-.inline-list li:nth-child(11n) { color: #6e1e0c; }
-.inline-list li:nth-child(13n) { font-weight: 600; }
-.inline-list li:nth-child(17n) { color: #0f119c; }
+.varied-typography-list li:nth-child(2n) { font-weight: 300; }
+.varied-typography-list li:nth-child(3n) { font-weight: 500; }
+.varied-typography-list li:nth-child(5n) { font-style: oblique; }
+.coloured-list li:nth-child(5n + 2) { color: #466915; }
+.coloured-list li:nth-child(7n) { color: #461260; }
+.coloured-list li:nth-child(11n) { color: #6e1e0c; }
+.varied-typography-list li:nth-child(13n) { font-weight: 600; }
+.coloured-list li:nth-child(17n) { color: #0f119c; }
