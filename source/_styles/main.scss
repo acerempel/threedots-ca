@@ -106,7 +106,7 @@ a:hover {
   text-decoration-thickness: var(--link-hover-text-decoration-thickness, 0.1em);
 }
 
-p, ol, ul, nav, blockquote, aside, details {
+p, ol, ul, nav, blockquote, aside, details, figcaption {
   --link-colour: var(--text-colour-highlight);
   --link-initial-text-decoration-thickness: 0.05em;
   --link-hover-text-decoration-thickness: 0.14em;
