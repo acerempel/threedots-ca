@@ -314,16 +314,16 @@ li::last-child { margin-bottom: 0; }
     cursor: pointer;
 }
 .dropdown-inner {
-position: absolute;
-width: -webkit-max-content;
-width: max-content;
-top: calc(var(--base-line-height)*1.25);
-background-color: var(--background-colour-lighter);
-padding: calc(var(--base-line-height)*0.25) calc(var(--base-line-height)*0.5);
-box-sizing: content-box;
-border-radius: 0.5em;
-border: var(--text-colour-lighter) solid 0.1em;
-right: 0;
+  position: absolute;
+  width: -webkit-max-content;
+  width: max-content;
+  top: calc(var(--base-line-height)*1.25);
+  background-color: var(--background-colour-lighter);
+  padding: calc(var(--base-line-height)*0.25) calc(var(--base-line-height)*0.5);
+  box-sizing: content-box;
+  border-radius: 0.5em;
+  border: var(--text-colour-lighter) solid 0.1em;
+  right: 0;
 }
 
 $media-small: 376px;
