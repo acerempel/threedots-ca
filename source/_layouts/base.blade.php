@@ -4,7 +4,7 @@
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>{{ $page->title ?? "Good evening" }} … ‹three dots›</title>
-    <link rel="stylesheet" href="{{ mix('css/main.css', 'assets/build') }}">
+    <link rel="stylesheet" href="/assets/build/css/main.css">
     <template id="fancyFonts">
       <link rel="preconnect" href="https://fonts.gstatic.com"> 
       <link href="https://fonts.googleapis.com/css2?family=Vollkorn:ital,wght@0,400;0,600;1,400&display=swap" rel="stylesheet">
@@ -24,7 +24,7 @@
     @if ($page->description)<meta name="description" content="{{ $page->description }}">@endif
     <meta name="author" content="{{ $page->author }}">
     <link rel="alternate" type="application/atom+xml" href="/posts/feed.xml">
-    <script>{!! inline(mix('js/main.js', 'assets/build')) !!}</script>
+    <script>@php echo file_get_contents('source/assets/build/js/main.js'); @endphp</script>
   </head>
   <body class="colour-scheme-auto font-size-1">
     <div class="container mx-auto">
