@@ -20,8 +20,17 @@ document.addEventListener("DOMContentLoaded", function(_event) {
   document.addEventListener("click", function(event) {
     let closestDropdown = event.target.closest(".dropdown");
     let dropdown;
-    if (!closestDropdown && (dropdown = document.querySelector('.dropdown[open]'))) {
+    if (closestDropdown) return;
+    if (dropdown = document.querySelector('.dropdown[open]')) {
       dropdown.open = false;
     }
+    if (event.target.closest('.dropdown-nav-control')) return;
+    if (dropdown = document.querySelector('.dropdown-nav.open')) {
+      dropdown.classList.remove('open');
+    }
+  });
+  document.querySelector('.dropdown-nav-control').addEventListener('click', (event) => {
+    let dropdown = event.target.closest('.dropdown-nav');
+    dropdown.classList.toggle("open");
   })
 });

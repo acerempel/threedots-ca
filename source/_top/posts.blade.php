@@ -20,10 +20,12 @@ weight: 8
         @endpush
       @endforeach
       <section itemscope itemtype="https://schema.org/Blog">
-        <header class="sans-serif">
+        <header class="sans-serif flex thingy">
           <h1 class="font-size-5 bold">Blog</h1>
-          <nav class="flex row mt-1/4 font-size-2" aria-label="Jump to posts from a specific year" >
-            @stack('years_nav')
+          <nav aria-labelledby="jty" class="dropdown-nav colour-highlight">
+            <h2 class="font-size-2 mt-1/4 medium dropdown-nav-control" data-target="years-nav" id="jty"
+              >@include ('_partials.caret-right')Jump to year …</h2>
+            <span id="years-nav" class="dropdown-nav-items link-plain">@stack('years_nav')</span>
           </nav>
         </header>
         @stack('years_list')
