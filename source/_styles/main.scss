@@ -236,8 +236,19 @@ mark {
   margin-top: var(--base-line-height);
 }
 
-.serif {
-  font-family: Vollkorn, var(--sans-serif-fonts);
+.swing {
+  margin-bottom: calc(var(--base-line-height)*0.5);
+  margin-top: calc(var(--base-line-height)*1);
+  @media (min-width: 645px) {
+    height: 0;
+    overflow: visible;
+    position: sticky;
+    transform-origin: top right;
+    transform: translate(-100%, 0) rotate(-90deg) translate(calc(-0.5 * var(--base-line-height)), calc(-2 * var(--base-line-height)));
+    text-align: right;
+    transform-box: border-box;
+    margin: 0;
+  }
 }
 
 .serif { font-family: Vollkorn, var(--sans-serif-fonts); }
