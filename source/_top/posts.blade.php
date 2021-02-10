@@ -8,7 +8,7 @@ weight: 8
 @section('body')
       @foreach ($posts->groupBy(function ($item, $key) { return getdate($item->date)['year']; }) as $year => $year_posts)
         @push('years_nav')
-          <a class="nav-link" href="#y{{ $year }}">{{ $year }}</a>@unless ($loop->last)<span class="nav-divider">•</span>@endunless
+          <a class="nav-link" href="#y{{ $year }}">{{ $year }}</a>@unless ($loop->last)<span class="flex-divider"></span>@endunless
         @endpush
         @push('years_list')
         <section id="y{{ $year }}" class="article-list mt-3/4">

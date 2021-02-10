@@ -33,10 +33,10 @@
           <h1 class="bold font-size-1"><a href="/">{{ $page->site_title }}</a></h1>
           @include('_partials.settings')
         </div>
-        <nav class="semibold colour-highlight">
+        <nav class="semibold colour-highlight flex row">
           @foreach ($top as $nav_item)
           @link(['page' => $nav_item])
-          @if (!($loop->last)) • @endif
+          @if (!($loop->last))<span class="flex-divider"></span>@endif
           @endforeach
         </nav>
       </header>

@@ -298,6 +298,11 @@ nav {
 .column { flex-direction: column; }
 .align-right { text-align: right; }
 .wrap { flex-wrap: wrap; }
+.flex-divider {
+  flex-basis: 0;
+  flex-grow: 1;
+  max-width: var(--base-line-height);
+}
 
 li { margin-bottom: calc(var(--base-line-height)*0.25); }
 li::last-child { margin-bottom: 0; }
@@ -319,12 +324,6 @@ box-sizing: content-box;
 border-radius: 0.5em;
 border: var(--text-colour-lighter) solid 0.1em;
 right: 0;
-}
-
-.nav-divider {
-  flex-basis: 3ch;
-  text-align: center;
-  flex-shrink: 1;
 }
 
 $media-small: 376px;
