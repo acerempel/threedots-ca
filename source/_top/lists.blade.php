@@ -12,10 +12,10 @@ weight: 24
     <aside class="serif">Apart from their miscellany, these lists have one salient
       property in common: they revel in their incompleteness.</aside>
     @foreach ($misc as $misc_page)
-      <p class="serif">
+      <p class="sans-serif">
         @link(['page' => $misc_page])
         @if ($misc_page->date_revised)
-        <small class="sans-serif light">— Updated @date($misc_page->date_revised)</small>
+        <small class="light">— Updated @date($misc_page->date_revised)</small>
         @endif
       </p>
     @endforeach

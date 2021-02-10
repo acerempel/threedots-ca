@@ -18,6 +18,6 @@
       aria-labelledby="{{ $post->getFilename() }}-read-more {{ $post->getFilename() }}-title"
       >Continue reading …</a>
     </p>
-  @else <div class="e-content serif prose" itemprop="articleBody">{!! $post->getContent() !!}</div>
+  @else <div class="e-content prose" itemprop="articleBody">{!! $post->getContent() !!}</div>
   @endif
 </article>

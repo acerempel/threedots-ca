@@ -135,6 +135,9 @@ code {
     @extend .font-size-2, .medium;
     margin-top: calc(var(--base-line-height)*0.5);
   }
+  p, blockquote, figcaption, aside, details, li {
+    @extend .serif;
+  }
 }
 
 .inline-block { display: inline-block; margin-inline-end: 1.5ch; }

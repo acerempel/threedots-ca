@@ -9,19 +9,19 @@ weight: 0
 
 @section('body')
 
-<h1 class="font-size-5 bold"><span class="greeting">Good evening</span>!</h1>
+<h1 class="font-size-5 sans-serif bold"><span class="greeting">Good evening</span>!</h1>
 <section id="intro" class="p-space-1/2 prose">
   @include('_content.index')
   <aside><small class="colour-lighter light">Last updated on @date(time())</small></aside>
 </section>
 <section id="blog" class="border-top article-list" itemscope itemtype="https://schema.org/Blog">
-  <h2 class="font-size-4 semibold"><a href="/posts">Blog</a></h2>
+  <h2 class="font-size-4 semibold sans-serif"><a href="/posts">Blog</a></h2>
     @foreach ($posts->take(3) as $post)
     @include('_partials.summary', ['post' => $post])
     @endforeach
   <p class="mt-1"><a href="/posts">See all posts …</a></p>
 </section>
-<section id="miscellaneous" class="border-top p-space-1/2" >
+<section id="miscellaneous" class="border-top p-space-1/2 sans-serif" >
   <h2 class="font-size-4 semibold">Miscellaneous lists</h2>
   <ul>
     @foreach ($misc->take(3) as $misc_page)
