@@ -27,7 +27,7 @@ function setUpControl(elementId, applyValue, setValue) {
   }
   var callback = function(event) {
     var target = event.target;
-    var val = "checked" in target ? (target.checked ? target.value : 'default') : target.value;
+    var val = target.type === "checkbox" ? (target.checked ? target.value : 'default') : target.value;
     applyValue(val);
     window.localStorage.setItem(elementId, val);
   };
