@@ -12,7 +12,7 @@
           <h1 class="title p-name font-size-4.5 semibold" itemprop="headline">{{ $page->title }}</h1>
         @endif
       </header>
-      <div class="e-content serif" itemprop="articleBody">
+      <div class="e-content serif p-space-1/2" itemprop="articleBody">
         @yield('content')
       </div>
     </article>

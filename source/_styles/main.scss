@@ -123,6 +123,20 @@ code {
   font-size: 0.9em;
 }
 
+.prose {
+  h1, h2, h3, h4 {
+    @extend .sans-serif;
+  }
+  h2 {
+    @extend .font-size-3, .semibold;
+    margin-top: calc(var(--base-line-height)*0.75);
+  }
+  h3 {
+    @extend .font-size-2, .medium;
+    margin-top: calc(var(--base-line-height)*0.5);
+  }
+}
+
 .inline-block { display: inline-block; margin-inline-end: 1.5ch; }
 
 label {
@@ -264,21 +278,6 @@ mark {
 .font-size-1 {
   font-size: var(--base-font-size);
   line-height: var(--base-line-height);
-}
-
-.prose {
-  --paragraph-spacing-factor: 0.5;
-  h1, h2, h3, h4 {
-    @extend .sans-serif;
-  }
-  h2 {
-    @extend .font-size-3, .semibold;
-    margin-top: calc(var(--base-line-height)*0.75);
-  }
-  h3 {
-    @extend .font-size-2, .medium;
-    margin-top: calc(var(--base-line-height)*0.5);
-  }
 }
 
 nav {

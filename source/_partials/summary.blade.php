@@ -1,4 +1,4 @@
-<article itemscope itemtype="https://schema.org/BlogPosting" class="h-entry prose p-space-1/4">
+<article itemscope itemtype="https://schema.org/BlogPosting" class="h-entry p-space-1/4">
   @if ($post->title)
     <h3 itemprop="headline"
       class="p-name font-size-3 medium sans-serif"
@@ -18,6 +18,6 @@
       aria-labelledby="{{ $post->getFilename() }}-read-more {{ $post->getFilename() }}-title"
       >Continue reading …</a>
     </p>
-  @else <div class="e-content serif" itemprop="articleBody">{!! $post->getContent() !!}</div>
+  @else <div class="e-content serif prose" itemprop="articleBody">{!! $post->getContent() !!}</div>
   @endif
 </article>
