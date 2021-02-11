@@ -144,9 +144,7 @@ code {
 @media (min-width: 645px) { flex-direction: column; }}
 
 .dropdown-nav-control {
-  @media (min-width: 645px) {
-    display: none;
-  }
+  @media (min-width: 645px) { display: none; }
   cursor: pointer;
 }
 
