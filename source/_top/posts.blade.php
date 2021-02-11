@@ -23,7 +23,8 @@ weight: 8
         <header class="sans-serif flex thingy">
           <h1 class="font-size-5 bold">Blog</h1>
           <nav aria-labelledby="jty" class="dropdown-nav colour-highlight">
-            <h2 class="font-size-2 mt-1/4 medium dropdown-nav-control" id="jty"
+            <h2 class="font-size-2 mt-1/4 medium dropdown-nav-control"
+                id="jty" tabindex="0"
               >@include ('_partials.caret-right')Jump to year …</h2>
             <span id="years-nav" class="dropdown-nav-items link-plain">@stack('years_nav')</span>
           </nav>

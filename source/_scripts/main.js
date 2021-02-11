@@ -29,8 +29,12 @@ document.addEventListener("DOMContentLoaded", function(_event) {
       dropdown.classList.remove('open');
     }
   });
-  document.querySelector('.dropdown-nav-control').addEventListener('click', (event) => {
+  const navControl = document.querySelector('.dropdown-nav-control');
+  navControl.addEventListener('click', (event) => {
     let dropdown = event.target.closest('.dropdown-nav');
     dropdown.classList.toggle("open");
+  });
+  navControl.addEventListener('keydown', (event) => {
+    if (event.key === "Enter") event.target.closest('.dropdown-nav').classList.toggle('open');
   })
 });

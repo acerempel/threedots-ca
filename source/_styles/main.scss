@@ -146,6 +146,7 @@ code {
 .dropdown-nav-control {
   @media (min-width: 645px) { display: none; }
   cursor: pointer;
+  &:focus { outline: auto; }
 }
 
 .dropdown-nav-items {
