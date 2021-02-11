@@ -172,7 +172,7 @@ code {
       background-color 0.2s ease;
   }
   .dropdown-nav.open & {
-    height: 10.8em;
+    height: calc(var(--base-line-height) * 8.175);
     background-color: var(--background-colour-lighter);
     padding: calc(var(--base-line-height)*0.25) calc(var(--base-line-height)*0.5);
     padding-top: calc(var(--base-line-height)*0.375);
