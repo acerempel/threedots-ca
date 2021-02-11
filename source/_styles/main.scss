@@ -159,17 +159,22 @@ code {
     .nav-link:not(:first-child) { margin-top: calc(var(--base-line-height)*0.25) }
     .flex-divider { display: none }
     padding: 0;
-    background-color: var(--background-colour-lighter);
+    background-color: var(--background-colour-normal);
     border: var(--text-colour-lighter) solid 0em;
     border-radius: 0.1em;
     // border-radius: 0.5em;
     position: absolute;
     overflow: hidden;
     height: 0;
-    transition: height 0.2s ease, padding 0.2s ease, border-width 0.2s ease;
+    transition:
+      height 0.2s ease,
+      padding 0.2s ease,
+      border-width 0.2s ease,
+      background-color 0.2s ease;
   }
   .dropdown-nav.open & {
     height: 10.8em;
+    background-color: var(--background-colour-lighter);
     padding: calc(var(--base-line-height)*0.25) calc(var(--base-line-height)*0.5);
     border-width: 0.1em;
   }
