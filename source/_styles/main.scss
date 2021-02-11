@@ -383,6 +383,7 @@ li::last-child { margin-bottom: 0; }
   border-radius: 0.1em;
   border: var(--text-colour-lighter) solid 0.1em;
   right: 0;
+  z-index: 1;
 }
 
 $media-small: 376px;
