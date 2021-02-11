@@ -191,6 +191,7 @@ code {
 .dropdown-caret {
   transform: rotate(0deg);
   transition: transform 0.2s ease;
+  vertical-align: -0.1em;
   .dropdown-nav.open & {
     transform: rotate(90deg);
   }
