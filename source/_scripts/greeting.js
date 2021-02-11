@@ -1,4 +1,4 @@
-export default function() {
+function set_greetings() {
   let greetings = document.querySelectorAll(".greeting");
   let today = new Date();
   let current_hour = today.getHours();

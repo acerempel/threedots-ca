@@ -4,6 +4,16 @@ description: All posts in the ‘three dots’ blog, grouped by year.
 weight: 8
 ---
 
+@push('DOMContentLoaded')
+  const navControl = document.querySelector('.dropdown-nav-control');
+  navControl.addEventListener('click', (event) => {
+    let dropdown = event.target.closest('.dropdown-nav');
+    dropdown.classList.toggle("open");
+  });
+  navControl.addEventListener('keydown', (event) => {
+    if (event.key === "Enter") event.target.closest('.dropdown-nav').classList.toggle('open');
+  });
+@endpush
 @extends('_layouts.base')
 @section('body')
       @foreach ($posts->groupBy(function ($item, $key) { return getdate($item->date)['year']; }) as $year => $year_posts)

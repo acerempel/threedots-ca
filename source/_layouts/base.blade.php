@@ -24,7 +24,16 @@
     @if ($page->description)<meta name="description" content="{{ $page->description }}">@endif
     <meta name="author" content="{{ $page->author }}">
     <link rel="alternate" type="application/atom+xml" href="/posts/feed.xml">
-    <script>@php echo file_get_contents('source/assets/build/js/main.js'); @endphp</script>
+    <script>
+      document.addEventListener("DOMContentLoaded", () => {
+        @php echo file_get_contents('source/assets/build/js/main.js'); @endphp
+        @if ($page->has_greeting)
+          @php echo file_get_contents('source/_scripts/greeting.js'); @endphp
+          set_greetings();
+        @endif
+        @stack('DOMContentLoaded')
+      })
+    </script>
   </head>
   <body class="colour-scheme-auto font-size-1">
     <div class="container mx-auto">

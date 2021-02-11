@@ -1,9 +1,5 @@
 import { setUpControl, setColourScheme, setLineHeight } from './colour-scheme.js';
-import set_greetings from './greeting.js';
 
-// This script should have the 'defer' attribute set, so that the
-// 'DOMContentLoaded' event will not yet have fired when it is run.
-document.addEventListener("DOMContentLoaded", function(_event) {
   let setValue = (control, val) => { control.value = val };
   let loadFancyFonts = (val) => {
     if (val === 'fancy') {
@@ -16,7 +12,6 @@ document.addEventListener("DOMContentLoaded", function(_event) {
   setUpControl("colour-scheme", setColourScheme, setValue);
   setUpControl("line-height", setLineHeight, setValue);
   setUpControl("fonts", loadFancyFonts, (control, value) => { value === 'fancy' && (control.checked = true) });
-  set_greetings();
   document.addEventListener("click", function(event) {
     let closestDropdown = event.target.closest(".dropdown");
     let dropdown;
@@ -29,12 +24,3 @@ document.addEventListener("DOMContentLoaded", function(_event) {
       dropdown.classList.remove('open');
     }
   });
-  const navControl = document.querySelector('.dropdown-nav-control');
-  navControl.addEventListener('click', (event) => {
-    let dropdown = event.target.closest('.dropdown-nav');
-    dropdown.classList.toggle("open");
-  });
-  navControl.addEventListener('keydown', (event) => {
-    if (event.key === "Enter") event.target.closest('.dropdown-nav').classList.toggle('open');
-  })
-});

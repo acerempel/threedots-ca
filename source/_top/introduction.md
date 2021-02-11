@@ -4,6 +4,7 @@ description: In which I introduce my blog to the reader.
 extends: _layouts.article
 link_text: About
 weight: 32
+has_greeting: true
 ---
 
 ## About me

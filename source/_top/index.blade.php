@@ -3,6 +3,7 @@ title: Good evening!
 link_text: Home
 description: The website of Alan Rempel, a elliptical human man.
 weight: 0
+has_greeting: true
 ---
 
 @extends('_layouts.base')
