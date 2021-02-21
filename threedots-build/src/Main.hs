@@ -37,7 +37,7 @@ build options = do
 
   addBuiltinRule noLint noIdentity runSiteQ
 
-  action $ parallel [need (targets options), apply1 (SiteQ Development)]
+  action $ parallel [need (targets options), apply1 (SiteQ (mode options))]
 
   jsBundle %> \_ -> do
     jsFiles <- getDirectoryFiles "" [sourceDirectory </> jsSubdirectory </> "*.js" ]
@@ -54,7 +54,7 @@ build options = do
     let mainScssPath = sourceDirectory </> scssSubdirectory </> mainScssFile
     cmd_ "sass" mainScssPath cssFile "--embed-sources"
 
-data SiteQ = SiteQ Mode
+newtype SiteQ = SiteQ Mode
   deriving stock ( Eq, Show, Generic )
   deriving anyclass ( Hashable, Binary, NFData )
 
@@ -99,6 +99,7 @@ data Options = Options
   { targets :: [String]
   , rebuildAll :: Bool
   , timings :: Bool
+  , mode :: Mode
   , verbosity :: Verbosity
   }
 
@@ -107,6 +108,9 @@ optionsParser = Options
   <$> many (strArgument (metavar "TARGET" <> help "Targets to build"))
   <*> switch (long "rebuild-all" <> short 'R' <> help "Rebuild everything regardless of whether dependencies have changed")
   <*> switch (long "timings" <> short 't' <> help "Print timings of internal operations after completion")
+  <*> (flag' Development (long "development" <> short 'd' <> help "Build in development mode (the default)")
+      <|> flag' Production (long "production" <> short 'p' <> help "Build in production mode")
+      <|> pure Development)
   <*> (flag' Warn (long "quiet" <> short 'q' <> help "Print only errors and warnings")
       <|> flag' Verbose (long "verbose" <> short 'v' <> help "Print various additional messages")
       <|> flag' Silent (long "silent" <> short 's' <> help "Print nothing")
